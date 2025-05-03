@@ -21,10 +21,7 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
   children,
 }) => {
   const options: StripeElementsOptions = {
-    mode: "payment", // Use mode-based payment if no clientSecret
-    paymentMethodTypes: ["card", "fpx", "grabpay"], // Only when mode is used
-    amount: Number(paymentSession.data.amount) * 100,
-    currency: String(paymentSession.data.currency),
+    clientSecret: paymentSession?.data?.client_secret as string,
   }
 
   if (!stripeKey) {
