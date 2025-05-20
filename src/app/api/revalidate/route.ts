@@ -1,7 +1,6 @@
 // src/app/api/revalidate/route.ts
 import { NextRequest, NextResponse } from "next/server"
 import { revalidateTag } from "next/cache"
-import { getCacheTag } from "../../../lib/data/cookies"
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
@@ -12,13 +11,12 @@ export async function GET(req: NextRequest) {
   }
 
   const tagsArray = tags.split(",")
-  await Promise.all(
-    tagsArray.map(async (tag) => {
-      const cacheTag = await getCacheTag(tag)
-      // revalidate cache for the tag
-      revalidateTag(cacheTag)
-    })
-  )
+  for (const tag of tagsArray) {
+    revalidateTag(tag)
+  }
 
-  return NextResponse.json({ message: "Revalidated" }, { status: 200 })
+  return NextResponse.json({
+    revalidated: true,
+    message: `Revalidated tags: ${tagsArray.join(", ")}`,
+  })
 }

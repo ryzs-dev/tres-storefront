@@ -6,40 +6,70 @@ type HeroProps = {
   imageUrl: string
   content: string
   cta?: boolean
+  subtitle?: string
+  position?:
+    | "top-left"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-right"
+    | "center"
+    | "top"
+    | "bottom"
 }
 
-const Hero = ({ imageUrl, content, cta }: HeroProps) => {
+const getPositionClasses = (position: HeroProps["position"]) => {
+  switch (position) {
+    case "top-left":
+      return "justify-start items-start text-left"
+    case "top-right":
+      return "justify-start items-end text-right"
+    case "bottom-left":
+      return "justify-end items-start text-left"
+    case "bottom-right":
+      return "justify-end items-end text-right"
+    case "center":
+      return "justify-center items-center text-center"
+    case "top":
+      return "justify-start items-center text-center"
+    case "bottom":
+      return "justify-end items-center text-center"
+    default:
+      return "justify-center items-center text-center" // fallback
+  }
+}
+
+const Hero = ({ imageUrl, content, cta, subtitle, position }: HeroProps) => {
   return (
     <div className="h-screen w-full border-b border-ui-border-base relative">
-      {/* Background Image */}
       <Image
         src={imageUrl}
         alt="Hero background"
         layout="fill"
         objectFit="cover"
-        objectPosition="center"
+        objectPosition="top"
         priority
       />
-
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/50"></div>
-
-      {/* Hero Content */}
-      <div className="absolute inset-0 z-10 flex flex-col justify-center items-start px-6 small:px-32 gap-6">
-        <span>
+      <div
+        className={`absolute inset-0 z-10 flex flex-col p-8 small:px-32 gap-6 ${getPositionClasses(
+          position
+        )}`}
+      >
+        <span className="flex flex-col gap-4">
+          {subtitle && (
+            <Text
+              family="urw"
+              size="large"
+              className="font-urwCond text-3xl text-white"
+            >
+              {subtitle}
+            </Text>
+          )}
           <Heading
             level="h1"
             className="text-5xl sm:text-7xl leading-tight text-white font-urw font-normal m-0 p-0"
           >
             {content}
           </Heading>
-          <Text
-            family="urw"
-            size="large"
-            className="font-urwCond text-xl text-white"
-          >
-            Strong | Sassy | Solid
-          </Text>
         </span>
         {cta && (
           <LocalizedClientLink href={`/store`}>

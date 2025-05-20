@@ -23,9 +23,16 @@ export default async function Home(props: {
 
   const region = await getRegion(countryCode)
 
-  const { collections } = await listCollections({
-    fields: "id, handle, title",
-  })
+  const { collections } = await listCollections(
+    {
+      fields: "id, handle, title",
+    },
+    {
+      next: {
+        tags: ["collections"],
+      },
+    }
+  )
 
   if (!collections || !region) {
     return null
@@ -34,8 +41,10 @@ export default async function Home(props: {
   return (
     <>
       <Hero
-        content="Be Tres or let's Tres"
-        imageUrl="/images/hero_image.webp"
+        content="From Women For Women"
+        imageUrl="/images/hero.jpeg"
+        subtitle="Be Tres"
+        position="bottom-left"
       />
       <section className="pt-12 flex w-full flex-col">
         <Heading
@@ -44,15 +53,15 @@ export default async function Home(props: {
         >
           Our Featured Collections
         </Heading>
-        <div className="flex flex-row">
+        <div className="flex flex-col">
           <FeaturedProducts collections={collections} region={region} />
         </div>
       </section>
       <StrengthSection />
       <Hero
-        content="Explore New Collections Now"
-        imageUrl="/images/tennis.webp"
-        cta
+        content="Let's Unbuckle With Us"
+        imageUrl="/images/hero_unbuckle.JPG"
+        position="top"
       />
       <FeaturedSection />
     </>

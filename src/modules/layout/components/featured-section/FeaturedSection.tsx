@@ -10,7 +10,7 @@ const FeaturedSection = () => {
       <div className="col-span-2 relative">
         <LocalizedClientLink href={`/categories/tops`}>
           <Image
-            src="/images/placeholder.png" // Replace with actual image path
+            src="/images/tops.JPG" // Replace with actual image path
             alt="Main Fashion Feature"
             width={1200}
             height={800}
@@ -27,30 +27,30 @@ const FeaturedSection = () => {
         <div className="relative">
           <LocalizedClientLink href={`/categories/skirts`}>
             <Image
-              src="/images/placeholder.png" // Replace with actual image path
-              alt="Shop Bras"
+              src="/images/shorts.JPG" // Replace with actual image path
+              alt="Shop Shorts"
               width={600}
               height={400}
               className="w-full h-full object-cover rounded-md relative"
             />
             <button className="absolute bottom-8 left-8 font-urwSemiCond z-10 text-lg">
-              SHOP SKIRTS
+              SHOP SHORTS
             </button>
           </LocalizedClientLink>
         </div>
 
         {/* Right Side - Bottom Image */}
         <div className="relative">
-          <LocalizedClientLink href={`/categories/yoga`}>
+          <LocalizedClientLink href={`/categories/leggings`}>
             <Image
-              src="/images/placeholder.png" // Replace with actual image path
-              alt="Fashion Model"
+              src="/images/leggings.JPG" // Replace with actual image path
+              alt="Leggings"
               width={600}
               height={400}
               className="w-full h-full object-cover rounded-md relative"
             />
             <button className="absolute bottom-8 left-8 font-urwSemiCond z-10 text-lg">
-              SHOP YOGA
+              SHOP LEGGINGS
             </button>
           </LocalizedClientLink>
         </div>
