@@ -42,7 +42,7 @@ export default async function Home(props: {
     <>
       <Hero
         content="From Women For Women"
-        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/hero.jpeg"
+        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/hero.jpg"
         subtitle="Be Tres"
         position="bottom-left"
       />
