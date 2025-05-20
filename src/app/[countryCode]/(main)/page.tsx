@@ -42,7 +42,7 @@ export default async function Home(props: {
     <>
       <Hero
         content="From Women For Women"
-        imageUrl="/images/hero.jpeg"
+        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/hero.jpeg"
         subtitle="Be Tres"
         position="bottom-left"
       />
@@ -60,7 +60,7 @@ export default async function Home(props: {
       <StrengthSection />
       <Hero
         content="Let's Unbuckle With Us"
-        imageUrl="/images/hero_unbuckle.JPG"
+        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/unbuckle_hero.JPG"
         position="top"
       />
       <FeaturedSection />

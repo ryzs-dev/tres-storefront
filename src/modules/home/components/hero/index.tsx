@@ -43,10 +43,9 @@ const Hero = ({ imageUrl, content, cta, subtitle, position }: HeroProps) => {
     <div className="h-screen w-full border-b border-ui-border-base relative">
       <Image
         src={imageUrl}
+        fill
         alt="Hero background"
-        layout="fill"
-        objectFit="cover"
-        objectPosition="top"
+        className="object-cover object-[75%_20%]"
         priority
       />
       <div

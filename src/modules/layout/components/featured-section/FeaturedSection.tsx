@@ -10,7 +10,7 @@ const FeaturedSection = () => {
       <div className="col-span-2 relative">
         <LocalizedClientLink href={`/categories/tops`}>
           <Image
-            src="/images/tops.JPG" // Replace with actual image path
+            src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_tops.JPG" // Replace with actual image path
             alt="Main Fashion Feature"
             width={1200}
             height={800}
@@ -25,9 +25,9 @@ const FeaturedSection = () => {
       {/* Right Side - Top Image */}
       <div className="col-span-1 flex flex-col gap-2">
         <div className="relative">
-          <LocalizedClientLink href={`/categories/skirts`}>
+          <LocalizedClientLink href={`/categories/shorts`}>
             <Image
-              src="/images/shorts.JPG" // Replace with actual image path
+              src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_shorts.JPG" // Replace with actual image path
               alt="Shop Shorts"
               width={600}
               height={400}
@@ -43,7 +43,7 @@ const FeaturedSection = () => {
         <div className="relative">
           <LocalizedClientLink href={`/categories/leggings`}>
             <Image
-              src="/images/leggings.JPG" // Replace with actual image path
+              src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_leggings.JPG" // Replace with actual image path
               alt="Leggings"
               width={600}
               height={400}
