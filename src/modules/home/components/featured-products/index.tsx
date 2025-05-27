@@ -9,7 +9,7 @@ export default async function FeaturedProducts({
   region: HttpTypes.StoreRegion
 }) {
   return collections.map((collection) => (
-    <div key={collection.id}>
+    <div className="w-full px-6" key={collection.id}>
       <ProductRail collection={collection} region={region} />
     </div>
   ))

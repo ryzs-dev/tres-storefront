@@ -53,7 +53,7 @@ export default async function Home(props: {
         >
           Our Featured Collections
         </Heading>
-        <div className="flex flex-col">
+        <div className="flex flex-row">
           <FeaturedProducts collections={collections} region={region} />
         </div>
       </section>
