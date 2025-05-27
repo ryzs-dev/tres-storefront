@@ -40,7 +40,7 @@ const getPositionClasses = (position: HeroProps["position"]) => {
 
 const Hero = ({ imageUrl, content, cta, subtitle, position }: HeroProps) => {
   return (
-    <div className="h-screen w-full border-b border-ui-border-base relative">
+    <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
       <Image
         src={imageUrl}
         fill
