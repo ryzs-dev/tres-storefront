@@ -42,7 +42,7 @@ export default async function Home(props: {
     <>
       <Hero
         content="From Women For Women"
-        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/hero.jpg"
+        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/DSCF2829.JPG"
         subtitle="Be Tres"
         position="bottom-left"
       />
@@ -57,13 +57,14 @@ export default async function Home(props: {
           <FeaturedProducts collections={collections} region={region} />
         </div>
       </section>
-      <StrengthSection />
       <Hero
         content="Let's Unbuckle With Us"
         imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/unbuckle_hero.JPG"
         position="top"
       />
+
       <FeaturedSection />
+      <StrengthSection />
     </>
   )
 }

@@ -23,6 +23,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   "data-testid": dataTestid,
 }) => {
   const initialImage = thumbnail || images?.[0]?.url
+  const hoverImage = images && images.length > 1 ? images[1].url : null
 
   return (
     <Container
@@ -41,7 +42,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
       )}
       data-testid={dataTestid}
     >
-      <ImageOrPlaceholder image={initialImage} size={size} />
+      <ImageOrPlaceholder image={initialImage} hover={hoverImage} size={size} />
     </Container>
   )
 }
@@ -49,21 +50,43 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
 const ImageOrPlaceholder = ({
   image,
   size,
-}: Pick<ThumbnailProps, "size"> & { image?: string }) => {
-  return image ? (
-    <Image
-      src={image}
-      alt="Thumbnail"
-      className="absolute inset-0 object-cover object-center"
-      draggable={false}
-      quality={50}
-      sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-      fill
-    />
-  ) : (
-    <div className="w-full h-full absolute inset-0 flex items-center justify-center">
-      <PlaceholderImage size={size === "small" ? 16 : 24} />
-    </div>
+  hover,
+}: Pick<ThumbnailProps, "size"> & { image?: string; hover?: string }) => {
+  if (!image && !hover) {
+    return (
+      <div className="w-full h-full absolute inset-0 flex items-center justify-center">
+        <PlaceholderImage size={size === "small" ? 16 : 24} />
+      </div>
+    )
+  }
+  return (
+    <>
+      {image && (
+        <Image
+          src={image}
+          alt="Thumbnail"
+          className={clx(
+            "absolute inset-0 object-cover object-center transition-opacity duration-300",
+            hover ? "opacity-100 group-hover:opacity-0" : ""
+          )}
+          draggable={false}
+          quality={50}
+          sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+          fill
+        />
+      )}
+      {hover && (
+        <Image
+          src={hover}
+          alt="Thumbnail Hover"
+          className="absolute inset-0 object-cover object-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          draggable={false}
+          quality={50}
+          sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+          fill
+        />
+      )}
+    </>
   )
 }
 
