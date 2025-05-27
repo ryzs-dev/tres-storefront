@@ -45,7 +45,7 @@ const Hero = ({ imageUrl, content, cta, subtitle, position }: HeroProps) => {
         src={imageUrl}
         fill
         alt="Hero background"
-        className="object-cover object-[75%_20%]"
+        className="object-cover object-[30%_30%]"
         priority
       />
       <div
@@ -54,21 +54,21 @@ const Hero = ({ imageUrl, content, cta, subtitle, position }: HeroProps) => {
         )}`}
       >
         <span className="flex flex-col gap-4">
-          {subtitle && (
-            <Text
-              family="urw"
-              size="large"
-              className="font-urwCond text-3xl text-white"
-            >
-              {subtitle}
-            </Text>
-          )}
           <Heading
             level="h1"
             className="text-5xl sm:text-7xl leading-tight text-white font-urw font-normal m-0 p-0"
           >
             {content}
           </Heading>
+          {subtitle && (
+            <Text
+              family="sans"
+              size="large"
+              className="font-urwCond text-3xl text-white"
+            >
+              {subtitle}
+            </Text>
+          )}
         </span>
         {cta && (
           <LocalizedClientLink href={`/store`}>

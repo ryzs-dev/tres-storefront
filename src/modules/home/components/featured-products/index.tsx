@@ -25,7 +25,7 @@ export default async function FeaturedProducts({
             alt={collection.title}
             layout="fill"
             objectFit="cover"
-            className="rounded-xl"
+            className="rounded-xl object-[10%_30%]"
           />
           <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4">
             <h2 className="text-white text-lg font-semibold">

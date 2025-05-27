@@ -41,9 +41,9 @@ export default async function Home(props: {
   return (
     <>
       <Hero
-        content="From Women For Women"
-        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/DSCF2829.JPG"
-        subtitle="Be Tres"
+        content="Be Tres"
+        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/DSCF2829.jpg"
+        subtitle="From Women For Women"
         position="bottom-left"
       />
       <section className="pt-12 flex w-full flex-col">
