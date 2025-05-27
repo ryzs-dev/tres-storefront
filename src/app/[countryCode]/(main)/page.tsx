@@ -25,7 +25,7 @@ export default async function Home(props: {
 
   const { collections } = await listCollections(
     {
-      fields: "id, handle, title",
+      fields: "id, handle, title,metadata",
     },
     {
       next: {
