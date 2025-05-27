@@ -701,3 +701,8 @@
     @apply text-sm leading-[1.3125rem] font-normal font-urw;
   }
 }
+
+/* Define the hover style directly on the element or class */
+:hover {
+  cursor: url("/images/tres.cur"), auto;
+}

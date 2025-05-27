@@ -9,9 +9,8 @@ import StrengthSection from "@modules/home/components/banner/StrengthSection"
 import FeaturedSection from "@modules/layout/components/featured-section/FeaturedSection"
 
 export const metadata: Metadata = {
-  title: "Medusa Next.js Starter Template",
-  description:
-    "A performant frontend ecommerce starter template with Next.js 15 and Medusa.",
+  title: "Welcome to Tres",
+  description: "",
 }
 
 export default async function Home(props: {
@@ -25,7 +24,7 @@ export default async function Home(props: {
 
   const { collections } = await listCollections(
     {
-      fields: "id, handle, title,metadata",
+      fields: "id, handle, title, metadata",
     },
     {
       next: {
@@ -46,7 +45,7 @@ export default async function Home(props: {
         subtitle="From Women For Women"
         position="bottom-left"
       />
-      <section className="pt-12 flex w-full flex-col">
+      <section className="pt-12 flex w-full flex-col bg-gray-100">
         <Heading
           level="h2"
           className="font-urw text-2xl self-center font-semibold"
