@@ -45,13 +45,7 @@ export default async function Home(props: {
         subtitle="From Women For Women"
         position="bottom-left"
       />
-      <section className="pt-12 flex w-full flex-col bg-gray-100">
-        <Heading
-          level="h2"
-          className="font-urw text-2xl self-center font-semibold"
-        >
-          Our Featured Collections
-        </Heading>
+      <section className="flex w-full flex-col bg-gray-100">
         <div className="flex flex-row">
           <FeaturedProducts collections={collections} region={region} />
         </div>
