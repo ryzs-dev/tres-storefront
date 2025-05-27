@@ -22,7 +22,9 @@ export default function CollectionTemplate({
   const sort = sortBy || "created_at"
 
   const heroImage =
-    "https://qlhcdbukacsyqfgxdwut.supabase.co/storage/v1/object/public/tres//DSCF3030.JPG"
+    collection?.metadata?.hero_image ||
+    collection?.products?.[0]?.thumbnail ||
+    collection?.products?.[0]?.images?.[0]?.url
 
   return (
     <div className="flex flex-col small:flex-row small:items-start py-6 content-container">
@@ -31,7 +33,7 @@ export default function CollectionTemplate({
         {heroImage && (
           <div className="relative w-full h-[300px] mb-8 rounded-lg overflow-hidden">
             <Image
-              src={heroImage}
+              src={typeof heroImage === "string" ? heroImage : ""}
               alt={`${collection.title} Hero`}
               fill
               className="object-cover [object-position:50%_45%]"
