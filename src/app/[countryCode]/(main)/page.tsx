@@ -6,6 +6,8 @@ import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 import StrengthSection from "@modules/home/components/banner/StrengthSection"
 import FeaturedSection from "@modules/layout/components/featured-section/FeaturedSection"
+import { Heading, Text } from "@medusajs/ui"
+import Image from "next/image"
 
 export const metadata: Metadata = {
   title: "Welcome to Tres",
@@ -36,13 +38,35 @@ export default async function Home(props: {
     <>
       {/* Hero Section 1 */}
       <div>
-        <Hero
-          content="Be Tres"
-          imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/DSCF2829.jpg"
-          subtitle="From Women For Women"
-          position="bottom-left"
-          objectPosition="30%_30%"
-        />
+        <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
+          <Image
+            src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/DSCF2829.jpg"
+            fill
+            alt="Hero background"
+            className={`object-cover object-[30%_30%]`} // Use the objectPosition prop
+            priority
+          />
+          <div
+            className={`absolute inset-0 z-10 flex flex-col p-8 small:px-32 gap-6 justify-end items-start text-left
+        )}`}
+          >
+            <span className="flex flex-col gap-4">
+              <Heading
+                level="h1"
+                className="text-5xl sm:text-7xl leading-tight text-white font-urw font-normal m-0 p-0"
+              >
+                Be Tres
+              </Heading>
+              <Text
+                family="sans"
+                size="large"
+                className="font-urwCond text-3xl text-white"
+              >
+                From Women For Women
+              </Text>
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Featured Products Section */}
