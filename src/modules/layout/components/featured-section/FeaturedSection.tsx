@@ -1,59 +1,59 @@
 "use client"
 
+import { Heading } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 
+const items = [
+  {
+    name: "TOPS",
+    href: "/categories/tops",
+    image:
+      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_tops.JPG",
+  },
+  {
+    name: "BOTTOMS",
+    href: "/categories/bottoms",
+    image:
+      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_shorts.JPG",
+  },
+  {
+    name: "DRESSES",
+    href: "/categories/dresses",
+    image:
+      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_leggings.JPG",
+  },
+]
+
 const FeaturedSection = () => {
   return (
-    <section className="grid grid-cols-3 gap-2 p-2 bg-gray-100">
-      {/* Left Large Image */}
-      <div className="col-span-2 relative">
-        <LocalizedClientLink href={`/categories/tops`}>
-          <Image
-            src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_tops.JPG" // Replace with actual image path
-            alt="Main Fashion Feature"
-            width={1200}
-            height={800}
-            className="w-full h-full object-cover rounded-md absolute"
-          />
-          <button className="absolute bottom-8 left-8 text-xl z-10 font-urwSemiCond">
-            SHOP TOPS
-          </button>
-        </LocalizedClientLink>
+    <section>
+      <div className="flex justify-center py-6">
+        <Heading>
+          <span className="text-2xl sm:text-3xl font-semibold">Shop All</span>
+        </Heading>
       </div>
 
-      {/* Right Side - Top Image */}
-      <div className="col-span-1 flex flex-col gap-2">
-        <div className="relative">
-          <LocalizedClientLink href={`/categories/shorts`}>
-            <Image
-              src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_shorts.JPG" // Replace with actual image path
-              alt="Shop Shorts"
-              width={600}
-              height={400}
-              className="w-full h-full object-cover rounded-md relative"
-            />
-            <button className="absolute bottom-8 left-8 font-urwSemiCond z-10 text-lg">
-              SHOP SHORTS
-            </button>
-          </LocalizedClientLink>
-        </div>
-
-        {/* Right Side - Bottom Image */}
-        <div className="relative">
-          <LocalizedClientLink href={`/categories/leggings`}>
-            <Image
-              src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_leggings.JPG" // Replace with actual image path
-              alt="Leggings"
-              width={600}
-              height={400}
-              className="w-full h-full object-cover rounded-md relative"
-            />
-            <button className="absolute bottom-8 left-8 font-urwSemiCond z-10 text-lg">
-              SHOP LEGGINGS
-            </button>
-          </LocalizedClientLink>
-        </div>
+      <div className="grid grid-cols-3 gap-2 p-2">
+        {items.map((item) => (
+          <div
+            key={item.name}
+            className="group relative overflow-hidden rounded-md"
+          >
+            <LocalizedClientLink href={item.href}>
+              <Image
+                src={item.image}
+                alt={`Shop ${item.name}`}
+                width={200}
+                height={300}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span className="text-white text-xl font-urwSemiCond">{`SHOP ${item.name}`}</span>
+              </div>
+            </LocalizedClientLink>
+          </div>
+        ))}
       </div>
     </section>
   )

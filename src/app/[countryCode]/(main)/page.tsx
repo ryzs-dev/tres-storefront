@@ -41,6 +41,7 @@ export default async function Home(props: {
           imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/DSCF2829.jpg"
           subtitle="From Women For Women"
           position="bottom-left"
+          objectPosition="30%_30%"
         />
       </div>
 
@@ -54,8 +55,9 @@ export default async function Home(props: {
       {/* Hero Section 2 */}
       <Hero
         content="Let's Unbuckle With Us"
-        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/unbuckle_hero.JPG"
-        position="top"
+        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/new_unbuckle_hero.JPG"
+        position="center"
+        objectPosition="30%_40%"
       />
 
       {/* Featured Section */}

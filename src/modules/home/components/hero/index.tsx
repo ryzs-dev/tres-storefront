@@ -15,6 +15,7 @@ type HeroProps = {
     | "center"
     | "top"
     | "bottom"
+  objectPosition?: string // Add this line
 }
 
 const getPositionClasses = (position: HeroProps["position"]) => {
@@ -34,18 +35,25 @@ const getPositionClasses = (position: HeroProps["position"]) => {
     case "bottom":
       return "justify-end items-center text-center"
     default:
-      return "justify-center items-center text-center" // fallback
+      return "justify-center items-center text-center"
   }
 }
 
-const Hero = ({ imageUrl, content, cta, subtitle, position }: HeroProps) => {
+const Hero = ({
+  imageUrl,
+  content,
+  cta,
+  subtitle,
+  position,
+  objectPosition = "center", // Default to 'center'
+}: HeroProps) => {
   return (
     <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
       <Image
         src={imageUrl}
         fill
         alt="Hero background"
-        className="object-cover object-[30%_30%]"
+        className={`object-cover object-[${objectPosition}]`} // Use the objectPosition prop
         priority
       />
       <div
