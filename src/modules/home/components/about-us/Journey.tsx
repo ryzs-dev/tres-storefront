@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
-import { Users, Heart, ArrowUpRight } from "lucide-react"
+import { Users } from "lucide-react"
+import Image from "next/image"
 
 export default function AboutPage() {
   const [activeSection, setActiveSection] = useState("mission")
@@ -75,25 +76,15 @@ export default function AboutPage() {
                 apparel, we are redefining activewear to support all women, no
                 matter their journey.
               </p>
-              <div className="inline-flex items-center font-medium text-slate-600 hover:text-slate-700 cursor-pointer group">
-                Shop our collection{" "}
-                <ArrowUpRight className="ml-2 w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-              </div>
             </div>
-            <div className="bg-neutral-100 p-8 rounded-lg">
-              <div className="text-center mb-6">
-                <div className="inline-block p-3 bg-slate-100 rounded-full mb-4">
-                  <Heart className="w-6 h-6 text-slate-600" />
-                </div>
-                <h3 className="text-2xl font-bold">STRONG* SASSY* SOLID</h3>
-              </div>
-              <p className="text-neutral-700 text-center font-medium mb-4">
-                Built to move. Designed to slay. Made to empower.
-              </p>
-              <p className="text-neutral-600 italic text-center">
-                "This is more than activewear. This is a movement. Are you ready
-                to move with us?"
-              </p>
+            <div>
+              <Image
+                src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Journey/mission.JPG"
+                alt="Our Mission"
+                className="w-full h-auto rounded-lg object-cover"
+                width={500}
+                height={500}
+              />
             </div>
           </div>
         )}
@@ -147,36 +138,14 @@ export default function AboutPage() {
                 support, and confidence they deserve.
               </p>
             </div>
-            <div className="grid md:grid-cols-3 gap-8 mt-12">
-              <div className="text-center">
-                <div className="w-32 h-32 mx-auto bg-neutral-200 rounded-full mb-4">
-                  <div className="flex items-center justify-center h-full">
-                    <Users className="w-12 h-12 text-neutral-400" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold">Founder 1</h3>
-                <p className="text-neutral-600">Co-Founder & CEO</p>
-              </div>
-              <div className="text-center">
-                <div className="w-32 h-32 mx-auto bg-neutral-200 rounded-full mb-4">
-                  <div className="flex items-center justify-center h-full">
-                    <Users className="w-12 h-12 text-neutral-400" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold">Founder 2</h3>
-                <p className="text-neutral-600">
-                  Co-Founder & Creative Director
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-32 h-32 mx-auto bg-neutral-200 rounded-full mb-4">
-                  <div className="flex items-center justify-center h-full">
-                    <Users className="w-12 h-12 text-neutral-400" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold">Founder 3</h3>
-                <p className="text-neutral-600">Co-Founder & Head of Design</p>
-              </div>
+            <div className="mt-12 flex justify-center">
+              <Image
+                src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Journey/founder.JPG"
+                alt="Founders"
+                className="w-[400px] h-[500px] rounded-lg object-cover"
+                width={500}
+                height={500}
+              />
             </div>
           </div>
         )}
