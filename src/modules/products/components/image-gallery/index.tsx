@@ -68,32 +68,32 @@ const ImageGallery = ({
       }))
     )
 
-    // Method 1: Extract filename from Medusa URL and check for color
+    // Method 1: Look for color keywords anywhere in the URL (flexible approach)
     const colorFilteredImages = images.filter((image) => {
       if (!image.url) return false
 
-      // Extract filename from URL like "http://localhost:9000/static/1748609150158-set-pink-l.JPG"
-      const filename = image.url.split("/").pop()?.toLowerCase() || ""
+      // Convert entire URL to lowercase for case-insensitive matching
+      const fullUrl = image.url.toLowerCase()
 
-      // Remove timestamp prefix (numbers and hyphen) to get clean filename
-      const cleanFilename = filename.replace(/^\d+-/, "")
+      console.log(`🔍 Checking URL: ${image.url}`)
 
-      console.log(`🔍 Checking: ${filename} → clean: ${cleanFilename}`)
+      // Check if the selected color appears anywhere in the URL
+      const hasExactColor = fullUrl.includes(colorValue)
 
-      // Check if color is in the clean filename
-      const hasColor = cleanFilename.includes(colorValue)
-
-      // Also check for color variations
+      // Also check for color variations and common abbreviations
       const colorVariations = getColorVariations(colorValue)
-      const hasColorVariation = colorVariations.some((variation) =>
-        cleanFilename.includes(variation)
-      )
+      const hasColorVariation = colorVariations.some((variation) => {
+        const found = fullUrl.includes(variation)
+        if (found) {
+          console.log(`   Found color variation "${variation}" in URL`)
+        }
+        return found
+      })
 
-      console.log(
-        `   Color match (${colorValue}): ${hasColor || hasColorVariation}`
-      )
+      const colorMatch = hasExactColor || hasColorVariation
+      console.log(`   Color match for "${colorValue}": ${colorMatch}`)
 
-      return hasColor || hasColorVariation
+      return colorMatch
     })
 
     if (colorFilteredImages.length > 0) {
@@ -101,22 +101,24 @@ const ImageGallery = ({
       return colorFilteredImages
     }
 
-    // Method 2: Filter by SKU if present in filename
-    if (sku) {
+    // Method 2: Enhanced SKU matching anywhere in URL
+    if (sku && colorFilteredImages.length === 0) {
       const skuFilteredImages = images.filter((image) => {
         if (!image.url) return false
 
-        const filename = image.url.split("/").pop()?.toLowerCase() || ""
-        const cleanFilename = filename.replace(/^\d+-/, "")
+        const fullUrl = image.url.toLowerCase()
 
-        // Check if any part of the SKU is in the filename
-        const skuParts = sku.split("-").filter((part) => part.length > 1) // Skip single characters
-        const hasSkuPart = skuParts.some((part) => cleanFilename.includes(part))
+        // Split SKU into meaningful parts and check each
+        const skuParts = sku.split("-").filter((part) => part.length > 1)
+        const hasSkuPart = skuParts.some((part) => {
+          const found = fullUrl.includes(part)
+          if (found) {
+            console.log(`🔍 Found SKU part "${part}" in URL: ${image.url}`)
+          }
+          return found
+        })
 
-        console.log(
-          `🔍 SKU check: ${cleanFilename} contains ${sku}? ${hasSkuPart}`
-        )
-
+        console.log(`🔍 SKU check for "${sku}": ${hasSkuPart}`)
         return hasSkuPart
       })
 
