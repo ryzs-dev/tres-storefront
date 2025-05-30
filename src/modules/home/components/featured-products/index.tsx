@@ -82,7 +82,8 @@ export default function FeaturedProducts({
                   alt={collection.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="rounded-xl transition-opacity duration-500 object-cover group-hover:opacity-0"
+                  className="rounded-xl transition-opacity duration-500 object-[30%_30%] group-hover:opacity-0"
+                  objectFit="cover"
                 />
                 {typeof collection.metadata?.secondary_image === "string" && (
                   <Image
@@ -90,7 +91,8 @@ export default function FeaturedProducts({
                     alt={`${collection.title} Hover`}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
-                    className="rounded-xl absolute top-0 left-0 transition-opacity duration-500 opacity-0 group-hover:opacity-100 object-cover"
+                    className="rounded-xl absolute top-0 left-0 object-[30%_30%]  transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+                    objectFit="cover"
                   />
                 )}
                 <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 z-10">

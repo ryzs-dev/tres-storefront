@@ -77,22 +77,27 @@ export default async function Home(props: {
       </section>
 
       {/* Hero Section 2 */}
-      <Hero
-        content="Let's Unbuckle With Us"
-        imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/new_unbuckle_hero.JPG"
-        position="center"
-        objectPosition="30%_40%"
-      />
+      <section className="sm:py-14 py-10">
+        <div className="container max-w-7xl mx-auto ">
+          <Hero
+            content="Let's Unbuckle With Us"
+            imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/new_unbuckle_hero.JPG"
+            position="bottom-left"
+            objectPosition="30%_40%"
+            cta
+          />
+        </div>
+      </section>
 
       {/* Featured Section */}
-      <section className="px-4 sm:px-6 lg:px-0 py-10 sm:py-14">
+      <section className="px- sm:px-0 lg:px-0 py-10 sm:py-14 bg-gray-100">
         <div className=" min-w-full">
           <FeaturedSection />
         </div>
       </section>
 
       {/* Strength Section */}
-      <section className="px-4 sm:px-6 lg:px-0 py-10 sm:py-14 bg-white">
+      <section className="px-4 sm:px-6 lg:px-0 py-10 sm:py-14 bg-gray-100">
         <div className=" min-w-full">
           <StrengthSection />
         </div>
