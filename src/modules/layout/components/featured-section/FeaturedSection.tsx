@@ -12,16 +12,16 @@ const items = [
       "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_tops.JPG",
   },
   {
+    name: "DRESSES",
+    href: "/categories/dresses",
+    image:
+      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Collections/Smash-and-swing.JPG",
+  },
+  {
     name: "BOTTOMS",
     href: "/categories/bottoms",
     image:
       "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_shorts.JPG",
-  },
-  {
-    name: "DRESSES",
-    href: "/categories/dresses",
-    image:
-      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_leggings.JPG",
   },
 ]
 
