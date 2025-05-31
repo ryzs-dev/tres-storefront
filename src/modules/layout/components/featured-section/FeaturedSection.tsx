@@ -21,7 +21,7 @@ const items = [
     name: "BOTTOMS",
     href: "/categories/bottoms",
     image:
-      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_shorts.JPG",
+      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_bottoms.JPG",
   },
 ]
 
