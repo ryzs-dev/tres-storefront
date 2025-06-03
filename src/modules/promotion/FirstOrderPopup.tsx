@@ -22,10 +22,7 @@ interface Promotion {
   }
 }
 
-const BASE_URL =
-  process.env.MEDUSA_BACKEND_URL ||
-  "http://localhost:9000" ||
-  "https://admin.tres.my"
+const BASE_URL = process.env.MEDUSA_BACKEND_URL || "https://admin.tres.my"
 
 const FirstOrderPopup = ({ customer }: Props) => {
   const [showPopup, setShowPopup] = useState(false)
