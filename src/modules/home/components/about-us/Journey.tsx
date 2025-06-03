@@ -42,7 +42,7 @@ export default function AboutPage() {
           </div>
           <div>
             <Image
-              src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Journey/mission.JPG"
+              src="https://storage.tres.my/Journey/mission.JPG"
               alt="Our Mission"
               className="w-full h-[500px] rounded-lg object-cover object-[30%_20%] shadow-lg"
               width={500}
@@ -119,7 +119,7 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
               <Image
-                src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Journey/founder.JPG"
+                src="https://storage.tres.my/Journey/founder.JPG"
                 alt="Founders"
                 className="w-full h-auto rounded-lg object-cover object-[30%_20%] shadow-lg"
                 width={500}

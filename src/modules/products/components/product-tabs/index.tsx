@@ -6,6 +6,7 @@ import Refresh from "@modules/common/icons/refresh"
 
 import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
+import ProductInfo from "@modules/products/templates/product-info"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -13,13 +14,17 @@ type ProductTabsProps = {
 
 const ProductTabs = ({ product }: ProductTabsProps) => {
   const tabs = [
+    // {
+    //   label: "Product Information",
+    //   component: <ProductInfoTab product={product} />,
+    // },
+    // {
+    //   label: "Shipping & Returns",
+    //   component: <ShippingInfoTab />,
+    // },
     {
-      label: "Product Information",
-      component: <ProductInfoTab product={product} />,
-    },
-    {
-      label: "Shipping & Returns",
-      component: <ShippingInfoTab />,
+      label: "Description",
+      component: <ProductInfo product={product} />,
     },
   ]
 

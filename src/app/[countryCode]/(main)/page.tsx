@@ -40,7 +40,7 @@ export default async function Home(props: {
       <div>
         <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
           <Image
-            src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/DSCF2829.jpg"
+            src="https://storage.tres.my/Hero_Image/DSCF2829.jpg"
             fill
             alt="Hero background"
             className={`object-cover object-[30%_30%]`} // Use the objectPosition prop
@@ -81,7 +81,7 @@ export default async function Home(props: {
         <div className="container max-w-7xl mx-auto ">
           <Hero
             content="Let's Unbuckle With Us"
-            imageUrl="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Hero_Image/new_unbuckle_hero.JPG"
+            imageUrl="https://storage.tres.my/Hero_Image/new_unbuckle_hero.JPG"
             position="bottom-left"
             objectPosition="30%_40%"
             cta
