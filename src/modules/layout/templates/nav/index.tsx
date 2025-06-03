@@ -15,7 +15,7 @@ export default async function Nav() {
   const MenuItems = {
     Home: "/",
     Journey: "/journey",
-    Categories: "/store",
+    "Shop All": "/store",
   }
 
   return (
