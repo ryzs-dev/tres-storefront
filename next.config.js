@@ -22,11 +22,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "zhwxnlspudiutanxvunp.supabase.co",
+        hostname: "storage.tres.my",
       },
       {
         protocol: "https",
-        hostname: "qlhcdbukacsyqfgxdwut.supabase.co",
+        hostname: "4a19fb4b801f6cdb643d9e49840bf0d8.r2.cloudflarestorage.com", // fallback R2 bucket URL
       },
       {
         protocol: "http",
