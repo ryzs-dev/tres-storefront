@@ -7,6 +7,7 @@ import Refresh from "@modules/common/icons/refresh"
 import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
 import ProductInfo from "@modules/products/templates/product-info"
+import { Text } from "@medusajs/ui"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -24,7 +25,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     // },
     {
       label: "Description",
-      component: <ProductInfo product={product} />,
+      component: <ProductInfoTab product={product} />,
     },
   ]
 
@@ -49,7 +50,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
 const ProductInfoTab = ({ product }: ProductTabsProps) => {
   return (
     <div className="text-small-regular py-8">
-      <div className="grid grid-cols-2 gap-x-8">
+      {/* <div className="grid grid-cols-2 gap-x-8">
         <div className="flex flex-col gap-y-4">
           <div>
             <span className="font-semibold">Material</span>
@@ -78,7 +79,13 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
             </p>
           </div>
         </div>
-      </div>
+      </div> */}
+      <Text
+        className="text-medium text-ui-fg-subtle whitespace-pre-line"
+        data-testid="product-description"
+      >
+        {product.description}
+      </Text>
     </div>
   )
 }
