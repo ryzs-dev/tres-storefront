@@ -22,6 +22,11 @@ interface Promotion {
   }
 }
 
+const BASE_URL =
+  process.env.MEDUSA_BACKEND_URL ||
+  "http://localhost:9000" ||
+  "https://admin.tres.my"
+
 const FirstOrderPopup = ({ customer }: Props) => {
   const [showPopup, setShowPopup] = useState(false)
   const [promotions, setPromotions] = useState<Promotion[]>([])
@@ -56,7 +61,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const response = await fetch("http://localhost:9000/store/promotions", {
+        const response = await fetch(`${BASE_URL}/store/promotions`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
