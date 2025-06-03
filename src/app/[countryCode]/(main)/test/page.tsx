@@ -1,12 +1,21 @@
-import TopMenu from "@modules/layout/components/top-menu/TopMenu"
+import { retrieveCustomer } from "@lib/data/customer"
+import FirstOrderPopup from "@modules/promotion/FirstOrderPopup"
 import React from "react"
 
-const page = () => {
+const Page = async () => {
+  const customer = await retrieveCustomer()
+
   return (
-    <div>
-      {/* <TopMenu regions={null} categories={null} data-testid="top-menu" /> */}
+    <div className="p-6">
+      <FirstOrderPopup customer={customer} />
+
+      <h1 className="text-xl font-semibold">Medusa Test Page</h1>
+      <p>
+        This page checks the customer's order history and shows a popup if
+        needed.
+      </p>
     </div>
   )
 }
 
-export default page
+export default Page

@@ -121,7 +121,7 @@ export default function AboutPage() {
               <Image
                 src="https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Journey/founder.JPG"
                 alt="Founders"
-                className="w-full h-[500px] rounded-lg object-cover object-[30%_20%] shadow-lg"
+                className="w-full h-auto rounded-lg object-cover object-[30%_20%] shadow-lg"
                 width={500}
                 height={800}
               />

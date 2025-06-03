@@ -7,6 +7,7 @@ import { StoreCartShippingOption } from "@medusajs/types"
 import CartMismatchBanner from "@modules/layout/components/cart-mismatch-banner"
 import Footer from "@modules/layout/templates/footer/Footer"
 import FreeShippingPriceNudge from "@modules/shipping/components/free-shipping-price-nudge"
+import FirstOrderPopup from "@modules/promotion/FirstOrderPopup"
 
 import Nav from "@modules/layout/templates/nav"
 import PromoBanner from "@modules/layout/components/promo-banner/PromoBanner"
@@ -28,6 +29,9 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
 
   return (
     <>
+      {/* First Order Popup - appears on top of everything */}
+      <FirstOrderPopup customer={customer} />
+
       <PromoBanner />
       <Nav />
       {customer && cart && (
