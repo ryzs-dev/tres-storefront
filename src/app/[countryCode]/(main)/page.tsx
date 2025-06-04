@@ -35,7 +35,7 @@ export default async function Home(props: {
   if (!collections || !region) return null
 
   return (
-    <>
+    <div className="flex h-screen w-full justify-center items-center font-urw text-2xl font-semibold">
       {/* <div>
         <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
           <Image
