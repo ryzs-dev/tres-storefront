@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { Select } from "@medusajs/ui"
+import { Button, Select } from "@medusajs/ui"
 import React from "react"
 
 type OptionSelectProps = {
@@ -77,16 +77,17 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
           {filteredOptions.map((v) => {
             const isSelected = v === current
             return (
-              <button
+              <Button
+                variant="secondary"
                 onClick={() => updateOption(option.id, v)}
                 key={v}
-                className={`w-full border border-gray-300 bg-white text-sm h-10 rounded p-2 flex items-center justify-center gap-2 ${
-                  isSelected ? "border-black" : "hover:shadow-md"
+                className={`w-full text-sm h-10 rounded p-2 flex items-center justify-center gap-2 ${
+                  isSelected ? "bg-gray-100" : "hover:shadow-md"
                 }`}
                 disabled={disabled}
               >
                 {v}
-              </button>
+              </Button>
             )
           })}
         </div>
