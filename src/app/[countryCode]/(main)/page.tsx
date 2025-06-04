@@ -98,6 +98,6 @@ export default async function Home(props: {
         </div>
       </section> */}
       <h1>We're currently offline for updates.</h1>
-    </>
+    </div>
   )
 }
