@@ -60,6 +60,7 @@ module.exports = {
       },
       fontFamily: {
         sans: [
+          "URW DIN",
           "Inter",
           "-apple-system",
           "BlinkMacSystemFont",

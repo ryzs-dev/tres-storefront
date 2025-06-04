@@ -706,3 +706,7 @@
 :hover {
   cursor: url("/images/tres.cur"), auto;
 }
+
+* {
+  font-family: "URW DIN", sans-serif !important;
+}
