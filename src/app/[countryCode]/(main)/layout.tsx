@@ -30,23 +30,23 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
   return (
     <>
       {/* First Order Popup - appears on top of everything */}
-      {/* <FirstOrderPopup customer={customer} /> */}
+      <FirstOrderPopup customer={customer} />
 
-      {/* <PromoBanner /> */}
-      {/* <Nav />
+      <PromoBanner />
+      <Nav />
       {customer && cart && (
         <CartMismatchBanner customer={customer} cart={cart} />
-      )} */}
+      )}
 
-      {/* {cart && (
+      {cart && (
         <FreeShippingPriceNudge
           variant="popup"
           cart={cart}
           shippingOptions={shippingOptions}
         />
-      )} */}
+      )}
       {props.children}
-      {/* <Footer /> */}
+      <Footer />
     </>
   )
 }

@@ -35,8 +35,8 @@ export default async function Home(props: {
   if (!collections || !region) return null
 
   return (
-    <div className="flex h-screen w-full justify-center items-center font-urw text-2xl font-semibold">
-      {/* <div>
+    <>
+      <div>
         <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
           <Image
             src="https://storage.tres.my/Hero_Image/DSCF2829.jpg"
@@ -96,8 +96,7 @@ export default async function Home(props: {
         <div className=" min-w-full">
           <StrengthSection />
         </div>
-      </section> */}
-      <h1>We're currently offline for updates.</h1>
-    </div>
+      </section>
+    </>
   )
 }

@@ -119,6 +119,13 @@ export async function middleware(request: NextRequest) {
   const urlHasCountryCode =
     countryCode && request.nextUrl.pathname.split("/")[1].includes(countryCode)
 
+  const hostname = request.headers.get("host") || ""
+
+  if (hostname === "tres.my") {
+    const maintenanceUrl = new URL("/maintenance", request.url)
+    return NextResponse.rewrite(maintenanceUrl)
+  }
+
   // if one of the country codes is in the url and the cache id is set, return next
   if (urlHasCountryCode && cacheIdCookie) {
     return NextResponse.next()
