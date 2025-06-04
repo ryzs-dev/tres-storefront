@@ -81,7 +81,7 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
         </div>
       </div> */}
       <Text
-        className="text-medium font-urw text-ui-fg-subtle whitespace-pre-line"
+        className="text-sm font-urw font-medium text-ui-fg-subtle whitespace-pre-line text-justify"
         data-testid="product-description"
       >
         {product.description}
