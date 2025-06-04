@@ -3,7 +3,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import { X, Tag, Copy, CheckCircle2 } from "lucide-react"
+import { X, Copy, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
 
 interface Props {
@@ -69,6 +69,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
 
         if (response.ok) {
           const data = await response.json()
+          console.log("Fetched promotions:", data)
           setPromotions(data.promotions || data || [])
         }
       } catch (err) {
@@ -138,7 +139,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
 
           {/* Main Content */}
           <div className="my-8">
-            {firstPromotion ? (
+            {firstPromotion && (
               <>
                 <h2 className="font-urw text-xl sm:text-2xl text-gray-600 mb-3 sm:mb-4 leading-relaxed">
                   Want
@@ -152,18 +153,6 @@ const FirstOrderPopup = ({ customer }: Props) => {
                 <h2 className="font-urw text-xl sm:text-2xl text-gray-600 mb-3 sm:mb-4 leading-relaxed">
                   WE'VE GOT YOU COVERED!
                 </h2>
-              </>
-            ) : (
-              <>
-                <h2 className="font-urw text-xl sm:text-2xl text-gray-600 mb-3 sm:mb-4 leading-relaxed">
-                  Want 20% off your order?
-                </h2>
-                <h3 className="font-urw text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 uppercase leading-none mb-4 sm:mb-6">
-                  WE'VE GOT YOU
-                </h3>
-                <h4 className="font-urw text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 uppercase leading-none">
-                  COVERED!
-                </h4>
               </>
             )}
           </div>
@@ -213,7 +202,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
         {/* Right Image Section */}
         <div className="flex-1 relative h-[700px] hidden md:block">
           <Image
-            src="/images/DSCF2138.JPG"
+            src="https://storage.tres.my/promotion_banner_1.JPG"
             alt="Fashion models"
             fill
             className="object-cover transition-transform duration-700 hover:scale-105"

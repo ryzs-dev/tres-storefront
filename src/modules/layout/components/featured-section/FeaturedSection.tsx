@@ -8,20 +8,17 @@ const items = [
   {
     name: "TOPS",
     href: "/categories/tops",
-    image:
-      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_tops.JPG",
+    image: "https://storage.tres.my/Featured%20Sections/shop_tops.JPG", // Replace with actual image URL
   },
   {
     name: "DRESSES",
     href: "/categories/dresses",
-    image:
-      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Collections/Smash-and-swing.JPG",
+    image: "https://storage.tres.my/Featured%20Sections/shop_bottoms.JPG",
   },
   {
     name: "BOTTOMS",
     href: "/categories/bottoms",
-    image:
-      "https://zhwxnlspudiutanxvunp.supabase.co/storage/v1/object/public/tres-assets/Featured%20Sections/shop_bottoms.JPG",
+    image: "https://storage.tres.my/Featured%20Sections/shop_shorts.JPG",
   },
 ]
 
