@@ -36,14 +36,13 @@ export default async function Home(props: {
 
   return (
     <>
-      {/* Hero Section 1 */}
-      <div>
+      {/* <div>
         <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
           <Image
             src="https://storage.tres.my/Hero_Image/DSCF2829.jpg"
             fill
             alt="Hero background"
-            className={`object-cover object-[30%_30%]`} // Use the objectPosition prop
+            className={`object-cover object-[30%_30%]`}
             priority
           />
           <div
@@ -69,14 +68,12 @@ export default async function Home(props: {
         </div>
       </div>
 
-      {/* Featured Products Section */}
       <section className="w-full bg-gray-100 px-4 sm:px-6 lg:px-0 py-10 sm:py-14">
         <div className="mx-auto min-w-full">
           <FeaturedProducts collections={collections} region={region} />
         </div>
       </section>
 
-      {/* Hero Section 2 */}
       <section className="sm:py-14 py-10">
         <div className="container max-w-7xl mx-auto ">
           <Hero
@@ -89,19 +86,18 @@ export default async function Home(props: {
         </div>
       </section>
 
-      {/* Featured Section */}
       <section className="px- sm:px-0 lg:px-0 py-10 sm:py-14 bg-gray-100">
         <div className=" min-w-full">
           <FeaturedSection />
         </div>
       </section>
 
-      {/* Strength Section */}
       <section className="px-4 sm:px-6 lg:px-0 py-10 sm:py-14 bg-gray-100">
         <div className=" min-w-full">
           <StrengthSection />
         </div>
-      </section>
+      </section> */}
+      <h1>We're currently offline for updates.</h1>
     </>
   )
 }
