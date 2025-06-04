@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { clx } from "@medusajs/ui"
+import { Select } from "@medusajs/ui"
 import React from "react"
 
 type OptionSelectProps = {
@@ -11,16 +11,19 @@ type OptionSelectProps = {
   "data-testid"?: string
 }
 
-// Define your color values here
 const colorMap: Record<string, string> = {
-  "sonic pink": "#FF69B4",
-  "electric blue": "#7DF9FF",
-  pistachio: "#93C572",
-  scarlet: "#FF2400",
-  violet: "#8F00FF",
+  "sonic pink": "#E157B1",
+  "electric blue": "#114EB8",
+  pistachio: "#798835",
+  scarlet: "#E42E3B",
+  violet: "#A05F9B",
   black: "#000000",
   white: "#FFFFFF",
-  peach: " #FFDAB9",
+  peach: "#FFDAB9",
+  grey: "#212326",
+  pink: "#BD3C7B",
+  green: "#025D40",
+  purple: "#802D57",
 }
 
 const OptionSelect: React.FC<OptionSelectProps> = ({
@@ -28,8 +31,8 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   current,
   updateOption,
   title,
-  "data-testid": dataTestId,
   disabled,
+  "data-testid": dataTestId,
 }) => {
   const filteredOptions = (option.values ?? []).map((v) => v.value)
   const isColorOption = /color|colour/i.test(option.title || "")
@@ -37,41 +40,57 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   return (
     <div className="flex flex-col gap-y-3">
       <span className="text-sm">Select {title}</span>
-      <div
-        className="flex flex-row justify-start gap-2"
-        data-testid={dataTestId}
-      >
-        {filteredOptions.map((v) => {
-          const isSelected = v === current
-          const normalized = v.toLowerCase().trim()
-          const color = colorMap[normalized] || "#E5E7EB"
 
-          return (
-            <button
-              onClick={() => updateOption(option.id, v)}
-              key={v}
-              className={clx(
-                "w-full border-ui-border-base bg-ui-bg-subtle border text-small-regular h-10 rounded-rounded p-2 flex flex-row items-center justify-center gap-2",
-                {
-                  "border-ui-border-interactive": isSelected,
-                  "hover:shadow-elevation-card-rest transition-shadow ease-in-out duration-150":
-                    v !== current,
-                }
-              )}
-              disabled={disabled}
-              data-testid="option-button"
-            >
-              {isColorOption && (
-                <span
-                  className="w-4 h-4 rounded-full border border-gray-300"
-                  style={{ backgroundColor: color }}
-                ></span>
-              )}
-              <span>{v}</span>
-            </button>
-          )
-        })}
-      </div>
+      {isColorOption ? (
+        <Select
+          value={current}
+          onValueChange={(value) => updateOption(option.id, value)}
+          disabled={disabled}
+        >
+          <Select.Trigger data-testid={dataTestId} className="w-full">
+            <Select.Value placeholder="Choose a Color" />
+          </Select.Trigger>
+          <Select.Content>
+            {filteredOptions.map((value) => {
+              const normalized = value.toLowerCase().trim()
+              const color = colorMap[normalized] || "#E5E7EB"
+
+              return (
+                <Select.Item key={value} value={value}>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-4 h-4 rounded-full border border-gray-300"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span>{value}</span>
+                  </div>
+                </Select.Item>
+              )
+            })}
+          </Select.Content>
+        </Select>
+      ) : (
+        <div
+          className="flex flex-row justify-start gap-2"
+          data-testid={dataTestId}
+        >
+          {filteredOptions.map((v) => {
+            const isSelected = v === current
+            return (
+              <button
+                onClick={() => updateOption(option.id, v)}
+                key={v}
+                className={`w-full border border-gray-300 bg-white text-sm h-10 rounded p-2 flex items-center justify-center gap-2 ${
+                  isSelected ? "border-black" : "hover:shadow-md"
+                }`}
+                disabled={disabled}
+              >
+                {v}
+              </button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
