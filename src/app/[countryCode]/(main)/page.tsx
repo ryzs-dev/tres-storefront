@@ -3,6 +3,7 @@ import { Metadata } from "next"
 import FeaturedProducts from "@modules/home/components/featured-products"
 import Hero from "@modules/home/components/hero"
 import { listCollections } from "@lib/data/collections"
+import { listCategories } from "@lib/data/categories"
 import { getRegion } from "@lib/data/regions"
 import StrengthSection from "@modules/home/components/banner/StrengthSection"
 import FeaturedSection from "@modules/layout/components/featured-section/FeaturedSection"
@@ -33,6 +34,19 @@ export default async function Home(props: {
   )
 
   if (!collections || !region) return null
+
+  const categories = await listCategories()
+
+  // Only pick the categories you want (by handle or metadata)
+  const featuredItems = categories.slice(0, 3).map((cat) => ({
+    name: cat.name,
+    href: `/categories/${cat.handle}`,
+    image:
+      typeof cat.metadata?.thumbnail === "string" &&
+      cat.metadata?.thumbnail.trim() !== ""
+        ? (cat.metadata.thumbnail as string)
+        : "https://storage.tres.my/placeholder.jpg", // fallback image
+  }))
 
   return (
     <>
@@ -92,7 +106,7 @@ export default async function Home(props: {
       {/* Featured Section */}
       <section className="px- sm:px-0 lg:px-0 py-10 sm:py-14 bg-gray-100">
         <div className=" min-w-full">
-          <FeaturedSection />
+          <FeaturedSection items={featuredItems} />
         </div>
       </section>
 

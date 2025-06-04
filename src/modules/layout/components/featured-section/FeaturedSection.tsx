@@ -4,25 +4,13 @@ import { Heading } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 
-const items = [
-  {
-    name: "TOPS",
-    href: "/categories/top",
-    image: "https://storage.tres.my/Featured%20Sections/shop_tops.JPG", // Replace with actual image URL
-  },
-  {
-    name: "DRESSES",
-    href: "/categories/dresses",
-    image: "https://storage.tres.my/Featured%20Sections/shop_bottoms.JPG",
-  },
-  {
-    name: "BOTTOMS",
-    href: "/categories/bottom",
-    image: "https://storage.tres.my/Featured%20Sections/shop_shorts.JPG",
-  },
-]
+type FeaturedItem = {
+  name: string
+  href: string
+  image: string
+}
 
-const FeaturedSection = () => {
+const FeaturedSection = ({ items }: { items: FeaturedItem[] }) => {
   return (
     <section>
       <div className="flex justify-center sm:py-0 lg:py-6 pb-4 sm:pb-2 lg:pb-8">
