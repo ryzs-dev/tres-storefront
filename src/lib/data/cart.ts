@@ -15,6 +15,57 @@ import {
 } from "./cookies"
 import { getRegion } from "./regions"
 
+export async function addBundleToCart({
+  bundleId,
+  quantity,
+  countryCode,
+  items,
+}: {
+  bundleId: string
+  quantity: number
+  countryCode: string
+  items: {
+    item_id: string
+    variant_id: string
+  }[]
+}) {
+  if (!bundleId) {
+    throw new Error("Missing bundle ID when adding to cart")
+  }
+
+  const cart = await getOrSetCart(countryCode)
+
+  if (!cart) {
+    throw new Error("Error retrieving or creating cart")
+  }
+
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  await sdk.client
+    .fetch<HttpTypes.StoreCartResponse>(
+      `/store/carts/${cart.id}/line-item-bundles`,
+      {
+        method: "POST",
+        body: {
+          bundle_id: bundleId,
+          quantity,
+          items,
+        },
+        headers,
+      }
+    )
+    .then(async () => {
+      const cartCacheTag = await getCacheTag("carts")
+      revalidateTag(cartCacheTag)
+
+      const fulfillmentCacheTag = await getCacheTag("fulfillment")
+      revalidateTag(fulfillmentCacheTag)
+    })
+    .catch(medusaError)
+}
+
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
  * @param cartId - optional - The ID of the cart to retrieve.

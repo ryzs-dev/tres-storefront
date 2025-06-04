@@ -11,17 +11,20 @@ import { notFound } from "next/navigation"
 import ProductActionsWrapper from "./product-actions-wrapper"
 import { HttpTypes } from "@medusajs/types"
 import ProductGalleryWrapper from "../ProductGalleryWrapper"
+import { BundleProduct } from "@lib/data/products"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
   countryCode: string
+  bundle?: BundleProduct
 }
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
   region,
   countryCode,
+  bundle,
 }) => {
   if (!product || !product.id) {
     return notFound()
@@ -54,7 +57,11 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
               />
             }
           >
-            <ProductActionsWrapper id={product.id} region={region} />
+            <ProductActionsWrapper
+              id={product.id}
+              region={region}
+              bundle={bundle}
+            />
           </Suspense>
         </div>
       </div>

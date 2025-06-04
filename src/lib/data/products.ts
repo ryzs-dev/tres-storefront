@@ -7,6 +7,48 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 
+export type BundleProduct = {
+  id: string
+  title: string
+  product: {
+    id: string
+    thumbnail: string
+    title: string
+    handle: string
+  }
+  items: {
+    id: string
+    title: string
+    product: HttpTypes.StoreProduct
+  }[]
+}
+
+export const getBundleProduct = async (
+  id: string,
+  {
+    currency_code,
+    region_id,
+  }: {
+    currency_code?: string
+    region_id?: string
+  }
+) => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  return sdk.client.fetch<{
+    bundle_product: BundleProduct
+  }>(`/store/bundle-products/${id}`, {
+    method: "GET",
+    headers,
+    query: {
+      currency_code,
+      region_id,
+    },
+  })
+}
+
 export const listProducts = async ({
   pageParam = 1,
   queryParams,
@@ -18,7 +60,12 @@ export const listProducts = async ({
   countryCode?: string
   regionId?: string
 }): Promise<{
-  response: { products: HttpTypes.StoreProduct[]; count: number }
+  response: {
+    products: (HttpTypes.StoreProduct & {
+      bundle?: Omit<BundleProduct, "items">
+    })[]
+    count: number
+  }
   nextPage: number | null
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
 }> => {
@@ -54,23 +101,25 @@ export const listProducts = async ({
   }
 
   return sdk.client
-    .fetch<{ products: HttpTypes.StoreProduct[]; count: number }>(
-      `/store/products`,
-      {
-        method: "GET",
-        query: {
-          limit,
-          offset,
-          region_id: region?.id,
-          fields:
-            "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
-          ...queryParams,
-        },
-        headers,
-        next,
-        // cache: "force-cache",
-      }
-    )
+    .fetch<{
+      products: (HttpTypes.StoreProduct & {
+        bundle?: Omit<BundleProduct, "items">
+      })[]
+      count: number
+    }>(`/store/products`, {
+      method: "GET",
+      query: {
+        limit,
+        offset,
+        region_id: region?.id,
+        fields:
+          "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
+        ...queryParams,
+      },
+      headers,
+      next,
+      // cache: "force-cache",
+    })
     .then(({ products, count }) => {
       const nextPage = count > offset + limit ? pageParam + 1 : null
 
