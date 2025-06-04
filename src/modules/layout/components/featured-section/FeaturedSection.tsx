@@ -7,7 +7,7 @@ import Image from "next/image"
 const items = [
   {
     name: "TOPS",
-    href: "/categories/tops",
+    href: "/categories/top",
     image: "https://storage.tres.my/Featured%20Sections/shop_tops.JPG", // Replace with actual image URL
   },
   {
@@ -17,7 +17,7 @@ const items = [
   },
   {
     name: "BOTTOMS",
-    href: "/categories/bottoms",
+    href: "/categories/bottom",
     image: "https://storage.tres.my/Featured%20Sections/shop_shorts.JPG",
   },
 ]
