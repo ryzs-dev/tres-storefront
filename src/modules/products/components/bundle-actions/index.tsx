@@ -275,7 +275,7 @@ export default function BundleActions({ bundle }: BundleActionsProps) {
               <Button
                 onClick={() => handleAddProductToCart(index)}
                 disabled={!isReady || isAdding || addingProductId !== null}
-                variant="secondary"
+                variant="primary"
                 className={`w-full h-10 transition-all ${
                   isCurrentlyAdding && !isAdding
                     ? "bg-green-100 text-green-700 border-green-300"
@@ -308,10 +308,7 @@ export default function BundleActions({ bundle }: BundleActionsProps) {
                     return "Out of Stock"
                   }
 
-                  return `Add Item (${(
-                    (selectedVariants[index]?.calculated_price
-                      ?.calculated_amount || 0) / 100
-                  ).toFixed(2)})`
+                  return `Add Item `
                 })()}
               </Button>
             </div>
@@ -323,9 +320,7 @@ export default function BundleActions({ bundle }: BundleActionsProps) {
       <p className="font-urw text-2xl ">
         MYR{" "}
         {!allVariantsSelected
-          ? `${(
-              (bundle.calculated_price?.calculated_amount || 0) / 100
-            ).toFixed(2)}`
+          ? `${(bundle.calculated_price?.calculated_amount || 0).toFixed(2)}`
           : `${bundleSavings > 0 ? ` ${bundleSavings.toFixed(2)}` : ""}`}
       </p>
 

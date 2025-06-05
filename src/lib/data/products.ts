@@ -143,11 +143,13 @@ export const listProductsWithSort = async ({
   queryParams,
   sortBy = "created_at",
   countryCode,
+  tags = ["set"], // Default to filtering by 'set'
 }: {
   page?: number
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
   sortBy?: SortOptions
   countryCode: string
+  tags?: string[] // Add tags parameter
 }): Promise<{
   response: { products: HttpTypes.StoreProduct[]; count: number }
   nextPage: number | null
@@ -155,31 +157,42 @@ export const listProductsWithSort = async ({
 }> => {
   const limit = queryParams?.limit || 12
 
+  // Remove tags from queryParams to avoid backend error
+  const { tags: _unusedTags, ...safeQueryParams } = queryParams || {}
+
   const {
     response: { products, count },
   } = await listProducts({
     pageParam: 0,
     queryParams: {
-      ...queryParams,
+      ...safeQueryParams,
       limit: 100,
     },
     countryCode,
   })
 
-  const sortedProducts = sortProducts(products, sortBy)
+  // Filter products by tags server-side
+  const filteredProducts =
+    tags && tags.length > 0
+      ? products.filter((product) =>
+          product.tags?.some((tag) => tags.includes(tag.value))
+        )
+      : products
+
+  const sortedProducts = sortProducts(filteredProducts, sortBy)
 
   const pageParam = (page - 1) * limit
-
-  const nextPage = count > pageParam + limit ? pageParam + limit : null
+  const nextPage =
+    filteredProducts.length > pageParam + limit ? pageParam + limit : null
 
   const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
 
   return {
     response: {
       products: paginatedProducts,
-      count,
+      count: filteredProducts.length, // Reflect filtered count
     },
     nextPage,
-    queryParams,
+    queryParams: safeQueryParams, // Return safe queryParams
   }
 }

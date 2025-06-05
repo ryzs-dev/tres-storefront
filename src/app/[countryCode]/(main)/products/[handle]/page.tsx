@@ -89,6 +89,8 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
+  console.log(pricedProduct)
+
   const bundleProduct = pricedProduct.bundle
     ? await getBundleProduct(pricedProduct.bundle.id, {
         currency_code: region.currency_code,

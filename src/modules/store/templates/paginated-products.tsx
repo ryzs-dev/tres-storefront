@@ -3,7 +3,6 @@ import { getRegion } from "@lib/data/regions"
 import ProductPreview from "@modules/products/components/product-preview"
 import { Pagination } from "@modules/store/components/pagination"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-import Image from "next/image"
 
 const PRODUCT_LIMIT = 24
 
@@ -13,6 +12,7 @@ type PaginatedProductsParams = {
   category_id?: string[]
   id?: string[]
   order?: string
+  // Remove tags from queryParams type
 }
 
 export default async function PaginatedProducts({
@@ -22,6 +22,7 @@ export default async function PaginatedProducts({
   categoryId,
   productsIds,
   countryCode,
+  tags = ["Set"], // Filter by 'set'
 }: {
   sortBy?: SortOptions
   page: number
@@ -29,25 +30,15 @@ export default async function PaginatedProducts({
   categoryId?: string
   productsIds?: string[]
   countryCode: string
+  tags?: string[]
 }) {
   const queryParams: PaginatedProductsParams = {
-    limit: 24,
-  }
-
-  if (collectionId) {
-    queryParams["collection_id"] = [collectionId]
-  }
-
-  if (categoryId) {
-    queryParams["category_id"] = [categoryId]
-  }
-
-  if (productsIds) {
-    queryParams["id"] = productsIds
-  }
-
-  if (sortBy === "created_at") {
-    queryParams["order"] = "created_at"
+    limit: PRODUCT_LIMIT,
+    ...(collectionId && { collection_id: [collectionId] }),
+    ...(categoryId && { category_id: [categoryId] }),
+    ...(productsIds && { id: productsIds }),
+    ...(sortBy === "created_at" && { order: "created_at" }),
+    // Do not include tags in queryParams
   }
 
   const region = await getRegion(countryCode)
@@ -63,6 +54,7 @@ export default async function PaginatedProducts({
     queryParams,
     sortBy,
     countryCode,
+    tags, // Pass tags directly
   })
 
   const totalPages = Math.ceil(count / PRODUCT_LIMIT)
@@ -74,13 +66,15 @@ export default async function PaginatedProducts({
           className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
           data-testid="products-list"
         >
-          {products.map((p) => {
-            return (
+          {products.length === 0 ? (
+            <div data-testid="no-products">No products found</div>
+          ) : (
+            products.map((p) => (
               <li key={p.id}>
                 <ProductPreview product={p} region={region} />
               </li>
-            )
-          })}
+            ))
+          )}
         </ul>
         {totalPages > 1 && (
           <Pagination
