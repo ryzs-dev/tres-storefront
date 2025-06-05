@@ -4,6 +4,7 @@ import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 import { getBundleProduct } from "@lib/data/products"
+import { HttpTypes } from "@medusajs/types"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
@@ -20,7 +21,7 @@ export async function generateStaticParams() {
     }
 
     const products = await listProducts({
-      countryCode: "US",
+      countryCode: "MY",
       queryParams: { fields: "handle" },
     }).then(({ response }) => response.products)
 
@@ -96,12 +97,31 @@ export default async function ProductPage(props: Props) {
       })
     : null
 
+  let bundledItems: HttpTypes.StoreProduct[] = []
+
+  if (bundleProduct?.bundle_product?.items?.length) {
+    const productPromises = bundleProduct.bundle_product.items.map((item) =>
+      listProducts({
+        countryCode: params.countryCode,
+        queryParams: {
+          id: item.id,
+          fields: "*",
+        },
+      }).then(({ response }) => response.products[0])
+    )
+
+    bundledItems = await Promise.all(productPromises)
+  }
+
+  console.log("Bundle Product:", bundleProduct)
+
   return (
     <ProductTemplate
       product={pricedProduct}
       region={region}
       countryCode={params.countryCode}
       bundle={bundleProduct?.bundle_product}
+      bundledItems={bundledItems}
     />
   )
 }

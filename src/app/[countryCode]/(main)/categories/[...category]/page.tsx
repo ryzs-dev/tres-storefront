@@ -70,8 +70,6 @@ export default async function CategoryPage(props: Props) {
 
   const productCategory = await getCategoryByHandle(params.category)
 
-  console.log("productCategory", productCategory.category_children)
-
   if (!productCategory) {
     notFound()
   }

@@ -1,6 +1,5 @@
 import React, { Suspense } from "react"
 
-import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
 import ProductOnboardingCta from "@modules/products/components/product-onboarding-cta"
 import ProductTabs from "@modules/products/components/product-tabs"
@@ -18,6 +17,7 @@ type ProductTemplateProps = {
   region: HttpTypes.StoreRegion
   countryCode: string
   bundle?: BundleProduct
+  bundledItems: HttpTypes.StoreProduct[]
 }
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
@@ -25,6 +25,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   region,
   countryCode,
   bundle,
+  bundledItems,
 }) => {
   if (!product || !product.id) {
     return notFound()
@@ -61,6 +62,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
               id={product.id}
               region={region}
               bundle={bundle}
+              bundledItems={bundledItems}
             />
           </Suspense>
         </div>

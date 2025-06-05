@@ -13,6 +13,7 @@ import Thumbnail from "../thumbnail"
 
 type BundleActionsProps = {
   bundle: BundleProduct
+  bundledItems?: HttpTypes.StoreProduct[]
 }
 
 const optionsAsKeymap = (
@@ -24,7 +25,10 @@ const optionsAsKeymap = (
   }, {})
 }
 
-export default function BundleActions({ bundle }: BundleActionsProps) {
+export default function BundleActions({
+  bundle,
+  bundledItems,
+}: BundleActionsProps) {
   const [productOptions, setProductOptions] = useState<
     Record<string, Record<string, string>>
   >({})
@@ -44,6 +48,17 @@ export default function BundleActions({ bundle }: BundleActionsProps) {
     })
     setProductOptions(initialOptions)
   }, [bundle.items])
+
+  useEffect(() => {
+    if (!bundledItems) return
+
+    bundle.items.forEach((item) => {
+      const match = bundledItems.find((p) => p.id === item.product.id)
+      if (match) {
+        item.product = match
+      }
+    })
+  }, [bundledItems])
 
   const selectedVariants = useMemo(() => {
     return bundle.items.map((item) => {
