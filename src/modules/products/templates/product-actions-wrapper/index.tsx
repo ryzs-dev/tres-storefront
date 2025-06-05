@@ -11,12 +11,10 @@ export default async function ProductActionsWrapper({
   id,
   region,
   bundle,
-  bundledItems,
 }: {
   id: string
   region: HttpTypes.StoreRegion
   bundle?: BundleProduct | null
-  bundledItems?: HttpTypes.StoreProduct[]
 }) {
   const product = await listProducts({
     queryParams: { id: [id] },
@@ -28,7 +26,7 @@ export default async function ProductActionsWrapper({
   }
 
   if (bundle) {
-    return <BundleActions bundle={bundle} bundledItems={bundledItems ?? []} />
+    return <BundleActions bundle={bundle} />
   }
 
   return <ProductActions product={product} region={region} />
