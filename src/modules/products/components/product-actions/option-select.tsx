@@ -25,6 +25,8 @@ const colorMap: Record<string, string> = {
   pink: "#BD3C7B",
   green: "#025D40",
   purple: "#802D57",
+  brown: "#8B4513",
+  coffee: "#6F4C3E",
 }
 
 const OptionSelect: React.FC<OptionSelectProps> = ({
@@ -52,10 +54,6 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
           <Select
             value={current || ""} // Ensure we handle undefined
             onValueChange={(value) => {
-              console.log(`🎨 Color option changed:`, {
-                optionId: option.id,
-                value,
-              })
               updateOption(option.id, value)
             }}
             disabled={disabled}

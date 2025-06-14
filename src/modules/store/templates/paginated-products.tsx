@@ -12,7 +12,6 @@ type PaginatedProductsParams = {
   category_id?: string[]
   id?: string[]
   order?: string
-  // Remove tags from queryParams type
 }
 
 export default async function PaginatedProducts({
@@ -22,7 +21,7 @@ export default async function PaginatedProducts({
   categoryId,
   productsIds,
   countryCode,
-  tags = ["Set"], // Filter by 'set'
+  tags = [], // Filter by 'set'
 }: {
   sortBy?: SortOptions
   page: number
@@ -38,7 +37,6 @@ export default async function PaginatedProducts({
     ...(categoryId && { category_id: [categoryId] }),
     ...(productsIds && { id: productsIds }),
     ...(sortBy === "created_at" && { order: "created_at" }),
-    // Do not include tags in queryParams
   }
 
   const region = await getRegion(countryCode)

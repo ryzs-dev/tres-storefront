@@ -21,6 +21,9 @@ export type BundleProduct = {
     title: string
     product: HttpTypes.StoreProduct
   }[]
+  calculated_price: {
+    calculated_amount: number
+  }
 }
 
 export const getBundleProduct = async (
@@ -61,9 +64,7 @@ export const listProducts = async ({
   regionId?: string
 }): Promise<{
   response: {
-    products: (HttpTypes.StoreProduct & {
-      bundle?: Omit<BundleProduct, "items">
-    })[]
+    products: HttpTypes.StoreProduct[]
     count: number
   }
   nextPage: number | null
@@ -102,9 +103,7 @@ export const listProducts = async ({
 
   return sdk.client
     .fetch<{
-      products: (HttpTypes.StoreProduct & {
-        bundle?: Omit<BundleProduct, "items">
-      })[]
+      products: (HttpTypes.StoreProduct & {})[]
       count: number
     }>(`/store/products`, {
       method: "GET",
@@ -143,7 +142,7 @@ export const listProductsWithSort = async ({
   queryParams,
   sortBy = "created_at",
   countryCode,
-  tags = ["set"], // Default to filtering by 'set'
+  tags = [],
 }: {
   page?: number
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams

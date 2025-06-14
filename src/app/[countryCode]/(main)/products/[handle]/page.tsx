@@ -3,7 +3,6 @@ import { notFound } from "next/navigation"
 import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
-import { getBundleProduct } from "@lib/data/products"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
@@ -82,7 +81,7 @@ export default async function ProductPage(props: Props) {
 
   const pricedProduct = await listProducts({
     countryCode: params.countryCode,
-    queryParams: { handle: params.handle, fields: "*bundle" },
+    queryParams: { handle: params.handle },
   }).then(({ response }) => response.products[0])
 
   if (!pricedProduct) {
@@ -91,19 +90,11 @@ export default async function ProductPage(props: Props) {
 
   console.log(pricedProduct)
 
-  const bundleProduct = pricedProduct.bundle
-    ? await getBundleProduct(pricedProduct.bundle.id, {
-        currency_code: region.currency_code,
-        region_id: region.id,
-      })
-    : null
-
   return (
     <ProductTemplate
       product={pricedProduct}
       region={region}
       countryCode={params.countryCode}
-      bundle={bundleProduct?.bundle_product}
     />
   )
 }

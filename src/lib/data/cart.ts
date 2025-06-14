@@ -465,18 +465,17 @@ export async function listCartOptions() {
   })
 }
 
-export async function addBundleToCart({
+export async function addFlexibleBundleToCart({
   bundleId,
-  quantity,
   countryCode,
-  items,
+  selectedItems,
 }: {
   bundleId: string
-  quantity: number
   countryCode: string
-  items: {
+  selectedItems: {
     item_id: string
     variant_id: string
+    quantity?: number
   }[]
 }) {
   if (!bundleId) {
@@ -495,13 +494,12 @@ export async function addBundleToCart({
 
   await sdk.client
     .fetch<HttpTypes.StoreCartResponse>(
-      `/store/carts/${cart.id}/line-item-bundles`,
+      `/store/carts/${cart.id}/flexible-bundle-items`,
       {
         method: "POST",
         body: {
           bundle_id: bundleId,
-          quantity,
-          items,
+          selectedItems,
         },
         headers,
       }
@@ -515,16 +513,20 @@ export async function addBundleToCart({
     })
     .catch(medusaError)
 }
-
-export async function removeBundleFromCart(bundleId: string) {
+export async function removeFlexibleBundleFromCart(bundleId: string) {
   const cartId = await getCartId()
+
+  if (!cartId) {
+    throw new Error("No cart found when removing bundle")
+  }
+
   const headers = {
     ...(await getAuthHeaders()),
   }
 
   await sdk.client
     .fetch<HttpTypes.StoreCartResponse>(
-      `/store/carts/${cartId}/line-item-bundles/${bundleId}`,
+      `/store/carts/${cartId}/flexible-bundle-items/${bundleId}`,
       {
         method: "DELETE",
         headers,
@@ -533,7 +535,6 @@ export async function removeBundleFromCart(bundleId: string) {
     .then(async () => {
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
-
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
     })

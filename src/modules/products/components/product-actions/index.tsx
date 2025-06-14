@@ -40,7 +40,6 @@ const dispatchVariantChange = (
 
 export default function ProductActions({
   product,
-  region,
   disabled,
 }: ProductActionsProps) {
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
@@ -68,22 +67,17 @@ export default function ProductActions({
 
   // Dispatch variant change event whenever selectedVariant changes
   useEffect(() => {
-    console.log(
-      "🚀 ProductActions: Dispatching variant change:",
-      selectedVariant?.sku
-    )
     dispatchVariantChange(selectedVariant)
   }, [selectedVariant])
 
   // update the options when a variant is selected
   const setOptionValue = (optionId: string, value: string) => {
-    console.log("🎯 Option selected:", { optionId, value })
     setOptions((prev) => {
       const newOptions = {
         ...prev,
         [optionId]: value,
       }
-      console.log("🔄 Updated options:", newOptions)
+
       return newOptions
     })
   }
