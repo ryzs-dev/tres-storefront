@@ -492,13 +492,18 @@ export async function addFlexibleBundleToCart({
     ...(await getAuthHeaders()),
   }
 
+  console.log("=== ADDING BUNDLE TO CART ===")
+  console.log("Cart ID:", cart.id)
+  console.log("Bundle ID:", bundleId)
+  console.log("Selected items:", selectedItems)
+
   await sdk.client
     .fetch<HttpTypes.StoreCartResponse>(
       `/store/carts/${cart.id}/flexible-bundle-items`,
       {
         method: "POST",
         body: {
-          bundle_id: bundleId,
+          bundle_id: bundleId, // ← Change from bundleId to bundle_id
           selectedItems,
         },
         headers,
@@ -511,8 +516,12 @@ export async function addFlexibleBundleToCart({
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
     })
-    .catch(medusaError)
+    .catch((error) => {
+      console.error("Cart API error:", error)
+      throw error
+    })
 }
+
 export async function removeFlexibleBundleFromCart(bundleId: string) {
   const cartId = await getCartId()
 

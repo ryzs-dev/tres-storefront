@@ -1,6 +1,7 @@
 // src/lib/data/bundles.ts
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../config"
+import { getAuthHeaders } from "./cookies"
 
 export type FlexibleBundle = {
   id: string
@@ -11,19 +12,41 @@ export type FlexibleBundle = {
   min_items: number
   max_items?: number
   selection_type: "flexible" | "required_all"
+
+  // UPDATED: Discount configuration fields from backend
+  discount_2_items?: number // Percentage discount for 2 items
+  discount_3_items?: number // Percentage discount for 3+ items
+
   items: {
     id: string
     quantity: number
     is_optional: boolean
     sort_order: number
-    product: HttpTypes.StoreProduct
+    product: {
+      id: string
+      title: string
+      handle: string
+      description?: string
+      thumbnail?: string
+      status: string
+      variants: Array<{
+        id: string
+        title: string
+        prices?: Array<{
+          amount: number
+          currency_code: string
+        }>
+        // Add other variant properties as needed
+      }>
+    }
   }[]
-  created_at: string
-  updated_at: string
+
+  created_at: Date
+  updated_at: Date
 }
 
 export type BundleListResponse = {
-  flexible_bundles: FlexibleBundle[]
+  flexible_bundles: FlexibleBundle[] // ← Change from "bundles" to "flexible_bundles"
   count: number
   limit: number
   offset: number
@@ -53,6 +76,7 @@ export const listBundles = async ({
 
   const { flexible_bundles, count } =
     await sdk.client.fetch<BundleListResponse>("/store/bundles", {
+      // ← Change to flexible_bundles
       method: "GET",
       query: {
         limit,
@@ -67,7 +91,7 @@ export const listBundles = async ({
 
   return {
     response: {
-      bundles: flexible_bundles,
+      bundles: flexible_bundles, // ← Use flexible_bundles
       count,
     },
     nextPage,
@@ -86,10 +110,15 @@ export const getFlexibleBundle = async (
     region_id?: string
   }
 ) => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
   return sdk.client.fetch<{
-    flexible_bundle: FlexibleBundle
+    bundle: FlexibleBundle // ← Your backend returns "bundle", not "flexible_bundle"
   }>(`/store/bundles/${id}`, {
     method: "GET",
+    headers,
     query: {
       currency_code,
       region_id,
@@ -108,10 +137,14 @@ export const getFlexibleBundleByHandle = async (
     region_id?: string
   }
 ) => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
   return sdk.client.fetch<{
     flexible_bundle: FlexibleBundle
   }>(`/store/bundles/handle/${handle}`, {
     method: "GET",
+    headers,
     query: {
       currency_code,
       region_id,
@@ -134,10 +167,14 @@ export const addFlexibleBundleToCart = async (
     }[]
   }
 ) => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
   return sdk.client.fetch<{
     cart: HttpTypes.StoreCart
   }>(`/store/carts/${cartId}/flexible-bundle-items`, {
     method: "POST",
+    headers,
     body: {
       bundle_id,
       selectedItems,

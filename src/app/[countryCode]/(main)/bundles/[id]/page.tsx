@@ -54,27 +54,27 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   try {
-    const { flexible_bundle } = await getFlexibleBundle(id, {
+    const { bundle } = await getFlexibleBundle(id, {
       currency_code: region.currency_code,
       region_id: region.id,
     })
 
-    if (!flexible_bundle) {
+    if (!bundle) {
       notFound()
     }
 
     return {
-      title: `${flexible_bundle.title} | Medusa Store`,
+      title: `${bundle.title} | Tres Store`,
       description:
-        flexible_bundle.description ||
-        `${flexible_bundle.title} - Select your preferred products from this flexible bundle.`,
+        bundle.description ||
+        `${bundle.title} - Select your preferred products from this flexible bundle.`,
       openGraph: {
-        title: `${flexible_bundle.title} | Medusa Store`,
+        title: `${bundle.title} | Tres Store`,
         description:
-          flexible_bundle.description ||
-          `${flexible_bundle.title} - Select your preferred products from this flexible bundle.`,
-        images: flexible_bundle.items[0]?.product?.thumbnail
-          ? [flexible_bundle.items[0].product.thumbnail]
+          bundle.description ||
+          `${bundle.title} - Select your preferred products from this flexible bundle.`,
+        images: bundle.items[0]?.product?.thumbnail
+          ? [bundle.items[0].product.thumbnail]
           : [],
       },
     }
@@ -92,23 +92,35 @@ export default async function BundleDetailPage(props: Props) {
   }
 
   try {
-    const { flexible_bundle } = await getFlexibleBundle(params.id, {
+    console.log("🔍 Fetching bundle:", params.id)
+    console.log("🌍 Region:", region.currency_code, region.id)
+
+    const response = await getFlexibleBundle(params.id, {
       currency_code: region.currency_code,
       region_id: region.id,
     })
 
-    if (!flexible_bundle) {
+    console.log("📦 Full API response:", response)
+    console.log("🎯 Bundle from response:", response.bundle)
+
+    const { bundle } = response
+
+    if (!bundle) {
+      console.log("❌ No bundle found in response")
       notFound()
     }
 
+    console.log("✅ Bundle successfully loaded:", bundle.title)
+
     return (
       <BundleTemplate
-        bundle={flexible_bundle}
+        bundle={bundle}
         region={region}
         countryCode={params.countryCode}
       />
     )
   } catch (error) {
+    console.error("💥 Error fetching bundle:", error)
     notFound()
   }
 }

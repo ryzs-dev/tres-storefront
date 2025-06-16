@@ -23,54 +23,115 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
 
   const summary = getSelectionSummary()
 
-  // Define discount percentages
-  const DISCOUNT_RATES = {
-    2: 0.1, // 10% off for 2 items
-    3: 0.15, // 15% off for 3 items
+  // Add comprehensive debug logging
+  console.log("=== BUNDLE DISCOUNT DEBUG ===")
+  console.log("Bundle object:", bundle)
+  console.log(
+    "discount_2_items:",
+    bundle.discount_2_items,
+    "type:",
+    typeof bundle.discount_2_items
+  )
+  console.log(
+    "discount_3_items:",
+    bundle.discount_3_items,
+    "type:",
+    typeof bundle.discount_3_items
+  )
+  console.log("Selected items count:", selectedItems.length)
+  console.log("Selected items:", selectedItems)
+
+  const getDiscountRate = (itemCount: number, bundle: any) => {
+    console.log("getDiscountRate called with:", {
+      itemCount,
+      bundle: {
+        discount_2_items: bundle.discount_2_items,
+        discount_3_items: bundle.discount_3_items,
+      },
+    })
+
+    if (itemCount === 2 && bundle.discount_2_items) {
+      const rate = Number(bundle.discount_2_items) / 100
+      console.log("2 items discount rate:", rate)
+      return rate
+    }
+    if (itemCount >= 3 && bundle.discount_3_items) {
+      const rate = Number(bundle.discount_3_items) / 100
+      console.log("3+ items discount rate:", rate)
+      return rate
+    }
+    console.log("No discount applied")
+    return 0
   }
 
   // Calculate base total (without promotions)
   const calculateBaseTotal = () => {
-    return selectedItems.reduce((total, selectedItem) => {
+    console.log("=== CALCULATING BASE TOTAL ===")
+    const total = selectedItems.reduce((total, selectedItem) => {
       const bundleItem = bundle.items.find(
         (item) => item.id === selectedItem.itemId
       )
-      if (!bundleItem) return total
+      if (!bundleItem) {
+        console.log("No bundle item found for:", selectedItem.itemId)
+        return total
+      }
 
       const variant = bundleItem.product.variants?.find(
         (v) => v.id === selectedItem.variantId
       )
-      if (!variant) return total
+      if (!variant) {
+        console.log("No variant found for:", selectedItem.variantId)
+        return total
+      }
 
       const priceInfo = getPricesForVariant(variant)
-      if (!priceInfo) return total
+      console.log("Price info for", bundleItem.product.title, ":", priceInfo)
 
-      return total + priceInfo.calculated_price_number * selectedItem.quantity
+      if (!priceInfo) {
+        console.log("No price info for variant:", variant.title)
+        return total
+      }
+
+      const itemTotal =
+        priceInfo.calculated_price_number * selectedItem.quantity
+      console.log("Item total:", itemTotal, "for", bundleItem.product.title)
+
+      return total + itemTotal
     }, 0)
+
+    console.log("Total base price:", total)
+    return total
   }
 
-  // Calculate promotional total with percentage discounts
+  // Calculate promotional total with dynamic discount rates
   const calculatePromotionalTotal = () => {
     const baseTotal = calculateBaseTotal()
     const itemCount = selectedItems.length
 
-    // Apply percentage discount based on item count
-    const discountRate =
-      DISCOUNT_RATES[itemCount as keyof typeof DISCOUNT_RATES] || 0
+    console.log("=== CALCULATING PROMOTIONAL TOTAL ===")
+    console.log("Base total:", baseTotal)
+    console.log("Item count:", itemCount)
+
+    const discountRate = getDiscountRate(itemCount, bundle)
+    console.log("Applied discount rate:", discountRate)
 
     if (discountRate > 0) {
-      return baseTotal * (1 - discountRate)
+      const promotionalTotal = baseTotal * (1 - discountRate)
+      console.log("Promotional total:", promotionalTotal)
+      return promotionalTotal
     }
 
-    return baseTotal // No discount for 1 item or other counts
+    console.log("No discount applied, returning base total")
+    return baseTotal
   }
 
   // Get the discount percentage for display
   const getDiscountPercentage = () => {
     const itemCount = selectedItems.length
-    const discountRate =
-      DISCOUNT_RATES[itemCount as keyof typeof DISCOUNT_RATES]
-    return discountRate ? Math.round(discountRate * 100) : 0
+    const discountRate = getDiscountRate(itemCount, bundle)
+    const percentage = discountRate ? Math.round(discountRate * 100) : 0
+    console.log("Display percentage:", percentage)
+    return percentage
   }
 
   const baseTotal = calculateBaseTotal()
@@ -78,6 +139,13 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
   const hasPromotion = baseTotal !== promotionalTotal
   const savings = baseTotal - promotionalTotal
   const discountPercentage = getDiscountPercentage()
+
+  console.log("=== FINAL CALCULATIONS ===")
+  console.log("Base total:", baseTotal)
+  console.log("Promotional total:", promotionalTotal)
+  console.log("Has promotion:", hasPromotion)
+  console.log("Savings:", savings)
+  console.log("Discount percentage:", discountPercentage)
 
   // Get selected items for display with pricing
   const getSelectedItemsDisplay = () => {
@@ -114,6 +182,11 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
       }))
 
       console.log("Adding items to cart:", formattedItems)
+      console.log("Bundle discount config:", {
+        discount_2_items: bundle.discount_2_items,
+        discount_3_items: bundle.discount_3_items,
+        calculatedDiscount: discountPercentage,
+      })
 
       await addFlexibleBundleToCart({
         bundleId: bundle.id,
@@ -132,12 +205,46 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
     }
   }
 
+  // Dynamic discount display based on bundle configuration
+  const getDiscountDisplayText = () => {
+    const discounts = []
+
+    if (
+      typeof bundle.discount_2_items === "number" &&
+      bundle.discount_2_items > 0
+    ) {
+      discounts.push(`2 items = ${bundle.discount_2_items}% off`)
+    }
+
+    if (bundle.discount_3_items && bundle.discount_3_items > 0) {
+      discounts.push(`3+ items = ${bundle.discount_3_items}% off`)
+    }
+
+    if (discounts.length === 0) {
+      return "No bundle discounts available"
+    }
+
+    return discounts.join(" • ")
+  }
+
   return (
     <div className="border border-ui-border-base rounded-lg p-6 bg-white">
       {/* Header */}
       <Heading level="h3" className="text-lg font-semibold mb-4">
         Your Selection
       </Heading>
+
+      {/* DEBUG INFO - Remove this in production */}
+      <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
+        <div>Debug Info:</div>
+        <div>Items selected: {selectedItems.length}</div>
+        <div>Base total: MYR {baseTotal.toFixed(2)}</div>
+        <div>Promotional total: MYR {promotionalTotal.toFixed(2)}</div>
+        <div>Discount: {discountPercentage}%</div>
+        <div>Has promotion: {hasPromotion ? "Yes" : "No"}</div>
+        <div>Bundle discount_2_items: {bundle.discount_2_items}</div>
+        <div>Bundle discount_3_items: {bundle.discount_3_items}</div>
+      </div>
 
       {/* Selection Summary */}
       <div className="mb-4">
@@ -261,8 +368,8 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             : selectedItems.length === 0
             ? "Select Items to Add"
             : hasPromotion
-            ? `Add Bundle `
-            : `Add to Cart `}
+            ? `Add Bundle (${discountPercentage}% Off)`
+            : `Add to Cart`}
         </Button>
 
         {selectedItems.length > 0 && (
@@ -284,6 +391,10 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             ? "Select any items you want from this bundle"
             : "All items must be selected"}
         </Text>
+        <div className="mt-2 text-xs text-ui-fg-muted text-center">
+          <div>💰 Bundle Discounts:</div>
+          <div>{getDiscountDisplayText()}</div>
+        </div>
       </div>
     </div>
   )
