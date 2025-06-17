@@ -8,7 +8,7 @@ import {
 } from "@headlessui/react"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
-import { Button } from "@medusajs/ui"
+import { Button, Badge } from "@medusajs/ui"
 import DeleteButton from "@modules/common/components/delete-button"
 import LineItemOptions from "@modules/common/components/line-item-options"
 import LineItemPrice from "@modules/common/components/line-item-price"
@@ -73,6 +73,22 @@ const CartDropdown = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalItems, itemRef.current])
 
+  // Calculate bundle savings - ADDED
+  const bundleItems = cartState?.items?.filter(item => 
+    item.metadata?.is_from_bundle === true
+  ) || []
+
+  const totalBundleSavings = bundleItems.reduce((total, item) => {
+    const originalPriceCents = item.metadata?.original_price_cents as number
+    const discountedPriceCents = item.metadata?.discounted_price_cents as number
+    
+    if (originalPriceCents && discountedPriceCents) {
+      const itemSavings = ((originalPriceCents - discountedPriceCents) / 100) * item.quantity
+      return total + itemSavings
+    }
+    return total
+  }, 0)
+
   return (
     <div
       className="h-full z-50"
@@ -107,6 +123,21 @@ const CartDropdown = ({
             </div>
             {cartState && cartState.items?.length ? (
               <>
+                {/* Bundle Savings Summary - ADDED */}
+                {totalBundleSavings > 0 && (
+                  <div className="mx-4 mb-4 p-3 bg-green-50 border border-green-200 rounded">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-green-700">🎉 Bundle Savings</span>
+                      <Badge className="bg-green-100 text-green-800 text-xs">
+                        {convertToLocale({
+                          amount: totalBundleSavings * 100,
+                          currency_code: cartState.currency_code,
+                        })} saved
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+
                 <div className="overflow-y-scroll max-h-[402px] px-4 grid grid-cols-1 gap-y-8 no-scrollbar p-px">
                   {cartState.items
                     .sort((a, b) => {
@@ -114,68 +145,116 @@ const CartDropdown = ({
                         ? -1
                         : 1
                     })
-                    .map((item) => (
-                      <div
-                        className="grid grid-cols-[122px_1fr] gap-x-4"
-                        key={item.id}
-                        data-testid="cart-item"
-                      >
-                        <LocalizedClientLink
-                          href={`/products/${item.product_handle}`}
-                          className="w-24"
+                    .map((item) => {
+                      // Bundle item info - ADDED
+                      const isBundleItem = item.metadata?.is_from_bundle === true
+                      const bundleDiscountPercentage = item.metadata?.bundle_discount_percentage as number
+                      const bundleTitle = item.metadata?.bundle_title as string
+                      const originalPriceCents = item.metadata?.original_price_cents as number
+                      const discountedPriceCents = item.metadata?.discounted_price_cents as number
+                      
+                      const showBundleDiscount = isBundleItem && bundleDiscountPercentage > 0
+                      const originalPrice = originalPriceCents ? originalPriceCents / 100 : 0
+                      const savings = originalPrice > 0 ? ((originalPriceCents - discountedPriceCents) / 100) * item.quantity : 0
+
+                      return (
+                        <div
+                          className="grid grid-cols-[122px_1fr] gap-x-4"
+                          key={item.id}
+                          data-testid="cart-item"
                         >
-                          <Thumbnail
-                            thumbnail={item.thumbnail}
-                            images={item.variant?.product?.images}
-                            size="square"
-                          />
-                        </LocalizedClientLink>
-                        <div className="flex flex-col justify-between flex-1">
-                          <div className="flex flex-col flex-1">
-                            <div className="flex items-start justify-between">
-                              <div className="flex flex-col overflow-ellipsis whitespace-nowrap mr-4 w-[180px]">
-                                <h3 className="text-base-regular overflow-hidden text-ellipsis">
-                                  <LocalizedClientLink
-                                    href={`/products/${item.product_handle}`}
-                                    data-testid="product-link"
+                          <LocalizedClientLink
+                            href={`/products/${item.product_handle}`}
+                            className="w-24"
+                          >
+                            <Thumbnail
+                              thumbnail={item.thumbnail}
+                              images={item.variant?.product?.images}
+                              size="square"
+                            />
+                          </LocalizedClientLink>
+                          <div className="flex flex-col justify-between flex-1">
+                            <div className="flex flex-col flex-1">
+                              <div className="flex items-start justify-between">
+                                <div className="flex flex-col overflow-ellipsis whitespace-nowrap mr-4 w-[180px]">
+                                  <h3 className="text-base-regular overflow-hidden text-ellipsis">
+                                    <LocalizedClientLink
+                                      href={`/products/${item.product_handle}`}
+                                      data-testid="product-link"
+                                    >
+                                      {item.title}
+                                    </LocalizedClientLink>
+                                  </h3>
+                                  <LineItemOptions
+                                    variant={item.variant}
+                                    data-testid="cart-item-variant"
+                                    data-value={item.variant}
+                                  />
+                                  
+                                  {/* Bundle Info - ADDED */}
+                                  {isBundleItem && (
+                                    <div className="mt-1">
+                                      <Badge className="text-xs">
+                                        📦 {bundleTitle}
+                                      </Badge>
+                                      {showBundleDiscount && (
+                                        <div className="text-xs text-green-600 mt-1">
+                                          🎉 {bundleDiscountPercentage}% off
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  <span
+                                    data-testid="cart-item-quantity"
+                                    data-value={item.quantity}
                                   >
-                                    {item.title}
-                                  </LocalizedClientLink>
-                                </h3>
-                                <LineItemOptions
-                                  variant={item.variant}
-                                  data-testid="cart-item-variant"
-                                  data-value={item.variant}
-                                />
-                                <span
-                                  data-testid="cart-item-quantity"
-                                  data-value={item.quantity}
-                                >
-                                  Quantity: {item.quantity}
-                                </span>
-                              </div>
-                              <div className="flex justify-end">
-                                <LineItemPrice
-                                  item={item}
-                                  style="tight"
-                                  currencyCode={cartState.currency_code}
-                                />
+                                    Quantity: {item.quantity}
+                                  </span>
+                                </div>
+                                <div className="flex flex-col justify-end items-end">
+                                  {/* Show original price crossed out - ADDED */}
+                                  {showBundleDiscount && originalPrice > 0 && (
+                                    <div className="text-xs text-gray-500 line-through">
+                                      {convertToLocale({
+                                        amount: originalPrice * item.quantity * 100,
+                                        currency_code: cartState.currency_code,
+                                      })}
+                                    </div>
+                                  )}
+                                  
+                                  <LineItemPrice
+                                    item={item}
+                                    style="tight"
+                                    currencyCode={cartState.currency_code}
+                                  />
+                                  
+                                  {/* Show savings - ADDED */}
+                                  {showBundleDiscount && savings > 0 && (
+                                    <div className="text-xs text-green-600 font-medium">
+                                      Saved: {convertToLocale({
+                                        amount: savings * 100,
+                                        currency_code: cartState.currency_code,
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
+                            <DeleteButton
+                              id={item.id}
+                              className="mt-1"
+                              data-testid="cart-item-remove-button"
+                              bundle_id={item.metadata?.bundle_id as string}
+                            >
+                              {item.metadata?.bundle_id !== undefined
+                                ? "Remove bundle"
+                                : "Remove"}
+                            </DeleteButton>
                           </div>
-                          <DeleteButton
-                            id={item.id}
-                            className="mt-1"
-                            data-testid="cart-item-remove-button"
-                            bundle_id={item.metadata?.bundle_id as string}
-                          >
-                            {item.metadata?.bundle_id !== undefined
-                              ? "Remove bundle"
-                              : "Remove"}
-                          </DeleteButton>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                 </div>
                 <div className="p-4 flex flex-col gap-y-4 text-small-regular">
                   <div className="flex items-center justify-between">

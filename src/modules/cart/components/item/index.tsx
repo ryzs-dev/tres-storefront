@@ -1,6 +1,6 @@
 "use client"
 
-import { Table, Text, clx } from "@medusajs/ui"
+import { Table, Text, clx, Badge } from "@medusajs/ui"
 import { updateLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import CartItemSelect from "@modules/cart/components/cart-item-select"
@@ -44,6 +44,20 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
   const maxQtyFromInventory = 10
   const maxQuantity = item.variant?.manage_inventory ? 10 : maxQtyFromInventory
 
+  // Bundle discount information
+  const isBundleItem = item.metadata?.is_from_bundle === true
+  const bundleDiscountPercentage = item.metadata?.bundle_discount_percentage as number
+  const originalPriceCents = item.metadata?.original_price_cents as number
+  const discountedPriceCents = item.metadata?.discounted_price_cents as number
+  const bundleTitle = item.metadata?.bundle_title as string
+  
+  // FIXED: Clean up the percentage display and ensure we have valid numbers
+  const cleanDiscountPercentage = bundleDiscountPercentage ? Math.round(bundleDiscountPercentage) : 0
+  const showBundleDiscount = isBundleItem && cleanDiscountPercentage > 0
+  const originalPrice = originalPriceCents ? originalPriceCents / 100 : 0
+  const discountedPrice = discountedPriceCents ? discountedPriceCents / 100 : 0
+  const savings = originalPrice > 0 && discountedPrice > 0 ? originalPrice - discountedPrice : 0
+
   return (
     <Table.Row className="w-full" data-testid="product-row">
       <Table.Cell className="!pl-0 p-4 w-24">
@@ -70,6 +84,20 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
           {item.product_title}
         </Text>
         <LineItemOptions variant={item.variant} data-testid="product-variant" />
+        
+        {/* Bundle Information - ENHANCED */}
+        {isBundleItem && (
+          <div className="mt-2 space-y-1">
+            <Badge className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+              📦 {bundleTitle || 'Bundle Item'}
+            </Badge>
+            {showBundleDiscount && (
+              <div className="text-xs text-green-600 font-medium">
+                🎉 {cleanDiscountPercentage}% Bundle Discount Applied
+              </div>
+            )}
+          </div>
+        )}
       </Table.Cell>
 
       {type === "full" && (
@@ -114,11 +142,19 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
 
       {type === "full" && (
         <Table.Cell className="hidden small:table-cell">
-          <LineItemUnitPrice
-            item={item}
-            style="tight"
-            currencyCode={currencyCode}
-          />
+          {/* Show original price crossed out if discounted - FIXED */}
+          <div className="flex flex-col items-end">
+            {showBundleDiscount && originalPrice > 0 && savings > 0 && (
+              <Text className="text-xs text-ui-fg-muted line-through">
+                {currencyCode} {originalPrice.toFixed(2)}
+              </Text>
+            )}
+            <LineItemUnitPrice
+              item={item}
+              style="tight"
+              currencyCode={currencyCode}
+            />
+          </div>
         </Table.Cell>
       )}
 
@@ -138,11 +174,26 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
               />
             </span>
           )}
+          
+          {/* Show original total crossed out if discounted - FIXED */}
+          {showBundleDiscount && originalPrice > 0 && savings > 0 && type === "full" && (
+            <Text className="text-xs text-ui-fg-muted line-through">
+              {currencyCode} {(originalPrice * item.quantity).toFixed(2)}
+            </Text>
+          )}
+          
           <LineItemPrice
             item={item}
             style="tight"
             currencyCode={currencyCode}
           />
+          
+          {/* Show savings - ENHANCED */}
+          {showBundleDiscount && savings > 0 && (
+            <Text className="text-xs text-green-600 font-medium">
+              Saved: {currencyCode} {(savings * item.quantity).toFixed(2)}
+            </Text>
+          )}
         </span>
       </Table.Cell>
     </Table.Row>

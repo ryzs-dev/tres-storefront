@@ -3,7 +3,7 @@
 
 import { HttpTypes } from "@medusajs/types"
 import { FlexibleBundle } from "@lib/data/bundles"
-import { Button, Heading, Text, Alert } from "@medusajs/ui"
+import { Button, Heading, Text, Alert, Badge } from "@medusajs/ui"
 import { useBundleSelection } from "../../context/bundle-selection-context"
 import { useState } from "react"
 import { addFlexibleBundleToCart } from "@lib/data/cart"
@@ -227,12 +227,65 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
     return discounts.join(" • ")
   }
 
+  // Get available discount tiers - ADDED
+  const getAvailableDiscounts = () => {
+    const discounts = []
+    
+    if (bundle.discount_2_items && bundle.discount_2_items > 0) {
+      discounts.push({
+        items: 2,
+        percentage: bundle.discount_2_items,
+        isActive: selectedItems.length === 2,
+        isEligible: selectedItems.length >= 2,
+      })
+    }
+    
+    if (bundle.discount_3_items && bundle.discount_3_items > 0) {
+      discounts.push({
+        items: 3,
+        percentage: bundle.discount_3_items,
+        isActive: selectedItems.length >= 3,
+        isEligible: selectedItems.length >= 3,
+      })
+    }
+    
+    return discounts
+  }
+
+  const availableDiscounts = getAvailableDiscounts()
+
   return (
     <div className="border border-ui-border-base rounded-lg p-6 bg-white">
       {/* Header */}
       <Heading level="h3" className="text-lg font-semibold mb-4">
         Your Selection
       </Heading>
+
+      {/* Available Discounts Display - ADDED */}
+      {availableDiscounts.length > 0 && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+          <Text className="text-sm font-medium text-blue-800 mb-2">
+            🎯 Bundle Discounts Available:
+          </Text>
+          <div className="flex gap-2 flex-wrap">
+            {availableDiscounts.map((discount, index) => (
+              <Badge
+                key={index}
+                className={`text-xs ${
+                  discount.isActive 
+                    ? "bg-green-100 text-green-800 border-green-300" 
+                    : discount.isEligible
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {discount.items}+ items: {discount.percentage}% off
+                {discount.isActive && " ✓"}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* DEBUG INFO - Remove this in production */}
       <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
@@ -293,8 +346,19 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
                 </div>
                 <div className="text-right">
                   {item.priceInfo ? (
-                    <div className="font-medium">
-                      {item.priceInfo.calculated_price}
+                    <div>
+                      {/* Show original price crossed out if there's a discount - ADDED */}
+                      {hasPromotion && (
+                        <div className="text-xs text-ui-fg-muted line-through">
+                          {item.priceInfo.calculated_price}
+                        </div>
+                      )}
+                      <div className={`font-medium ${hasPromotion ? 'text-green-600' : ''}`}>
+                        {hasPromotion 
+                          ? `MYR ${(item.priceInfo.calculated_price_number * item.quantity * (1 - getDiscountRate(selectedItems.length, bundle))).toFixed(2)}`
+                          : item.priceInfo.calculated_price
+                        }
+                      </div>
                     </div>
                   ) : (
                     <div className="text-xs text-ui-fg-muted">
@@ -324,7 +388,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             <Text className="font-medium">
               {hasPromotion ? "Bundle Price:" : "Total:"}
             </Text>
-            <Text className="text-lg font-semibold">
+            <Text className={`text-lg font-semibold ${hasPromotion ? 'text-green-600' : ''}`}>
               MYR {promotionalTotal.toFixed(2)}
             </Text>
           </div>
@@ -368,8 +432,8 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             : selectedItems.length === 0
             ? "Select Items to Add"
             : hasPromotion
-            ? `Add Bundle (${discountPercentage}% Off)`
-            : `Add to Cart`}
+            ? `Add Bundle - Save MYR ${savings.toFixed(2)} (${discountPercentage}% Off)`
+            : `Add to Cart - MYR ${baseTotal.toFixed(2)}`}
         </Button>
 
         {selectedItems.length > 0 && (
@@ -383,6 +447,26 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
           </Button>
         )}
       </div>
+
+      {/* Incentive Messages - ADDED */}
+      {selectedItems.length === 1 && bundle.discount_2_items && (
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-center">
+          <Text className="text-sm text-yellow-800">
+            💡 Add 1 more item to get {bundle.discount_2_items}% off!
+          </Text>
+        </div>
+      )}
+      
+      {selectedItems.length === 2 &&
+        bundle.discount_3_items &&
+        bundle.discount_2_items !== undefined &&
+        bundle.discount_3_items > bundle.discount_2_items && (
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-center">
+          <Text className="text-sm text-yellow-800">
+            💡 Add 1 more item to upgrade from {bundle.discount_2_items}% to {bundle.discount_3_items}% off!
+          </Text>
+        </div>
+      )}
 
       {/* Help Text */}
       <div className="mt-4 pt-4 border-t">
