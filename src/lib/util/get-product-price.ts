@@ -59,11 +59,9 @@ export const getPricesForVariant = (variant: any) => {
 export const getProductPrice = ({
   product,
   variantId,
-  region,
 }: {
   product: HttpTypes.StoreProduct
   variantId?: string
-  region: HttpTypes.StoreRegion
 }) => {
   const getVariant = () => {
     if (!product.variants || product.variants.length === 0) {

@@ -12,12 +12,14 @@ export default function ProductPrice({
   variant?: HttpTypes.StoreProductVariant
   className?: string
 }) {
-  const { cheapestPrice, variantPrice } = getProductPrice({
+  const selectedPrice = getProductPrice({
     product,
     variantId: variant?.id,
   })
 
-  const selectedPrice = variant ? variantPrice : cheapestPrice
+  if (!selectedPrice) {
+    return <div className="block w-32 h-9 bg-gray-100 animate-pulse" />
+  }
 
   if (!selectedPrice) {
     return <div className="block w-32 h-9 bg-gray-100 animate-pulse" />
@@ -49,7 +51,7 @@ export default function ProductPrice({
             <span
               className="line-through"
               data-testid="original-product-price"
-              data-value={selectedPrice.original_price_number}
+              data-value={selectedPrice.original_price}
             >
               {selectedPrice.original_price}
             </span>

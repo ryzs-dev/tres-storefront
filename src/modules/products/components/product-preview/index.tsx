@@ -24,7 +24,7 @@ export default async function ProductPreview({
   //   return null
   // }
 
-  const { cheapestPrice } = getProductPrice({
+  const selectedPrice = getProductPrice({
     product,
   })
 
@@ -42,7 +42,9 @@ export default async function ProductPreview({
             {product.title}
           </Text>
           <div className="flex items-center gap-x-2">
-            {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+            {selectedPrice?.calculated_price_number && (
+              <PreviewPrice price={selectedPrice.calculated_price_number} />
+            )}
           </div>
         </div>
       </div>
