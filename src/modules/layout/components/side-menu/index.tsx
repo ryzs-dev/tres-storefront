@@ -18,7 +18,7 @@ import CategoriesSelect from "./CategoriesSelect"
 const SideMenuItems = {
   Home: "/",
   Journey: "/journey",
-  Categories: "/store",
+  "Shop All": "/bundles",
   Account: "/account",
   Cart: "/cart",
 }
