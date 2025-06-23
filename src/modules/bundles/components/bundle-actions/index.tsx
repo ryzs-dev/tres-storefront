@@ -120,18 +120,6 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
         Your Selection
       </Heading>
 
-      <Text className="text-sm text-ui-fg-muted mb-2">
-        {summary.totalItems} of {bundle.items.length} items selected
-      </Text>
-
-      {summary.violatesRules && (
-        <Alert className="mb-3">
-          <Text className="text-sm text-ui-fg-error">
-            {summary.violatesRules}
-          </Text>
-        </Alert>
-      )}
-
       <div className="border-t pt-4 mb-4">
         {hasPromotion && (
           <div className="flex justify-between text-sm text-ui-fg-muted line-through">

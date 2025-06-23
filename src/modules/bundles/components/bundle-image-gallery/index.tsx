@@ -4,13 +4,13 @@ import { HttpTypes } from "@medusajs/types"
 import { FlexibleBundle } from "@lib/data/bundles"
 import { Container, Text } from "@medusajs/ui"
 import Image from "next/image"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 // Swiper
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Navigation, Pagination } from "swiper/modules"
+import { Pagination } from "swiper/modules"
 import "swiper/css"
-import "swiper/css/navigation"
 import "swiper/css/pagination"
 import { useBundleSelection } from "@modules/bundles/context/bundle-selection-context"
 
@@ -19,8 +19,32 @@ type BundleImageGalleryProps = {
   images?: HttpTypes.StoreProductImage[]
 }
 
+function SlideNavButtons({ swiper }: { swiper: any }) {
+  return (
+    <div className="absolute inset-0 flex items-center justify-between px-2 sm:px-4 z-10">
+      <button
+        onClick={() => swiper?.slidePrev()}
+        className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center border rounded-full hover:bg-gray-100 transition bg-white"
+        aria-label="Previous"
+        disabled={!swiper}
+      >
+        <ChevronLeft className="w-4 h-4" />
+      </button>
+      <button
+        onClick={() => swiper?.slideNext()}
+        className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center border rounded-full hover:bg-gray-100 transition bg-white"
+        aria-label="Next"
+        disabled={!swiper}
+      >
+        <ChevronRight className="w-4 h-4" />
+      </button>
+    </div>
+  )
+}
+
 const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
   const { selectedItems, getSelectedVariant } = useBundleSelection()
+  const [swiper, setSwiper] = useState<any>(null)
 
   const getSelectedVariantTyped = (
     itemId: string
@@ -70,7 +94,7 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
               id: `thumbnail_${product.id}`,
               url: product.thumbnail,
               metadata: {},
-              rank: 0, // Default rank value added to satisfy the type requirement
+              rank: 0,
             }
           : undefined
 
@@ -87,28 +111,16 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
 
       // Only apply color/SKU filtering for selected items with a valid variant
       if (isSelected && selectedVariant && product.options) {
-        const colorOption =
-          selectedVariant &&
-          typeof selectedVariant === "object" &&
-          "options" in selectedVariant &&
-          Array.isArray((selectedVariant as any).options) &&
-          (selectedVariant as any).options.find(
-            (opt: { option_id: string }) => {
-              const productOption = product.options?.find(
-                (po) => po.id === opt.option_id
-              )
-              return productOption?.title?.toLowerCase() === "color"
-            }
+        const colorOption = selectedVariant.options?.find((opt) => {
+          const productOption = product.options?.find(
+            (po) => po.id === opt.option_id
           )
+          return productOption?.title?.toLowerCase() === "color"
+        })
 
         if (colorOption) {
           const colorValue = colorOption.value?.toLowerCase()
-          const sku =
-            selectedVariant &&
-            typeof selectedVariant === "object" &&
-            "sku" in selectedVariant
-              ? selectedVariant.sku?.toLowerCase()
-              : undefined
+          const sku = selectedVariant.sku?.toLowerCase()
 
           if (colorValue) {
             filteredProductImages = imagesToProcess.filter((image) => {
@@ -129,8 +141,8 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
               const fullUrl = image.url.toLowerCase()
               return sku
                 .split("-")
-                .filter((part: string | any[]) => part.length > 1)
-                .some((part: string) => fullUrl.includes(part))
+                .filter((part) => part.length > 1)
+                .some((part) => fullUrl.includes(part))
             })
           }
 
@@ -203,21 +215,21 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
 
   return (
     <div className="flex flex-1 items-start relative w-full">
-      <div className="w-full mx-auto overflow-hidden px-4 max-w-full sm:max-w-[90%] lg:max-w-[800px]">
+      <div className="w-full mx-auto overflow-hidden px-4 max-w-full sm:max-w-[90%] lg:max-w-[800px] relative">
         <Swiper
+          onSwiper={setSwiper}
           slidesPerView={1}
           spaceBetween={16}
           loop={displayImages.length > 1}
           pagination={{
             clickable: true,
           }}
-          navigation={true}
-          modules={[Pagination, Navigation]}
-          className="w-full max-w-screen-md mx-auto" // ✅ responsive width
+          modules={[Pagination]}
+          className="w-full max-w-screen-md mx-auto"
         >
           {displayImages.map((image, index) => (
             <SwiperSlide key={`${image.id}-${index}`}>
-              <div className="w-full">
+              <div className="w-full relative">
                 <Container className="aspect-[29/34] w-full max-w-full sm:max-w-[90%] lg:max-w-[800px] mx-auto flex items-center justify-center bg-ui-bg-subtle">
                   {image.url && (
                     <Image
@@ -231,13 +243,11 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
                       className="absolute inset-0 rounded-rounded object-cover"
                     />
                   )}
-                  <Text className="absolute top-2 left-2 bg-ui-bg-base bg-opacity-75 px-2 py-1 rounded text-xs text-ui-fg-subtle">
-                    {image.metadata?.productTitle}
-                  </Text>
                 </Container>
               </div>
             </SwiperSlide>
           ))}
+          {displayImages.length > 1 && <SlideNavButtons swiper={swiper} />}
         </Swiper>
 
         {displayImages.length === 0 && (

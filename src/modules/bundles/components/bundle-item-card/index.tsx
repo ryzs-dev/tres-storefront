@@ -116,6 +116,7 @@ const BundleItemCard = ({ item }: Props) => {
             <ProductPrice
               product={item.product as unknown as HttpTypes.StoreProduct}
               variant={matchedVariant as HttpTypes.StoreProductVariant}
+              className="mt-1 text-base font-semibold"
             />
           )}
         </div>
