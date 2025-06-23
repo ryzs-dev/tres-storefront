@@ -16,6 +16,7 @@ import { useBundleSelection } from "@modules/bundles/context/bundle-selection-co
 
 type BundleImageGalleryProps = {
   bundle: FlexibleBundle
+  images?: HttpTypes.StoreProductImage[]
 }
 
 const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
@@ -57,7 +58,7 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
     }> = []
 
     bundle.items.forEach((item, index) => {
-      const product = item.product as HttpTypes.StoreProduct
+      const product = item.product as unknown as HttpTypes.StoreProduct
       const isSelected = selectedItems.some((si) => si.itemId === item.id)
       const selectedVariant = getSelectedVariantTyped(item.id)
       const productImages = product.images || []

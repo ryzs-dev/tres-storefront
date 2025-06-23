@@ -1,53 +1,87 @@
 "use client"
 
+import { useState, useMemo, useCallback } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { FlexibleBundle } from "@lib/data/bundles"
-import { Button, Heading, Text, Checkbox } from "@medusajs/ui"
+import { useBundleSelection } from "../../context/bundle-selection-context"
+import { Button, Heading, Text, Checkbox, Label, Input } from "@medusajs/ui"
 import Divider from "@modules/common/components/divider"
 import Thumbnail from "@modules/products/components/thumbnail"
 import ProductPrice from "@modules/products/components/product-price"
-import { useBundleSelection } from "../../context/bundle-selection-context"
-import VariantSelect from "./variant-select"
-import { useMemo } from "react"
+import OptionSelect from "@modules/products/components/product-actions/option-select"
 import clsx from "clsx"
 
-type BundleItemCardProps = {
+type Props = {
   item: FlexibleBundle["items"][0]
   region: HttpTypes.StoreRegion
 }
 
-const BundleItemCard = ({ item, region }: BundleItemCardProps) => {
-  const { toggleItem, isItemSelected, getSelectedVariant } =
+const getOptionMap = (
+  variantOptions: HttpTypes.StoreProductVariant["options"]
+) =>
+  variantOptions?.reduce((acc: Record<string, string>, opt) => {
+    if (opt.option_id != null) {
+      acc[opt.option_id] = opt.value
+    }
+    return acc
+  }, {})
+
+const BundleItemCard = ({ item }: Props) => {
+  const { toggleItem, isItemSelected, updateItemQuantity } =
     useBundleSelection()
 
-  const isSelected = useMemo(
-    () => isItemSelected(item.id),
-    [isItemSelected, item.id]
-  )
-  const selectedVariant = useMemo(
-    () => getSelectedVariant(item.id),
-    [getSelectedVariant, item.id]
-  )
+  const [optionValues, setOptionValues] = useState<Record<string, string>>({})
+  const [customQuantity, setCustomQuantity] = useState(item.quantity)
 
-  // Use the selected variant if available, otherwise default to the first variant
-  const displayVariant = useMemo(() => {
-    if (selectedVariant && typeof selectedVariant !== "string") {
-      return selectedVariant as HttpTypes.StoreProductVariant
+  const isSelected = isItemSelected(item.id)
+
+  const matchedVariant = useMemo(() => {
+    if (!item.product.variants) return undefined
+
+    return item.product.variants.find((variant) => {
+      const variantMap = getOptionMap(variant.options)
+      return Object.keys(optionValues).every(
+        (id) => variantMap?.[id] === optionValues[id]
+      )
+    })
+  }, [item.product.variants, optionValues])
+
+  console.log("Item:", item)
+
+  const isValid = !!matchedVariant
+  const inStock =
+    matchedVariant &&
+    (!matchedVariant.manage_inventory ||
+      matchedVariant.allow_backorder ||
+      matchedVariant.inventory_quantity > 0)
+
+  const handleOptionChange = useCallback((optionId: string, value: string) => {
+    setOptionValues((prev) => ({
+      ...prev,
+      [optionId]: value,
+    }))
+  }, [])
+
+  const handleQuantityChange = (value: number) => {
+    setCustomQuantity(value)
+    updateItemQuantity(item.id, value)
+
+    if (isSelected && matchedVariant) {
+      toggleItem(item.id, matchedVariant.id, value)
     }
-    if (
-      item.product.variants?.[0] &&
-      typeof item.product.variants[0] !== "string"
-    ) {
-      return item.product.variants[0] as HttpTypes.StoreProductVariant
-    }
-    return undefined
-  }, [selectedVariant, item.product.variants])
+  }
 
   const handleSelectionChange = (checked: boolean) => {
-    if (checked && item.product.variants?.length) {
-      toggleItem(item.id, item.product.variants[0].id!)
+    if (checked && matchedVariant) {
+      toggleItem(item.id, matchedVariant.id, customQuantity)
     } else {
-      toggleItem(item.id)
+      toggleItem(item.id, undefined)
+    }
+  }
+
+  const handleAddToBundle = () => {
+    if (matchedVariant && inStock) {
+      toggleItem(item.id, matchedVariant.id, customQuantity)
     }
   }
 
@@ -59,70 +93,101 @@ const BundleItemCard = ({ item, region }: BundleItemCardProps) => {
           ? "border-ui-border-interactive bg-ui-bg-highlight"
           : "border-ui-border-base hover:border-ui-border-strong"
       )}
-      aria-label={`Select ${item.product.title} for bundle`}
     >
-      {/* Thumbnail and Checkbox */}
-      <div className="flex flex-row gap-4 items-start">
-        <div className="relative w-[100px] rounded-lg overflow-hidden flex-shrink-0">
+      {/* Header */}
+      <div className="flex items-start gap-4">
+        <div className="w-[100px] rounded overflow-hidden">
           <Thumbnail thumbnail={item.product.thumbnail} size="square" />
         </div>
-        <div className="flex-1 flex flex-col">
-          <div className="flex items-center justify-between">
+
+        <div className="flex-1">
+          <div className="flex justify-between items-start">
             <Heading level="h3" className="text-base font-semibold">
               {item.product.title}
             </Heading>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={isSelected}
-                onCheckedChange={handleSelectionChange}
-                id={`item-${item.id}`}
-                className="h-5 w-5"
-                aria-label={`Select ${item.product.title}`}
-              />
-              <label htmlFor={`item-${item.id}`} className="sr-only">
-                Select {item.product.title}
-              </label>
-            </div>
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={handleSelectionChange}
+              className="h-5 w-5 mt-1"
+              aria-label={`Select ${item.product.title}`}
+            />
           </div>
-          {item.product.variants && (
+          {matchedVariant && (
             <ProductPrice
-              product={item.product as HttpTypes.StoreProduct}
-              variant={displayVariant}
+              product={item.product as unknown as HttpTypes.StoreProduct}
+              variant={matchedVariant as HttpTypes.StoreProductVariant}
             />
           )}
         </div>
       </div>
 
-      {/* Divider */}
-      <Divider />
+      {isSelected && (
+        <div className="flex flex-col gap-y-4">
+          <Divider />
 
-      {/* Item Details */}
-      <div className="flex flex-col gap-y-2">
-        <Text className="text-xs text-ui-fg-muted">
-          Includes: {item.quantity} {item.quantity === 1 ? "piece" : "pieces"}
-        </Text>
-        {(item.product.variants?.length ?? 0) > 0 && (
-          <Text className="text-xs text-ui-fg-muted">
-            {item.product.variants?.length ?? 0} variant
-            {(item.product.variants?.length ?? 0) > 1 ? "s" : ""} available
-          </Text>
-        )}
-      </div>
+          {/* Option Selectors */}
+          {(item.product.options || []).map(
+            (option: HttpTypes.StoreProductOption) => (
+              <OptionSelect
+                key={option.id}
+                option={option}
+                current={optionValues[option.id]}
+                updateOption={handleOptionChange}
+                title={option.title}
+                disabled={false} // Adjust this value based on your logic
+              />
+            )
+          )}
 
-      {/* Variant Selection */}
-      {isSelected &&
-        item.product.variants &&
-        item.product.variants.length > 0 && (
-          <div className="flex flex-col gap-y-4">
-            <VariantSelect
-              product={item.product as HttpTypes.StoreProduct}
-              region={region}
-              selectedVariant={selectedVariant}
-              onVariantChange={(variantId) => toggleItem(item.id, variantId)}
-              bundleQuantity={item.quantity}
-            />
+          <Divider />
+
+          {/* Quantity Selector */}
+          <div>
+            <Label htmlFor={`quantity-${item.id}`}>Quantity</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id={`quantity-${item.id}`}
+                type="number"
+                min={1}
+                value={customQuantity}
+                onChange={(e) =>
+                  handleQuantityChange(parseInt(e.target.value) || 1)
+                }
+                className="w-20"
+              />
+              <Text className="text-xs text-ui-fg-muted">
+                Default: {item.quantity}
+              </Text>
+            </div>
           </div>
-        )}
+
+          {/* Selected Variant Info */}
+          {matchedVariant && (
+            <div className="pt-2 border-t">
+              <Text className="text-xs text-ui-fg-muted">
+                Selected variant:
+              </Text>
+              <Text className="text-sm font-medium">
+                {matchedVariant.title}
+              </Text>
+            </div>
+          )}
+
+          {/* Add to Bundle Button */}
+          <Button
+            onClick={handleAddToBundle}
+            disabled={!isValid || !inStock}
+            variant="primary"
+            className="w-full h-10"
+          >
+            {!isValid
+              ? "Select all options"
+              : !inStock
+              ? "Out of stock"
+              : "Add to Bundle"}
+          </Button>
+        </div>
+      )}
     </article>
   )
 }

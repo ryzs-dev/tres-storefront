@@ -11,7 +11,11 @@ import { getPricesForVariant } from "@lib/util/get-product-price"
 import MobileActions from "@modules/products/components/product-actions/mobile-actions"
 import { useIntersection } from "@lib/hooks/use-in-view"
 
-const useBundlePricing = (bundle: FlexibleBundle, selectedItems: any[]) => {
+const useBundlePricing = (
+  bundle: FlexibleBundle,
+  selectedItems: any[],
+  region: HttpTypes.StoreRegion
+) => {
   const getDiscountRate = (count: number) => {
     if (count === 2 && bundle.discount_2_items) {
       return Number(bundle.discount_2_items) / 100
@@ -28,7 +32,7 @@ const useBundlePricing = (bundle: FlexibleBundle, selectedItems: any[]) => {
       (v) => v.id === item.variantId
     )
     const price = variant
-      ? getPricesForVariant(variant)?.calculated_price_number || 0
+      ? getPricesForVariant(variant, region)?.calculated_price_number || 0
       : 0
     return sum + price * item.quantity
   }, 0)
@@ -66,7 +70,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
     savings,
     discountPercentage,
     hasPromotion,
-  } = useBundlePricing(bundle, selectedItems)
+  } = useBundlePricing(bundle, selectedItems, region)
 
   const actionsRef = useRef<HTMLDivElement>(null)
   const inView = useIntersection(actionsRef, "0px")

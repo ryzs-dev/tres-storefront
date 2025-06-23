@@ -23,13 +23,19 @@ export type FlexibleBundle = {
     is_optional: boolean
     sort_order: number
     product: {
+      options: never[]
       id: string
       title: string
+      images?: Array<{
+        url: string
+        id: string
+      }>
       handle: string
       description?: string
       thumbnail?: string
       status: string
       variants: Array<{
+        [x: string]: any
         id: string
         title: string
         prices?: Array<{

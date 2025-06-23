@@ -7,7 +7,10 @@ export const getPercentageDiff = (original: number, calculated: number) => {
   return Math.round(percentage)
 }
 
-export const getPricesForVariant = (variant: any) => {
+export const getPricesForVariant = (
+  variant: any,
+  region: HttpTypes.StoreRegion
+) => {
   // Handle our simplified price structure from bundle API
   if (variant.calculated_price_number) {
     return {
@@ -59,9 +62,11 @@ export const getPricesForVariant = (variant: any) => {
 export const getProductPrice = ({
   product,
   variantId,
+  region,
 }: {
   product: HttpTypes.StoreProduct
   variantId?: string
+  region: HttpTypes.StoreRegion
 }) => {
   const getVariant = () => {
     if (!product.variants || product.variants.length === 0) {
@@ -81,7 +86,7 @@ export const getProductPrice = ({
     return null
   }
 
-  return getPricesForVariant(variant)
+  return getPricesForVariant(variant, region)
 }
 
 export const getProductTitle = (product: HttpTypes.StoreProduct) => {
