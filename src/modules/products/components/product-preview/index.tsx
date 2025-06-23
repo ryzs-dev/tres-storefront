@@ -9,7 +9,6 @@ import PreviewPrice from "./price"
 export default async function ProductPreview({
   product,
   isFeatured,
-  region,
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean

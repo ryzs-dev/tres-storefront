@@ -5,6 +5,11 @@ import BundleActions from "../../components/bundle-actions"
 import BundleItemCard from "../../components/bundle-item-card"
 import { BundleSelectionProvider } from "../../context/bundle-selection-context"
 import clsx from "clsx"
+import BundleInfo from "../bundle-info"
+import BundleImageGallery from "@modules/bundles/components/bundle-image-gallery"
+import BundleGalleryWrapper from "@modules/bundles/BundleGalleryWrapper"
+import RelatedProducts from "@modules/products/components/related-products"
+import RelatedBundles from "@modules/bundles/related-bundles"
 
 type BundleDetailTemplateProps = {
   bundle: FlexibleBundle
@@ -36,49 +41,28 @@ const BundleDetailTemplate = ({
 
   return (
     <BundleSelectionProvider bundle={bundle}>
-      <div className="content-container py-6">
-        {/* Thumbnail Section */}
-        <figure
-          className="relative w-full h-[300px] sm:h-[400px] mb-8 rounded-lg overflow-hidden shadow-sm"
-          aria-label={`Thumbnail for ${bundle.title}`}
-        >
-          <img
-            src={
-              bundle.items[0]?.product?.thumbnail || "/placeholder-image.jpg"
-            }
-            alt={`Image of ${bundle.title} bundle`}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-            <Heading
-              level="h1"
-              className="text-white text-3xl sm:text-4xl font-bold text-center px-4 drop-shadow-md"
-            >
-              {bundle.title}
-            </Heading>
+      <div className="content-container grid grid-cols-1 lg:grid-cols-12 gap-8 py-6">
+        {/* Left Sidebar: Bundle Info */}
+        <div className="lg:col-span-3 order-1 lg:order-none">
+          <div className="sticky top-24">
+            <BundleInfo bundle={bundle} />
           </div>
-        </figure>
+        </div>
 
-        {/* Main Content */}
-        <Heading level="h2" className="text-xl font-semibold mb-4">
-          Choose Your Products
-        </Heading>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Bundle Info */}
-          <div className="lg:col-span-2">
-            {/* Products Grid */}
-            <div>
-              <div className="flex flex-col gap-4">
-                {bundle.items.map((item) => (
-                  <BundleItemCard key={item.id} item={item} region={region} />
-                ))}
-              </div>
+        {/* Center: Gallery */}
+        <div className="lg:col-span-6 order-2 lg:order-none">
+          <BundleGalleryWrapper bundle={bundle} />
+        </div>
+
+        {/* Right Sidebar: Actions */}
+        <div className="lg:col-span-3 order-3 lg:order-none">
+          <div className="sticky top-24 mt">
+            <div className="mt-6 space-y-6">
+              {bundle.items.map((item) => (
+                <BundleItemCard key={item.id} item={item} region={region} />
+              ))}
             </div>
-          </div>
-
-          {/* Sticky Actions Panel */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
+            <div className="mt-6">
               <BundleActions
                 bundle={bundle}
                 region={region}
@@ -87,6 +71,14 @@ const BundleDetailTemplate = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Related Bundles Section */}
+      <div
+        className="content-container my-16 small:my-32"
+        data-testid="related-products-container"
+      >
+        <RelatedBundles bundle={bundle} countryCode={countryCode} />
       </div>
     </BundleSelectionProvider>
   )
