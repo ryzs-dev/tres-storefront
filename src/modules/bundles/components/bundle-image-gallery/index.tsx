@@ -6,8 +6,6 @@ import { Container, Text } from "@medusajs/ui"
 import Image from "next/image"
 import { useMemo, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-
-// Swiper
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Pagination } from "swiper/modules"
 import "swiper/css"
@@ -16,7 +14,7 @@ import { useBundleSelection } from "@modules/bundles/context/bundle-selection-co
 
 type BundleImageGalleryProps = {
   bundle: FlexibleBundle
-  images?: HttpTypes.StoreProductImage[]
+  selectedVariants: Record<string, HttpTypes.StoreProductVariant | undefined>
 }
 
 function SlideNavButtons({ swiper }: { swiper: any }) {
@@ -25,7 +23,7 @@ function SlideNavButtons({ swiper }: { swiper: any }) {
       <button
         onClick={() => swiper?.slidePrev()}
         className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center border rounded-full hover:bg-gray-100 transition bg-white"
-        aria-label="Previous"
+        aria-label="Previous image"
         disabled={!swiper}
       >
         <ChevronLeft className="w-4 h-4" />
@@ -33,7 +31,7 @@ function SlideNavButtons({ swiper }: { swiper: any }) {
       <button
         onClick={() => swiper?.slideNext()}
         className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center border rounded-full hover:bg-gray-100 transition bg-white"
-        aria-label="Next"
+        aria-label="Next image"
         disabled={!swiper}
       >
         <ChevronRight className="w-4 h-4" />
@@ -42,36 +40,12 @@ function SlideNavButtons({ swiper }: { swiper: any }) {
   )
 }
 
-const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
-  const { selectedItems, getSelectedVariant } = useBundleSelection()
+const BundleImageGallery = ({
+  bundle,
+  selectedVariants,
+}: BundleImageGalleryProps) => {
+  const { selectedItems } = useBundleSelection()
   const [swiper, setSwiper] = useState<any>(null)
-
-  const getSelectedVariantTyped = (
-    itemId: string
-  ): HttpTypes.StoreProductVariant | undefined => {
-    const variant = getSelectedVariant(itemId)
-    return typeof variant === "string" ? undefined : variant
-  }
-
-  const getColorVariations = (color: string): string[] => {
-    const variations: Record<string, string[]> = {
-      black: ["black", "blk", "noir", "negro", "schwarz"],
-      white: ["white", "wht", "blanc", "blanco", "weiss"],
-      red: ["red", "rouge", "rojo", "rot"],
-      blue: ["blue", "blu", "bleu", "azul", "blau"],
-      green: ["green", "grn", "vert", "verde", "grün"],
-      yellow: ["yellow", "ylw", "jaune", "amarillo", "gelb"],
-      orange: ["orange", "org", "naranja"],
-      pink: ["pink", "rosa", "rose"],
-      purple: ["purple", "violet", "morado"],
-      brown: ["brown", "brn", "marron", "café"],
-      gray: ["gray", "grey", "gris"],
-      peach: ["peach", "pch", "pêche", "durazno"],
-      navy: ["navy", "marine", "marino"],
-      beige: ["beige", "bge", "beige"],
-    }
-    return variations[color] || [color]
-  }
 
   const filteredImages = useMemo(() => {
     const imagesByProduct: Array<{
@@ -81,13 +55,15 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
       priority: number
     }> = []
 
+    const hasSelectedItems = selectedItems.length > 0
+
     bundle.items.forEach((item, index) => {
       const product = item.product as unknown as HttpTypes.StoreProduct
       const isSelected = selectedItems.some((si) => si.itemId === item.id)
-      const selectedVariant = getSelectedVariantTyped(item.id)
+      const selectedVariant = selectedVariants[item.id]
       const productImages = product.images || []
 
-      // Use thumbnail as a fallback image if no images are available
+      // Create a fallback thumbnail image if no images are available
       const thumbnailImage: HttpTypes.StoreProductImage | undefined =
         product.thumbnail
           ? {
@@ -98,91 +74,52 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
             }
           : undefined
 
-      let imagesToProcess =
+      const imagesToProcess =
         productImages.length > 0
           ? productImages
           : thumbnailImage
           ? [thumbnailImage]
           : []
 
-      if (!imagesToProcess.length) return
-
-      let filteredProductImages: HttpTypes.StoreProductImage[] = imagesToProcess
-
-      // Only apply color/SKU filtering for selected items with a valid variant
-      if (isSelected && selectedVariant && product.options) {
-        const colorOption = selectedVariant.options?.find((opt) => {
-          const productOption = product.options?.find(
-            (po) => po.id === opt.option_id
-          )
-          return productOption?.title?.toLowerCase() === "color"
+      // If no items are selected, include all images from all products
+      if (!hasSelectedItems) {
+        imagesToProcess.forEach((image) => {
+          imagesByProduct.push({
+            productId: product.id,
+            productTitle: product.title || `Product ${index + 1}`,
+            image,
+            priority: 1,
+          })
         })
+        return
+      }
 
+      // Skip non-selected products when items are selected
+      if (!isSelected) {
+        return
+      }
+
+      let filteredProductImages = imagesToProcess
+
+      // Apply color filtering if a variant with a color option is selected
+      if (selectedVariant && product.options) {
+        const colorOption = product.options.find(
+          (opt) => opt.title.toLowerCase() === "color"
+        )
         if (colorOption) {
-          const colorValue = colorOption.value?.toLowerCase()
-          const sku = selectedVariant.sku?.toLowerCase()
+          const selectedColor = selectedVariant.options
+            ?.find((opt) => opt.option_id === colorOption.id)
+            ?.value?.toLowerCase()
 
-          if (colorValue) {
-            filteredProductImages = imagesToProcess.filter((image) => {
-              if (!image.url) return false
-              const fullUrl = image.url.toLowerCase()
-              const hasExactColor = fullUrl.includes(colorValue)
-              const hasColorVariation = getColorVariations(colorValue).some(
-                (v) => fullUrl.includes(v)
-              )
-              return hasExactColor || hasColorVariation
-            })
-          }
-
-          // Fallback to SKU if no color matches
-          if (filteredProductImages.length === 0 && sku) {
-            filteredProductImages = imagesToProcess.filter((image) => {
-              if (!image.url) return false
-              const fullUrl = image.url.toLowerCase()
-              return sku
-                .split("-")
-                .filter((part) => part.length > 1)
-                .some((part) => fullUrl.includes(part))
-            })
-          }
-
-          // Fallback to splitting images by unique colors
-          if (filteredProductImages.length === 0) {
-            const variants = product.variants || []
-            const uniqueColors = [
-              ...new Set(
-                variants
-                  .map((v) => {
-                    const colorOpt = v.options?.find((opt) => {
-                      const prodOpt = product.options?.find(
-                        (po) => po.id === opt.option_id
-                      )
-                      return prodOpt?.title?.toLowerCase() === "color"
-                    })
-                    return colorOpt?.value?.toLowerCase()
-                  })
-                  .filter(Boolean)
-              ),
-            ]
-
-            if (uniqueColors.length > 1 && colorValue) {
-              const index = uniqueColors.indexOf(colorValue)
-              if (index !== -1) {
-                const perColor = Math.floor(
-                  imagesToProcess.length / uniqueColors.length
-                )
-                const start = index * perColor
-                filteredProductImages = imagesToProcess.slice(
-                  start,
-                  start + perColor
-                )
-              }
-            }
+          if (selectedColor) {
+            filteredProductImages = imagesToProcess.filter((image) =>
+              image.url.toLowerCase().includes(selectedColor)
+            )
           }
         }
       }
 
-      // Use all images if no filtering applied or no images matched
+      // If no color-specific images are found, use all product images
       if (filteredProductImages.length === 0) {
         filteredProductImages = imagesToProcess
       }
@@ -192,12 +129,12 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
           productId: product.id,
           productTitle: product.title || `Product ${index + 1}`,
           image,
-          priority: isSelected ? 0 : 1, // Prioritize selected items
+          priority: 0,
         })
       })
     })
 
-    // Sort images to show selected items first
+    // Sort images to prioritize selected items
     const sortedImages = imagesByProduct
       .sort((a, b) => a.priority - b.priority)
       .map((entry) => ({
@@ -209,7 +146,7 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
       }))
 
     return sortedImages
-  }, [bundle.items, selectedItems, getSelectedVariant])
+  }, [bundle.items, selectedItems, selectedVariants])
 
   const displayImages = filteredImages.length > 0 ? filteredImages : []
 
@@ -231,7 +168,7 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
             <SwiperSlide key={`${image.id}-${index}`}>
               <div className="w-full relative">
                 <Container className="aspect-[29/34] w-full max-w-full sm:max-w-[90%] lg:max-w-[800px] mx-auto flex items-center justify-center bg-ui-bg-subtle">
-                  {image.url && (
+                  {image.url ? (
                     <Image
                       src={image.url}
                       priority={index <= 2}
@@ -239,9 +176,11 @@ const BundleImageGallery = ({ bundle }: BundleImageGalleryProps) => {
                         image.metadata?.productTitle || "bundle item"
                       } ${index + 1}`}
                       fill
-                      sizes="(max-width: 576px) 100vw, (max-width: 768px) 90vw, 800px"
                       className="absolute inset-0 rounded-rounded object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 800px"
                     />
+                  ) : (
+                    <Text className="text-ui-fg-muted">No image available</Text>
                   )}
                 </Container>
               </div>

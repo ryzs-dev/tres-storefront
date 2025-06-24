@@ -16,13 +16,13 @@ export default function BundlePreview({ bundle, region }: BundlePreviewProps) {
     "https://via.placeholder.com/300x400?text=Bundle+Image"
 
   // Calculate the minimum price for display (simplified)
-  const minPrice = bundle.items.reduce((min, item) => {
-    const variant = item.product.variants?.[0]
-    if (!variant) return min
-    const price =
-      getPricesForVariant(variant, region)?.calculated_price_number || 0
-    return Math.min(min, price * item.quantity)
-  }, Infinity)
+  // const minPrice = bundle.items.reduce((min, item) => {
+  //   const variant = item.product.variants?.[0]
+  //   if (!variant) return min
+  //   const price =
+  //     getPricesForVariant(variant, region)?.calculated_price_number || 0
+  //   return Math.min(min, price * item.quantity)
+  // }, Infinity)
 
   return (
     <Link href={`/bundles/${bundle.id}`} className="block">
@@ -40,10 +40,10 @@ export default function BundlePreview({ bundle, region }: BundlePreviewProps) {
           <h3 className="text-base-regular text-ui-fg-base line-clamp-2">
             {bundle.title || "Bundle"}
           </h3>
-          <p className="text-sm text-ui-fg-subtle">
+          {/* <p className="text-sm text-ui-fg-subtle">
             From {region.currency_code.toUpperCase()}{" "}
             {isFinite(minPrice) ? (minPrice / 100).toFixed(2) : "N/A"}
-          </p>
+          </p> */}
         </div>
       </div>
     </Link>

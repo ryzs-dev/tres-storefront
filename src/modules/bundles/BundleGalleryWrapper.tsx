@@ -36,11 +36,13 @@ const BundleGalleryWrapper = ({ bundle }: BundleGalleryWrapperProps) => {
       if (selectedItem) {
         const variant = getSelectedVariant(item.id)
         initialVariants[item.id] =
-          typeof variant === "object"
-            ? variant
-            : (item.product.variants?.[0] as
-                | HttpTypes.StoreProductVariant
-                | undefined)
+          typeof variant === "object" &&
+          (variant as HttpTypes.StoreProductVariant)?.id ===
+            selectedItem.variantId
+            ? (variant as HttpTypes.StoreProductVariant)
+            : (item.product.variants?.find(
+                (v) => v.id === selectedItem.variantId
+              ) as HttpTypes.StoreProductVariant | undefined)
       } else {
         initialVariants[item.id] = undefined
       }
@@ -51,10 +53,6 @@ const BundleGalleryWrapper = ({ bundle }: BundleGalleryWrapperProps) => {
   // Listen for bundle changes via custom event
   useEffect(() => {
     const handleBundleChange = (event: CustomEvent<BundleSelectionDetail>) => {
-      console.log(
-        "🖼️ BundleGalleryWrapper: Received bundle change:",
-        event.detail
-      )
       const newVariants: Record<
         string,
         HttpTypes.StoreProductVariant | undefined
@@ -66,11 +64,13 @@ const BundleGalleryWrapper = ({ bundle }: BundleGalleryWrapperProps) => {
         if (selectedItem) {
           const variant = getSelectedVariant(item.id)
           newVariants[item.id] =
-            typeof variant === "object"
-              ? variant
-              : (item.product.variants?.[0] as
-                  | HttpTypes.StoreProductVariant
-                  | undefined)
+            typeof variant === "object" &&
+            (variant as HttpTypes.StoreProductVariant)?.id ===
+              selectedItem.variantId
+              ? (variant as HttpTypes.StoreProductVariant)
+              : (item.product.variants?.find(
+                  (v) => v.id === selectedItem.variantId
+                ) as HttpTypes.StoreProductVariant)
         } else {
           newVariants[item.id] = undefined
         }
@@ -90,7 +90,9 @@ const BundleGalleryWrapper = ({ bundle }: BundleGalleryWrapperProps) => {
     }
   }, [bundle.items, getSelectedVariant])
 
-  return <BundleImageGallery bundle={bundle} />
+  return (
+    <BundleImageGallery bundle={bundle} selectedVariants={selectedVariants} />
+  )
 }
 
 export default BundleGalleryWrapper
