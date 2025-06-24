@@ -12,15 +12,8 @@ type BundleInfoProps = {
 }
 
 const BundleInfo = ({ bundle }: BundleInfoProps) => {
+  console.log(bundle)
   const tabs = [
-    // {
-    //   label: "Product Information",
-    //   component: <ProductInfoTab bundle={bundle} />,
-    // },
-    // {
-    //   label: "Shipping & Returns",
-    //   component: <ShippingInfoTab />,
-    // },
     {
       label: "Description",
       component: <DescriptionTab bundle={bundle} />,
@@ -33,8 +26,10 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
         {/* Bundle Title */}
         <h1 className="text-3xl font-semibold">{bundle.title}</h1>
 
+        <Text className="text-ui-fg-subtle text-sm">{bundle.description}</Text>
+
         {/* Bundle Subtitle / Description */}
-        <div className="w-full">
+        {/* <div className="w-full">
           <Accordion type="multiple">
             {tabs.map((tab, i) => (
               <Accordion.Item
@@ -47,7 +42,8 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
               </Accordion.Item>
             ))}
           </Accordion>
-        </div>
+        </div> */}
+        <DescriptionTab bundle={bundle} />
       </div>
     </div>
   )
@@ -56,12 +52,23 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
 const DescriptionTab = ({ bundle }: BundleInfoProps) => {
   return (
     <div className="text-small-regular py-8">
-      <Text
-        className="text-sm font-urw font-medium text-ui-fg-subtle whitespace-pre-line text-justify"
-        data-testid="product-description"
-      >
-        {bundle.items[0]?.product.description || "No description available"}
-      </Text>
+      <Accordion type="multiple">
+        {bundle.items.map((item, index) => (
+          <Accordion.Item
+            key={index}
+            title={item.product.title || `Product ${index + 1}`}
+            headingSize="small"
+            value={`description-${index}`}
+          >
+            <Text
+              className="text-sm font-urw font-medium text-ui-fg-subtle whitespace-pre-line text-justify"
+              data-testid={`product-description-${index}`}
+            >
+              {item.product.description || "No description available"}
+            </Text>
+          </Accordion.Item>
+        ))}
+      </Accordion>
     </div>
   )
 }
