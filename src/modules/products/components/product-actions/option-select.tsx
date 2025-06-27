@@ -37,7 +37,19 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   disabled,
   "data-testid": dataTestId,
 }) => {
-  const filteredOptions = (option.values ?? []).map((v) => v.value)
+  const rawOptions = (option.values ?? []).map((v) => v.value)
+  const isSizeOption = /size/i.test(option.title || "")
+
+  const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"]
+  const filteredOptions = isSizeOption
+    ? rawOptions.sort((a, b) => {
+        const indexA = sizeOrder.indexOf(a.toUpperCase())
+        const indexB = sizeOrder.indexOf(b.toUpperCase())
+        if (indexA === -1) return 1
+        if (indexB === -1) return -1
+        return indexA - indexB
+      })
+    : rawOptions
   const isColorOption = /color|colour/i.test(option.title || "")
 
   // Handle clearing selection
