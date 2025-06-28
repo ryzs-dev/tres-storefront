@@ -12,7 +12,6 @@ type BundleInfoProps = {
 }
 
 const BundleInfo = ({ bundle }: BundleInfoProps) => {
-  console.log(bundle)
   const tabs = [
     {
       label: "Description",
@@ -26,7 +25,16 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
         {/* Bundle Title */}
         <h1 className="text-3xl font-semibold">{bundle.title}</h1>
 
-        <Text className="text-ui-fg-subtle text-sm">{bundle.description}</Text>
+        <div>
+          <Text className="text-ui-fg-subtle text-base font-bold">
+            Why You’ll Love It
+          </Text>
+          <ul className="list-disc list-inside text-ui-fg-subtle text-sm space-y-4 mt-4">
+            {bundle.description?.split("/n").map((line, index) => (
+              <div key={index}>✔️ {line.trim()}</div>
+            ))}
+          </ul>
+        </div>
 
         {/* Bundle Subtitle / Description */}
         {/* <div className="w-full">
@@ -59,13 +67,19 @@ const DescriptionTab = ({ bundle }: BundleInfoProps) => {
             title={item.product.title || `Product ${index + 1}`}
             headingSize="small"
             value={`description-${index}`}
+            className="space-y-4"
           >
-            <Text
-              className="text-sm font-urw font-medium text-ui-fg-subtle whitespace-pre-line text-justify"
-              data-testid={`product-description-${index}`}
-            >
-              {item.product.description || "No description available"}
-            </Text>
+            <ul className="list-disc list-inside text-sm font-urw font-medium text-ui-fg-subtle space-y-1">
+              {(item.product.description || "")
+                .replace(/[\u2028\u2029]/g, " ") // Handle invisible Unicode line breaks
+                .replace(/\n/g, " ") // Handle soft line breaks
+                .split(/-\s+/) // Split by dash bullets like "- "
+                .map((line) => line.trim())
+                .filter((line) => line.length > 0)
+                .map((line, i) => (
+                  <li key={i}>{line}</li>
+                ))}
+            </ul>
           </Accordion.Item>
         ))}
       </Accordion>

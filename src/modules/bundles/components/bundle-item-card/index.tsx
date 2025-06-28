@@ -245,14 +245,34 @@ const BundleItemCard = ({ item, region }: Props) => {
   return (
     <article
       className={clsx(
-        "flex flex-col gap-y-4 p-4 border rounded-lg shadow-sm",
+        "relative flex flex-col gap-y-4 p-4 border rounded-lg shadow-sm transition-colors",
         isSelected
           ? "border-ui-border-interactive bg-ui-bg-highlight"
           : "border-ui-border-base hover:border-ui-border-strong"
       )}
     >
+      {isSelected && (
+        <div className="absolute top-2 right-2 bg-blue-600 rounded-full p-1 shadow-md z-10">
+          <svg
+            className="w-4 h-4 text-white"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
+      )}
       {/* Header */}
-      <div className="flex items-start gap-4">
+      <div
+        className="flex items-start gap-4 cursor-pointer"
+        onClick={() => handleSelectionChange(!isSelected)}
+      >
         <div className="w-[100px] h-[100px] relative overflow-hidden rounded">
           {filteredImages.length > 0 ? (
             <>
@@ -319,17 +339,9 @@ const BundleItemCard = ({ item, region }: Props) => {
         </div>
 
         <div className="flex-1">
-          <div className="flex justify-between items-start">
-            <Heading level="h3" className="text-base font-semibold">
-              {item.product.title}
-            </Heading>
-            <Checkbox
-              checked={isSelected}
-              onCheckedChange={handleSelectionChange}
-              className="h-5 w-5 mt-1"
-              aria-label={`Select ${item.product.title}`}
-            />
-          </div>
+          <Heading level="h3" className="text-base font-semibold">
+            {item.product.title}
+          </Heading>
           {matchedVariant && (
             <ProductPrice
               product={item.product as unknown as HttpTypes.StoreProduct}
