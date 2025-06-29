@@ -176,63 +176,46 @@ const BundleItemCard = ({ item, region }: Props) => {
                   className="w-full h-full object-cover"
                 />
                 {filteredImages.length > 1 && (
-                  <>
-                    <div className="absolute inset-0 flex items-center justify-between px-1 opacity-0 hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handlePrevImage()
-                        }}
-                        disabled={currentImageIndex === 0}
-                        className="p-1.5 rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  <div className="absolute inset-0 flex items-center justify-between px-1 opacity-0 hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handlePrevImage()
+                      }}
+                      disabled={currentImageIndex === 0}
+                      className="p-1.5 rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
                       >
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M15 18l-6-6 6-6" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleNextImage()
-                        }}
-                        disabled={
-                          currentImageIndex === filteredImages.length - 1
-                        }
-                        className="p-1.5 rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                        <path d="M15 18l-6-6 6-6" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleNextImage()
+                      }}
+                      disabled={currentImageIndex === filteredImages.length - 1}
+                      className="p-1.5 rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
                       >
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M9 18l6-6-6-6" />
-                        </svg>
-                      </button>
-                    </div>
-                    <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 flex gap-1">
-                      {filteredImages.map((_, index) => (
-                        <div
-                          key={index}
-                          className={clsx(
-                            "w-1.5 h-1.5 rounded-full transition-colors",
-                            index === currentImageIndex
-                              ? "bg-white shadow-sm"
-                              : "bg-white/60"
-                          )}
-                        />
-                      ))}
-                    </div>
-                  </>
+                        <path d="M9 18l6-6-6-6" />
+                      </svg>
+                    </button>
+                  </div>
                 )}
               </>
             ) : (
