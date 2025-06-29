@@ -40,17 +40,14 @@ const BundleItemCard = ({ item, region }: Props) => {
   const isSelected = isItemSelected(item.id)
   const images = item.product.images || []
 
-  // Use a memoized value from the context for the selected item
   const selectedItem = useMemo(
     () => selectedItems.find((si) => si.itemId === item.id),
     [selectedItems, item.id]
   )
 
-  // Derive variantId and quantity from the context state
   const selectedVariantId = selectedItem?.variantId
   const selectedQuantity = selectedItem?.quantity || item.quantity
 
-  // Find the matched variant based on the selectedVariantId from the context
   const matchedVariant = useMemo(() => {
     if (!item.product.variants) return undefined
     return item.product.variants.find(
@@ -58,7 +55,6 @@ const BundleItemCard = ({ item, region }: Props) => {
     )
   }, [item.product.variants, selectedVariantId])
 
-  // Derive option values from the matched variant
   const optionValues = useMemo(() => {
     return getOptionMap(matchedVariant?.options || [])
   }, [matchedVariant])
@@ -95,7 +91,6 @@ const BundleItemCard = ({ item, region }: Props) => {
 
   const handleOptionChange = useCallback(
     (optionId: string, value: string) => {
-      // Find the new variant based on the new option
       const currentOptions = getOptionMap(matchedVariant?.options || [])
       const newOptionValues = { ...currentOptions, [optionId]: value }
 
@@ -134,7 +129,6 @@ const BundleItemCard = ({ item, region }: Props) => {
   const handleSelectionChange = useCallback(
     (checked: boolean) => {
       if (checked) {
-        // Find a default variant to add if the item is not yet selected
         const defaultVariant = item.product.variants?.[0]
         if (defaultVariant) {
           toggleItem(item.id, defaultVariant.id, selectedQuantity || 1)
@@ -142,55 +136,11 @@ const BundleItemCard = ({ item, region }: Props) => {
           console.warn("Cannot select item without any variants.")
         }
       } else {
-        // Deselect the item
         toggleItem(item.id, undefined, 0)
       }
     },
     [toggleItem, item.id, item.product.variants, selectedQuantity]
   )
-
-  const handleAddToBundle = useCallback(() => {
-    if (matchedVariant && inStock) {
-      toggleItem(item.id, matchedVariant.id, selectedQuantity)
-    }
-  }, [matchedVariant, inStock, toggleItem, item.id, selectedQuantity])
-
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    touchStartX.current = e.touches[0].clientX
-  }
-
-  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (touchStartX.current === null) return
-
-    const touchEndX = e.changedTouches[0].clientX
-    const deltaX = touchStartX.current - touchEndX
-
-    if (deltaX > 50 && currentImageIndex < filteredImages.length - 1) {
-      setCurrentImageIndex((prev) => prev + 1)
-    } else if (deltaX < -50 && currentImageIndex > 0) {
-      setCurrentImageIndex((prev) => prev - 1)
-    }
-
-    touchStartX.current = null
-  }
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    touchStartX.current = e.clientX
-  }
-
-  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (touchStartX.current === null) return
-
-    const deltaX = touchStartX.current - e.clientX
-
-    if (deltaX > 50 && currentImageIndex < filteredImages.length - 1) {
-      setCurrentImageIndex((prev) => prev + 1)
-    } else if (deltaX < -50 && currentImageIndex > 0) {
-      setCurrentImageIndex((prev) => prev - 1)
-    }
-
-    touchStartX.current = null
-  }
 
   const handlePrevImage = () => {
     if (currentImageIndex > 0) {
@@ -205,183 +155,237 @@ const BundleItemCard = ({ item, region }: Props) => {
   }
 
   return (
-    <article
+    <div
       className={clsx(
-        "relative flex flex-col gap-y-4 p-4 border rounded-lg shadow-sm transition-colors",
+        "border rounded-lg p-4 transition-colors",
         isSelected
-          ? "border-ui-border-interactive bg-ui-bg-highlight"
-          : "border-ui-border-base hover:border-ui-border-strong"
+          ? "border-blue-200 bg-blue-50/30"
+          : "border-gray-200 hover:border-gray-300"
       )}
     >
-      {isSelected && (
-        <div className="absolute top-2 right-2 bg-blue-600 rounded-full p-1 shadow-md z-10">
-          <svg
-            className="w-4 h-4 text-white"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
-      )}
       {/* Header */}
-      <div
-        className="flex items-start gap-4 cursor-pointer"
-        onClick={() => handleSelectionChange(!isSelected)}
-      >
-        <div className="w-[100px] h-[100px] relative overflow-hidden rounded">
-          {filteredImages.length > 0 ? (
-            <>
-              <img
-                src={filteredImages[currentImageIndex].url}
-                alt={item.product.title || "Product image"}
-                className="w-full h-full object-cover"
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleMouseUp}
-              />
-              {filteredImages.length > 1 && (
-                <div className="absolute top-0 left-0 h-full flex items-center justify-between w-full px-1">
-                  <button
-                    onClick={handlePrevImage}
-                    disabled={currentImageIndex === 0}
-                    className={clsx(
-                      "p-1 bg-ui-bg-base bg-opacity-70 rounded-full",
-                      currentImageIndex === 0 && "opacity-50 cursor-not-allowed"
-                    )}
-                    aria-label="Previous image"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M15 18l-6-6 6-6" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={handleNextImage}
-                    disabled={currentImageIndex === filteredImages.length - 1}
-                    className={clsx(
-                      "p-1 bg-ui-bg-base bg-opacity-70 rounded-full",
-                      currentImageIndex === filteredImages.length - 1 &&
-                        "opacity-50 cursor-not-allowed"
-                    )}
-                    aria-label="Next image"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M9 18l6-6-6-6" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="w-full h-full bg-ui-bg-subtle flex items-center justify-center">
-              <Text className="text-xs text-ui-fg-muted">No image</Text>
+      <div className="flex gap-4">
+        {/* Image with proper spacing for quantity indicator */}
+        <div className="relative">
+          <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+            {filteredImages.length > 0 ? (
+              <>
+                <img
+                  src={filteredImages[currentImageIndex].url}
+                  alt={item.product.title || "Product image"}
+                  className="w-full h-full object-cover"
+                />
+                {filteredImages.length > 1 && (
+                  <>
+                    <div className="absolute inset-0 flex items-center justify-between px-1 opacity-0 hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handlePrevImage()
+                        }}
+                        disabled={currentImageIndex === 0}
+                        className="p-1.5 rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleNextImage()
+                        }}
+                        disabled={
+                          currentImageIndex === filteredImages.length - 1
+                        }
+                        className="p-1.5 rounded-full bg-white/90 text-gray-700 shadow-sm hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M9 18l6-6-6-6" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2 flex gap-1">
+                      {filteredImages.map((_, index) => (
+                        <div
+                          key={index}
+                          className={clsx(
+                            "w-1.5 h-1.5 rounded-full transition-colors",
+                            index === currentImageIndex
+                              ? "bg-white shadow-sm"
+                              : "bg-white/60"
+                          )}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="text-gray-400"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21,15 16,10 5,21" />
+                </svg>
+              </div>
+            )}
+          </div>
+
+          {/* Fixed quantity indicator positioning */}
+          {isSelected && (
+            <div className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow-sm border-2 border-white font-medium">
+              {selectedQuantity}
             </div>
           )}
         </div>
 
-        <div className="flex-1">
-          <Heading level="h3" className="text-base font-semibold">
-            {item.product.title}
-          </Heading>
-          {matchedVariant && (
-            <ProductPrice
-              product={item.product as unknown as HttpTypes.StoreProduct}
-              variant={matchedVariant as HttpTypes.StoreProductVariant}
-              className="mt-1 text-base font-semibold"
-            />
+        {/* Product info and selection */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          <div
+            className="flex-1 cursor-pointer py-1"
+            onClick={() => handleSelectionChange(!isSelected)}
+          >
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <Heading
+                level="h3"
+                className="text-sm font-medium line-clamp-2 flex-1"
+              >
+                {item.product.title}
+              </Heading>
+              <div className="flex-shrink-0">
+                <div
+                  className={clsx(
+                    "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                    isSelected
+                      ? "bg-blue-600 border-blue-600"
+                      : "border-gray-300 hover:border-gray-400"
+                  )}
+                >
+                  {isSelected && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="white"
+                      strokeWidth="3"
+                    >
+                      <polyline points="20,6 9,17 4,12" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {matchedVariant && (
+              <ProductPrice
+                product={item.product as unknown as HttpTypes.StoreProduct}
+                variant={matchedVariant as HttpTypes.StoreProductVariant}
+                className="text-sm font-semibold text-gray-900"
+              />
+            )}
+          </div>
+
+          {isSelected && (
+            <div className="text-xs text-blue-600 font-medium flex items-center gap-1 mt-1">
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+              Added to bundle
+            </div>
           )}
         </div>
       </div>
 
       {isSelected && (
-        <div className="flex flex-col gap-y-4">
-          <Divider />
-
-          {/* Option Selectors */}
+        <div className="mt-4 pt-4 border-t border-gray-100 space-y-4 animate-in slide-in-from-top-2 duration-200">
+          {/* Options */}
           {(item.product.options || []).map(
             (option: HttpTypes.StoreProductOption) => (
-              <OptionSelect
-                key={option.id}
-                option={option}
-                current={optionValues?.[option.id] ?? ""}
-                updateOption={handleOptionChange}
-                title={option.title}
-                disabled={false}
-              />
+              <div key={option.id}>
+                <OptionSelect
+                  option={option}
+                  current={optionValues?.[option.id] ?? ""}
+                  updateOption={handleOptionChange}
+                  title={option.title}
+                  disabled={false}
+                />
+              </div>
             )
           )}
 
-          <Divider />
-
-          {/* Quantity Selector */}
-          <div>
-            <Label htmlFor={`quantity-${item.id}`}>Quantity</Label>
-            <div className="flex items-center gap-2">
-              <Input
+          {/* Quantity with improved controls */}
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor={`quantity-${item.id}`}
+              className="text-sm font-medium"
+            >
+              Qty:
+            </label>
+            <div className="flex items-center border rounded">
+              <button
+                type="button"
+                onClick={() => handleQuantityChange(selectedQuantity - 1)}
+                disabled={selectedQuantity <= 1}
+                className="px-2 py-1 bg-white hover:bg-gray-100 disabled:opacity-50 transition-colors"
+              >
+                −
+              </button>
+              <input
                 id={`quantity-${item.id}`}
                 type="number"
-                min={1}
+                min="1"
                 value={selectedQuantity}
                 onChange={(e) =>
                   handleQuantityChange(parseInt(e.target.value) || 1)
                 }
-                className="w-20"
+                className="w-12 h-8 text-center text-sm border-0 focus:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
-              <Text className="text-xs text-ui-fg-muted">
-                Default: {item.quantity}
-              </Text>
+              <button
+                type="button"
+                onClick={() => handleQuantityChange(selectedQuantity + 1)}
+                className="px-2 py-1 bg-white hover:bg-gray-100 transition-colors"
+              >
+                +
+              </button>
             </div>
           </div>
 
-          {/* Selected Variant Info */}
+          {/* Variant info with better styling */}
           {matchedVariant && (
-            <div className="pt-2 border-t">
-              <Text className="text-xs text-ui-fg-muted">
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <Text className="text-xs text-gray-500 mb-1">
                 Selected variant:
               </Text>
-              <Text className="text-sm font-medium">
+              <Text className="text-sm font-medium text-gray-900">
                 {matchedVariant.title}
               </Text>
             </div>
           )}
-
-          {/* Add to Bundle Button */}
-          {/* <Button
-            onClick={handleAddToBundle}
-            disabled={!isValid || !inStock}
-            variant="primary"
-            className="w-full h-10"
-          >
-            {!isValid
-              ? "Select all options"
-              : !inStock
-              ? "Out of stock"
-              : "Add to Bundle"}
-          </Button> */}
         </div>
       )}
-    </article>
+    </div>
   )
 }
 
