@@ -12,7 +12,6 @@ type PaginatedProductsParams = {
   category_id?: string[]
   id?: string[]
   order?: string
-  // Remove tags from queryParams type
 }
 
 export default async function PaginatedProducts({
@@ -22,7 +21,6 @@ export default async function PaginatedProducts({
   categoryId,
   productsIds,
   countryCode,
-  tags = ["Set"], // Filter by 'set'
 }: {
   sortBy?: SortOptions
   page: number
@@ -54,8 +52,13 @@ export default async function PaginatedProducts({
     queryParams,
     sortBy,
     countryCode,
-    tags, // Pass tags directly
   })
+
+  console.log("PaginatedProducts - products:", products)
+
+  const filteredProducts = products.filter((p) =>
+    p.tags?.some((tag) => tag.value === "sets")
+  )
 
   const totalPages = Math.ceil(count / PRODUCT_LIMIT)
 
@@ -66,10 +69,10 @@ export default async function PaginatedProducts({
           className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
           data-testid="products-list"
         >
-          {products.length === 0 ? (
+          {filteredProducts.length === 0 ? (
             <div data-testid="no-products">No products found</div>
           ) : (
-            products.map((p) => (
+            filteredProducts.map((p) => (
               <li key={p.id}>
                 <ProductPreview product={p} region={region} />
               </li>

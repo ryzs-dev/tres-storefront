@@ -30,6 +30,8 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     return notFound()
   }
 
+  console.log("Product:", product)
+
   return (
     <>
       <div
@@ -44,6 +46,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           <ProductGalleryWrapper
             images={product?.images || []}
             product={product}
+            bundle={bundle}
           />
         </div>
         <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">

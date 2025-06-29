@@ -7,48 +7,6 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 
-export type BundleProduct = {
-  id: string
-  title: string
-  product: {
-    id: string
-    thumbnail: string
-    title: string
-    handle: string
-  }
-  items: {
-    id: string
-    title: string
-    product: HttpTypes.StoreProduct
-  }[]
-}
-
-export const getBundleProduct = async (
-  id: string,
-  {
-    currency_code,
-    region_id,
-  }: {
-    currency_code?: string
-    region_id?: string
-  }
-) => {
-  const headers = {
-    ...(await getAuthHeaders()),
-  }
-
-  return sdk.client.fetch<{
-    bundle_product: BundleProduct
-  }>(`/store/bundle-products/${id}`, {
-    method: "GET",
-    headers,
-    query: {
-      currency_code,
-      region_id,
-    },
-  })
-}
-
 export const listProducts = async ({
   pageParam = 1,
   queryParams,
@@ -143,13 +101,11 @@ export const listProductsWithSort = async ({
   queryParams,
   sortBy = "created_at",
   countryCode,
-  tags = ["set"], // Default to filtering by 'set'
 }: {
   page?: number
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
   sortBy?: SortOptions
   countryCode: string
-  tags?: string[] // Add tags parameter
 }): Promise<{
   response: { products: HttpTypes.StoreProduct[]; count: number }
   nextPage: number | null
@@ -157,42 +113,78 @@ export const listProductsWithSort = async ({
 }> => {
   const limit = queryParams?.limit || 12
 
-  // Remove tags from queryParams to avoid backend error
-  const { tags: _unusedTags, ...safeQueryParams } = queryParams || {}
+  // Safe queryParams without mutation
+  const safeQueryParams = queryParams || {}
 
   const {
     response: { products, count },
   } = await listProducts({
-    pageParam: 0,
+    pageParam: 0, // still fetching only first 100 — fix this if needed
     queryParams: {
       ...safeQueryParams,
-      limit: 100,
+      limit: 100, // caution: limited to first 100
     },
     countryCode,
   })
 
-  // Filter products by tags server-side
-  const filteredProducts =
-    tags && tags.length > 0
-      ? products.filter((product) =>
-          product.tags?.some((tag) => tags.includes(tag.value))
-        )
-      : products
-
-  const sortedProducts = sortProducts(filteredProducts, sortBy)
+  // No more tag filtering here
+  const sortedProducts = sortProducts(products, sortBy)
 
   const pageParam = (page - 1) * limit
   const nextPage =
-    filteredProducts.length > pageParam + limit ? pageParam + limit : null
+    sortedProducts.length > pageParam + limit ? pageParam + limit : null
 
   const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
 
   return {
     response: {
       products: paginatedProducts,
-      count: filteredProducts.length, // Reflect filtered count
+      count: sortedProducts.length,
     },
     nextPage,
-    queryParams: safeQueryParams, // Return safe queryParams
+    queryParams: safeQueryParams,
   }
+}
+
+export type BundleProduct = {
+  id: string
+  title: string
+  product: {
+    id: string
+    thumbnail: string
+    title: string
+    handle: string
+  }
+  items: {
+    id: string
+    title: string
+    optional?: boolean
+    product: HttpTypes.StoreProduct
+  }[]
+}
+
+export const getBundleProduct = async (
+  id: string,
+  {
+    currency_code,
+    region_id,
+  }: {
+    currency_code?: string
+    region_id?: string
+  }
+) => {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  return sdk.client.fetch<{
+    bundle_product: BundleProduct
+  }>(`/store/bundle-products/${id}`, {
+    method: "GET",
+    headers,
+    query: {
+      currency_code,
+      region_id,
+    },
+  })
 }

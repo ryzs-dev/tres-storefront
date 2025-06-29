@@ -39,6 +39,7 @@ const ImageGallery = ({
       navy: ["navy", "marine", "marino"],
       beige: ["beige", "bge", "beige"],
     }
+
     return variations[color] || [color]
   }
 
@@ -47,6 +48,7 @@ const ImageGallery = ({
       return images
     }
 
+    // Find selected "Color" value from variant
     const colorOption = selectedVariant.options.find((opt) => {
       const productOption = product.options?.find(
         (po) => po.id === opt.option_id
@@ -57,32 +59,31 @@ const ImageGallery = ({
     if (!colorOption) return images
 
     const colorValue = colorOption.value.toLowerCase()
-    const sku = selectedVariant.sku?.toLowerCase()
+    const colorVariations = getColorVariations(colorValue)
 
+    // First: Match based on color variations in the image URL
     const colorFilteredImages = images.filter((image) => {
       if (!image.url) return false
-      const fullUrl = image.url.toLowerCase()
-      const hasExactColor = fullUrl.includes(colorValue)
-      const hasColorVariation = getColorVariations(colorValue).some((v) =>
-        fullUrl.includes(v)
-      )
-      return hasExactColor || hasColorVariation
+      const url = image.url.toLowerCase()
+      return colorVariations.some((variation) => url.includes(variation))
     })
 
-    if (colorFilteredImages.length > 0) return colorFilteredImages
-
-    if (sku) {
-      const skuFilteredImages = images.filter((image) => {
-        if (!image.url) return false
-        const fullUrl = image.url.toLowerCase()
-        return sku
-          .split("-")
-          .filter((part) => part.length > 1)
-          .some((part) => fullUrl.includes(part))
-      })
-      if (skuFilteredImages.length > 0) return skuFilteredImages
+    if (colorFilteredImages.length > 0) {
+      return colorFilteredImages
     }
 
+    // Fallback: Try matching by SKU parts (e.g. medusa-black-s)
+    const sku = selectedVariant.sku?.toLowerCase()
+    if (sku) {
+      const skuParts = sku.split("-").filter(Boolean)
+      const skuFiltered = images.filter((img) => {
+        const url = img.url?.toLowerCase() || ""
+        return skuParts.some((part) => url.includes(part))
+      })
+      if (skuFiltered.length > 0) return skuFiltered
+    }
+
+    // Final fallback: Slice images by color index (assuming fixed layout)
     const variants = product.variants || []
     const uniqueColors = [
       ...new Set(
