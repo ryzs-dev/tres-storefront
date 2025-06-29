@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback, useRef } from "react"
+import { useMemo, useCallback, useRef, useState } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { FlexibleBundle } from "@lib/data/bundles"
 import { useBundleSelection } from "../../context/bundle-selection-context"
@@ -26,27 +26,42 @@ const getOptionMap = (
   }, {})
 
 const BundleItemCard = ({ item, region }: Props) => {
-  const { toggleItem, isItemSelected, updateItemQuantity, selectedItems } =
-    useBundleSelection()
+  const {
+    toggleItem,
+    isItemSelected,
+    updateItemQuantity,
+    selectedItems,
+    getSelectedVariant,
+  } = useBundleSelection()
 
-  const [optionValues, setOptionValues] = useState<Record<string, string>>({})
-  const [customQuantity, setCustomQuantity] = useState(item.quantity)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const touchStartX = useRef<number | null>(null)
 
   const isSelected = isItemSelected(item.id)
   const images = item.product.images || []
 
+  // Use a memoized value from the context for the selected item
+  const selectedItem = useMemo(
+    () => selectedItems.find((si) => si.itemId === item.id),
+    [selectedItems, item.id]
+  )
+
+  // Derive variantId and quantity from the context state
+  const selectedVariantId = selectedItem?.variantId
+  const selectedQuantity = selectedItem?.quantity || item.quantity
+
+  // Find the matched variant based on the selectedVariantId from the context
   const matchedVariant = useMemo(() => {
     if (!item.product.variants) return undefined
+    return item.product.variants.find(
+      (variant) => variant.id === selectedVariantId
+    )
+  }, [item.product.variants, selectedVariantId])
 
-    return item.product.variants.find((variant) => {
-      const variantMap = getOptionMap(variant.options)
-      return Object.keys(optionValues).every(
-        (id) => variantMap?.[id] === optionValues[id]
-      )
-    })
-  }, [item.product.variants, optionValues])
+  // Derive option values from the matched variant
+  const optionValues = useMemo(() => {
+    return getOptionMap(matchedVariant?.options || [])
+  }, [matchedVariant])
 
   const filteredImages = useMemo(() => {
     if (!matchedVariant || !images.length) return images
@@ -58,16 +73,18 @@ const BundleItemCard = ({ item, region }: Props) => {
 
     const selectedColor =
       colorOption && (colorOption as HttpTypes.StoreProductOption).id
-        ? optionValues[
-            (colorOption as HttpTypes.StoreProductOption).id
-          ]?.toLowerCase()
+        ? (
+            getOptionMap(matchedVariant?.options ?? [])?.[
+              (colorOption as HttpTypes.StoreProductOption).id
+            ] ?? ""
+          ).toLowerCase() ?? ""
         : undefined
     if (!selectedColor) return images
 
     return images.filter((image) =>
       image.url.toLowerCase().includes(selectedColor)
     )
-  }, [images, matchedVariant, optionValues, item.product.options])
+  }, [images, matchedVariant, item.product.options])
 
   const isValid = !!matchedVariant
   const inStock =
@@ -78,120 +95,65 @@ const BundleItemCard = ({ item, region }: Props) => {
 
   const handleOptionChange = useCallback(
     (optionId: string, value: string) => {
-      setOptionValues((prev) => ({
-        ...prev,
-        [optionId]: value,
-      }))
-      setCurrentImageIndex(0)
+      // Find the new variant based on the new option
+      const currentOptions = getOptionMap(matchedVariant?.options || [])
+      const newOptionValues = { ...currentOptions, [optionId]: value }
 
-      // Find the new matched variant after updating options
       const newMatchedVariant = item.product.variants?.find((variant) => {
         const variantMap = getOptionMap(variant.options)
-        return Object.keys({ ...optionValues, [optionId]: value }).every(
-          (id) =>
-            variantMap?.[id] === { ...optionValues, [optionId]: value }[id]
+        return Object.keys(newOptionValues).every(
+          (id) => variantMap?.[id] === newOptionValues[id]
         )
       })
 
-      // Dispatch bundle-changed event if the item is selected
       if (isSelected && newMatchedVariant) {
-        const updatedSelectedItems = [
-          ...selectedItems.filter((si) => si.itemId !== item.id),
-          {
-            itemId: item.id,
-            variantId: newMatchedVariant.id,
-            quantity: customQuantity,
-          },
-        ]
-
-        window.dispatchEvent(
-          new CustomEvent("bundle-changed", {
-            detail: {
-              selectedItems: updatedSelectedItems,
-              promotionalTotal: 0,
-            },
-          })
-        )
+        updateItemQuantity(item.id, selectedQuantity, newMatchedVariant.id)
       }
+      setCurrentImageIndex(0)
     },
     [
       isSelected,
       item.id,
-      item.product.title,
       item.product.variants,
-      optionValues,
-      customQuantity,
-      selectedItems,
+      updateItemQuantity,
+      selectedQuantity,
+      matchedVariant,
     ]
   )
 
-  const handleQuantityChange = (value: number) => {
-    setCustomQuantity(value)
-    updateItemQuantity(item.id, value)
+  const handleQuantityChange = useCallback(
+    (value: number) => {
+      const newQuantity = value > 0 ? value : 1
+      if (isSelected && matchedVariant) {
+        updateItemQuantity(item.id, newQuantity, matchedVariant.id)
+      }
+    },
+    [isSelected, item.id, matchedVariant, updateItemQuantity]
+  )
 
-    if (isSelected && matchedVariant) {
-      toggleItem(item.id, matchedVariant.id, value)
-      window.dispatchEvent(
-        new CustomEvent("bundle-changed", {
-          detail: {
-            selectedItems: selectedItems.map((si) =>
-              si.itemId === item.id ? { ...si, quantity: value } : si
-            ),
-            promotionalTotal: 0,
-          },
-        })
-      )
-    }
-  }
+  const handleSelectionChange = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        // Find a default variant to add if the item is not yet selected
+        const defaultVariant = item.product.variants?.[0]
+        if (defaultVariant) {
+          toggleItem(item.id, defaultVariant.id, selectedQuantity || 1)
+        } else {
+          console.warn("Cannot select item without any variants.")
+        }
+      } else {
+        // Deselect the item
+        toggleItem(item.id, undefined, 0)
+      }
+    },
+    [toggleItem, item.id, item.product.variants, selectedQuantity]
+  )
 
-  const handleSelectionChange = (checked: boolean) => {
-    if (checked && matchedVariant) {
-      toggleItem(item.id, matchedVariant.id, customQuantity)
-    } else {
-      toggleItem(item.id, undefined, 0)
-      setOptionValues({})
-    }
-
-    window.dispatchEvent(
-      new CustomEvent("bundle-changed", {
-        detail: {
-          selectedItems:
-            checked && matchedVariant
-              ? [
-                  ...selectedItems,
-                  {
-                    itemId: item.id,
-                    variantId: matchedVariant.variantId,
-                    quantity: customQuantity,
-                  },
-                ]
-              : selectedItems.filter((si) => si.itemId !== item.id),
-          promotionalTotal: 0,
-        },
-      })
-    )
-  }
-
-  const handleAddToBundle = () => {
+  const handleAddToBundle = useCallback(() => {
     if (matchedVariant && inStock) {
-      toggleItem(item.id, matchedVariant.id, customQuantity)
-      window.dispatchEvent(
-        new CustomEvent("bundle-changed", {
-          detail: {
-            selectedItems: [
-              ...selectedItems.filter((si) => si.itemId !== item.id),
-              {
-                itemId: item.id,
-                variantId: matchedVariant.id,
-                quantity: customQuantity,
-              },
-            ],
-            promotionalTotal: 0,
-          },
-        })
-      )
+      toggleItem(item.id, matchedVariant.id, selectedQuantity)
     }
-  }
+  }, [matchedVariant, inStock, toggleItem, item.id, selectedQuantity])
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     touchStartX.current = e.touches[0].clientX
@@ -362,7 +324,7 @@ const BundleItemCard = ({ item, region }: Props) => {
               <OptionSelect
                 key={option.id}
                 option={option}
-                current={optionValues[option.id]}
+                current={optionValues?.[option.id] ?? ""}
                 updateOption={handleOptionChange}
                 title={option.title}
                 disabled={false}
@@ -380,7 +342,7 @@ const BundleItemCard = ({ item, region }: Props) => {
                 id={`quantity-${item.id}`}
                 type="number"
                 min={1}
-                value={customQuantity}
+                value={selectedQuantity}
                 onChange={(e) =>
                   handleQuantityChange(parseInt(e.target.value) || 1)
                 }
@@ -405,7 +367,7 @@ const BundleItemCard = ({ item, region }: Props) => {
           )}
 
           {/* Add to Bundle Button */}
-          <Button
+          {/* <Button
             onClick={handleAddToBundle}
             disabled={!isValid || !inStock}
             variant="primary"
@@ -416,7 +378,7 @@ const BundleItemCard = ({ item, region }: Props) => {
               : !inStock
               ? "Out of stock"
               : "Add to Bundle"}
-          </Button>
+          </Button> */}
         </div>
       )}
     </article>

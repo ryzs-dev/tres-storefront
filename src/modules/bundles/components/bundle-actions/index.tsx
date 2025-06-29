@@ -1,4 +1,3 @@
-// src/modules/bundles/components/bundle-actions/index.tsx
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
@@ -168,7 +167,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             ? `Add Bundle - Save MYR ${savings.toFixed(
                 2
               )} (${discountPercentage}% Off)`
-            : `Add to Cart - MYR ${baseTotal.toFixed(2)}`}
+            : `Add to Cart`}
         </Button>
 
         {selectedItems.length > 0 && (

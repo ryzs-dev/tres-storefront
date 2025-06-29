@@ -1,4 +1,3 @@
-// src/modules/bundles/context/bundle-selection-context.tsx
 "use client"
 
 import React, { createContext, useContext, useState, useCallback } from "react"
@@ -16,7 +15,11 @@ type BundleSelectionContextType = {
   isItemSelected: (itemId: string) => boolean
   getSelectedVariant: (itemId: string) => string | undefined
   toggleItem: (itemId: string, variantId?: string, quantity?: number) => void
-  updateItemQuantity: (itemId: string, quantity: number) => void
+  updateItemQuantity: (
+    itemId: string,
+    quantity: number,
+    variantId?: string
+  ) => void
   clearSelection: () => void
   canAddToCart: () => boolean
   getSelectionSummary: () => {
@@ -100,13 +103,24 @@ export const BundleSelectionProvider = ({
     [bundle.items]
   )
 
-  const updateItemQuantity = useCallback((itemId: string, quantity: number) => {
-    setSelectedItems((prev) =>
-      prev.map((item) =>
-        item.itemId === itemId ? { ...item, quantity } : item
+  const updateItemQuantity = useCallback(
+    (itemId: string, quantity: number, variantId?: string) => {
+      setSelectedItems((prev) =>
+        prev.map((item) => {
+          if (item.itemId === itemId) {
+            return {
+              ...item,
+              quantity,
+              // If variantId is provided, update it, otherwise keep the old one
+              variantId: variantId || item.variantId,
+            }
+          }
+          return item
+        })
       )
-    )
-  }, [])
+    },
+    [] // No dependencies are needed for this useCallback
+  )
 
   const clearSelection = useCallback(() => {
     setSelectedItems([])
