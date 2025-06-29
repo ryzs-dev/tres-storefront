@@ -41,39 +41,41 @@ const BundleDetailTemplate = ({
 
   return (
     <BundleSelectionProvider bundle={bundle}>
-      <div className="content-container grid grid-cols-1 lg:grid-cols-12 gap-8 py-6">
-        {/* Left Sidebar: Bundle Info */}
-        <div className="lg:col-span-3 order-1 lg:order-none">
-          <div className="sticky top-24">
-            <BundleInfo bundle={bundle} />
-          </div>
-        </div>
-
-        {/* Center: Gallery */}
-        <div className="lg:col-span-6 order-2 lg:order-none">
-          <BundleGalleryWrapper bundle={bundle} />
-        </div>
-
-        {/* Right Sidebar: Actions */}
-        <div className="lg:col-span-3 order-3 lg:order-none">
-          <div className="sticky top-24 mt">
-            <div className="mt-6 space-y-6">
-              {bundle.items.map((item) => (
-                <BundleItemCard key={item.id} item={item} region={region} />
-              ))}
+      <div className="content-container py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Sidebar */}
+          <div className="lg:col-span-3">
+            <div className="sticky top-24">
+              <BundleInfo bundle={bundle} />
             </div>
-            <div className="mt-6">
-              <BundleActions
-                bundle={bundle}
-                region={region}
-                countryCode={countryCode}
-              />
+          </div>
+
+          {/* Center Gallery */}
+          <div className="lg:col-span-6">
+            <BundleGalleryWrapper bundle={bundle} />
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="lg:col-span-3">
+            <div className="sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar">
+              <div className="space-y-6">
+                {bundle.items.map((item) => (
+                  <BundleItemCard key={item.id} item={item} region={region} />
+                ))}
+              </div>
+              <div className="mt-6">
+                <BundleActions
+                  bundle={bundle}
+                  region={region}
+                  countryCode={countryCode}
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Related Bundles Section */}
+      {/* Related Bundles */}
       <div
         className="content-container my-16 small:my-32"
         data-testid="related-products-container"
