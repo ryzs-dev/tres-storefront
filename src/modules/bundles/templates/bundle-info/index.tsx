@@ -13,10 +13,10 @@ type BundleInfoProps = {
 
 const BundleInfo = ({ bundle }: BundleInfoProps) => {
   const tabs = [
-    // {
-    //   label: "Description",
-    //   component: <DescriptionTab bundle={bundle} />,
-    // },
+    {
+      label: "Description",
+      component: <DescriptionTab bundle={bundle} />,
+    },
     {
       label: "Sizing Guide",
       component: <SizingGuideTab />,
@@ -41,7 +41,6 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
         </div>
 
         {/* Bundle Subtitle / Description */}
-        <DescriptionTab bundle={bundle} />
         <div className="w-full">
           <Accordion type="multiple">
             {tabs.map((tab, i) => (
@@ -93,12 +92,10 @@ const DescriptionTab = ({ bundle }: BundleInfoProps) => {
 
 const SizingGuideTab = () => {
   const sizingData = [
-    { size: "XS", chest: "32 in", waist: "24 in", hips: "34 in" },
     { size: "S", chest: "34 in", waist: "26 in", hips: "36 in" },
     { size: "M", chest: "36 in", waist: "28 in", hips: "38 in" },
     { size: "L", chest: "38 in", waist: "30 in", hips: "40 in" },
     { size: "XL", chest: "40 in", waist: "32 in", hips: "42 in" },
-    { size: "XXL", chest: "42 in", waist: "34 in", hips: "44 in" },
   ]
 
   return (
