@@ -294,8 +294,8 @@ const BundleItemCard = ({ item, region }: Props) => {
 
           {isSelected && (
             <div className="text-xs text-blue-600 font-medium flex items-center gap-1 mt-1">
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-              Added to bundle
+              <div className="w-1.5 h-1.5 mb-1 bg-blue-600 rounded-full flex justify-center items-center"></div>
+              Selected
             </div>
           )}
         </div>
