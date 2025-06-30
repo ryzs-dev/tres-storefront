@@ -13,9 +13,13 @@ type BundleInfoProps = {
 
 const BundleInfo = ({ bundle }: BundleInfoProps) => {
   const tabs = [
+    // {
+    //   label: "Description",
+    //   component: <DescriptionTab bundle={bundle} />,
+    // },
     {
-      label: "Description",
-      component: <DescriptionTab bundle={bundle} />,
+      label: "Sizing Guide",
+      component: <SizingGuideTab />,
     },
   ]
 
@@ -37,7 +41,8 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
         </div>
 
         {/* Bundle Subtitle / Description */}
-        {/* <div className="w-full">
+        <DescriptionTab bundle={bundle} />
+        <div className="w-full">
           <Accordion type="multiple">
             {tabs.map((tab, i) => (
               <Accordion.Item
@@ -50,8 +55,7 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
               </Accordion.Item>
             ))}
           </Accordion>
-        </div> */}
-        <DescriptionTab bundle={bundle} />
+        </div>
       </div>
     </div>
   )
@@ -83,6 +87,45 @@ const DescriptionTab = ({ bundle }: BundleInfoProps) => {
           </Accordion.Item>
         ))}
       </Accordion>
+    </div>
+  )
+}
+
+const SizingGuideTab = () => {
+  const sizingData = [
+    { size: "XS", chest: "32 in", waist: "24 in", hips: "34 in" },
+    { size: "S", chest: "34 in", waist: "26 in", hips: "36 in" },
+    { size: "M", chest: "36 in", waist: "28 in", hips: "38 in" },
+    { size: "L", chest: "38 in", waist: "30 in", hips: "40 in" },
+    { size: "XL", chest: "40 in", waist: "32 in", hips: "42 in" },
+    { size: "XXL", chest: "42 in", waist: "34 in", hips: "44 in" },
+  ]
+
+  return (
+    <div className="py-8">
+      <h3 className="text-lg font-semibold mb-4">Sizing Guide</h3>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-left text-sm border border-gray-200">
+          <thead className="bg-gray-100 text-gray-700 font-medium">
+            <tr>
+              <th className="px-4 py-2 border">Size</th>
+              <th className="px-4 py-2 border">Chest</th>
+              <th className="px-4 py-2 border">Waist</th>
+              <th className="px-4 py-2 border">Hips</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-600">
+            {sizingData.map((row, index) => (
+              <tr key={index} className="even:bg-gray-50">
+                <td className="px-4 py-2 border">{row.size}</td>
+                <td className="px-4 py-2 border">{row.chest}</td>
+                <td className="px-4 py-2 border">{row.waist}</td>
+                <td className="px-4 py-2 border">{row.hips}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

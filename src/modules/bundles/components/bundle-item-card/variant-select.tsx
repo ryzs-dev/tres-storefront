@@ -30,6 +30,9 @@ const colorMap: Record<string, string> = {
   purple: "#802D57",
   brown: "#8B4513",
   coffee: "#6F4C3E",
+  "midnight black": "#1C1C1E",
+  mocha: "#3B2F2F",
+  "white frost": "#F5F5F5",
 }
 
 const VariantSelect = ({
