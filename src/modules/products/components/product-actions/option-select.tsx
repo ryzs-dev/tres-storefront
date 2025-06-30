@@ -30,6 +30,20 @@ const colorMap: Record<string, string> = {
   "midnight black": "#1C1C1E",
   mocha: "#3B2F2F",
   "white frost": "#F5F5F5",
+  "pear green": "#A8D5BA",
+  "walnut brown": "#5B3A29",
+  berrylicious: "#A45A8D",
+  "green goddess": "#A8D5BA",
+  "baby blue": "#A2DFF7",
+  "grey graphite": "#4B4B4D",
+  "pink pitaya": "#F7A3B8",
+  latte: "#D8CFC4",
+  "magenta pink": "#FF00FF",
+  "lush green": "#3CB371",
+  taupe: "#BDB6A8",
+  lavender: "#E6E6FA",
+  fall: "#FF7F50",
+  "noir black": "#000000",
 }
 
 const OptionSelect: React.FC<OptionSelectProps> = ({
