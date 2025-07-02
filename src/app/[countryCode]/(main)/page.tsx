@@ -9,6 +9,7 @@ import StrengthSection from "@modules/home/components/banner/StrengthSection"
 import FeaturedSection from "@modules/layout/components/featured-section/FeaturedSection"
 import { Heading, Text } from "@medusajs/ui"
 import Image from "next/image"
+import HeroSlider from "@modules/home/components/hero-slider"
 
 export const metadata: Metadata = {
   title: "Welcome to Tres",
@@ -54,7 +55,7 @@ export default async function Home(props: {
       <div>
         <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
           <Image
-            src="https://storage.tres.my/Hero_Image/DSCF2829.jpg"
+            src="https://storage.tres.my/Hero_Image/hero_image_0.png"
             fill
             alt="Hero background"
             className={`object-cover object-[30%_30%]`} // Use the objectPosition prop
@@ -92,13 +93,26 @@ export default async function Home(props: {
 
       {/* Hero Section 2 */}
       <section className="sm:py-14 py-10">
-        <div className="container max-w-7xl mx-auto ">
-          <Hero
-            content="Let's Unbuckle With Us"
-            imageUrl="https://storage.tres.my/Hero_Image/new_unbuckle_hero.JPG"
-            position="bottom-left"
-            objectPosition="30%_40%"
-            cta
+        <div className="container max-w-7xl mx-auto">
+          <HeroSlider
+            slides={[
+              {
+                content: "Let's Unbuckle With Us",
+                imageUrl:
+                  "https://storage.tres.my/Hero_Image/new_unbuckle_hero.JPG",
+                position: "bottom-left",
+                objectPosition: "30%_40%",
+                cta: true,
+              },
+              {
+                content: "Let's Unbuckle With Us",
+                imageUrl:
+                  "https://storage.tres.my/Hero_Image/unbuckle_hero_2.png",
+                position: "bottom-left",
+                objectPosition: "30%_40%",
+                cta: true,
+              },
+            ]}
           />
         </div>
       </section>
