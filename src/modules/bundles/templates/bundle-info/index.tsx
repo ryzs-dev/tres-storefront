@@ -62,24 +62,47 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
 
 const DescriptionTab = ({ bundle }: BundleInfoProps) => {
   const parseDescription = (description: string) => {
-    const sections: { title: string; bullets: string[] }[] = []
+    const sections: { title?: string; bullets: string[] }[] = []
 
-    // Match headers like *Pullover:*
-    const sectionSplit = description.split(/\*(.*?)\:\*/g) // split and keep the title
+    const hasStructuredSections = /\*(.*?)\:\*/.test(description)
 
-    for (let i = 1; i < sectionSplit.length; i += 2) {
-      const title = sectionSplit[i].trim() // header like "Pullover"
-      const content = sectionSplit[i + 1] || "" // text block
+    if (hasStructuredSections) {
+      const sectionSplit = description.split(/\*(.*?)\:\*/g)
 
-      const bullets = content
-        .split(/-\s+/) // split by dash bullets
+      for (let i = 1; i < sectionSplit.length; i += 2) {
+        const title = sectionSplit[i].trim()
+        const content = sectionSplit[i + 1] || ""
+
+        const bullets = content
+          .split(/-\s+/)
+          .flatMap((b) => b.split("/n"))
+          .map((b) => b.replace(/\n/g, " ").trim())
+          .filter((b) => b.length > 0)
+
+        sections.push({ title, bullets })
+      }
+    } else {
+      const bullets = description
+        .split(/-\s+/)
+        .flatMap((b) => b.split("/n"))
         .map((b) => b.replace(/\n/g, " ").trim())
         .filter((b) => b.length > 0)
 
-      sections.push({ title, bullets })
+      if (bullets.length > 0) {
+        sections.push({ bullets })
+      }
     }
 
     return sections
+  }
+
+  const renderWithLineBreaks = (text: string) => {
+    return text.split("/n").map((part, index, arr) => (
+      <span key={index}>
+        {part}
+        {index < arr.length - 1 && <br />}
+      </span>
+    ))
   }
 
   return (
@@ -99,12 +122,20 @@ const DescriptionTab = ({ bundle }: BundleInfoProps) => {
             >
               {parsedSections.length > 0 ? (
                 parsedSections.map((section, sIdx) => (
-                  <div key={sIdx} className="space-y-2">
-                    <h3 className="font-semibold text-base">{section.title}</h3>
+                  <div key={sIdx} className="space-y-2 mb-5">
+                    {section.title && (
+                      <h3 className="font-semibold text-base">
+                        {section.title}
+                      </h3>
+                    )}
                     <ul className="list-disc list-inside text-sm font-urw font-medium text-ui-fg-subtle space-y-1">
-                      {section.bullets.map((bullet, bIdx) => (
-                        <li key={bIdx}>{bullet}</li>
-                      ))}
+                      {section.bullets.map((bullet, bIdx) =>
+                        bullet.toLowerCase() === "/n" ? (
+                          <li key={bIdx} className="list-none h-4" />
+                        ) : (
+                          <li key={bIdx}>{renderWithLineBreaks(bullet)}</li>
+                        )
+                      )}
                     </ul>
                   </div>
                 ))
