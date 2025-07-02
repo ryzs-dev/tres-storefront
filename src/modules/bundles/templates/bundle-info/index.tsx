@@ -62,9 +62,11 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
 
 const DescriptionTab = ({ bundle }: BundleInfoProps) => {
   const parseDescription = (description: string) => {
-    const sections: { title?: string; bullets: string[] }[] = []
+    const sections: { title?: string; bullets: string[]; rawText?: string }[] =
+      []
 
     const hasStructuredSections = /\*(.*?)\:\*/.test(description)
+    const hasBullets = /-\s+/.test(description)
 
     if (hasStructuredSections) {
       const sectionSplit = description.split(/\*(.*?)\:\*/g)
@@ -81,7 +83,7 @@ const DescriptionTab = ({ bundle }: BundleInfoProps) => {
 
         sections.push({ title, bullets })
       }
-    } else {
+    } else if (hasBullets) {
       const bullets = description
         .split(/-\s+/)
         .flatMap((b) => b.split("/n"))
@@ -90,6 +92,15 @@ const DescriptionTab = ({ bundle }: BundleInfoProps) => {
 
       if (bullets.length > 0) {
         sections.push({ bullets })
+      }
+    } else {
+      // Raw paragraph fallback
+      const cleaned = description.trim()
+      if (cleaned.length > 0) {
+        sections.push({
+          rawText: cleaned,
+          bullets: [],
+        })
       }
     }
 
@@ -128,15 +139,22 @@ const DescriptionTab = ({ bundle }: BundleInfoProps) => {
                         {section.title}
                       </h3>
                     )}
-                    <ul className="list-disc list-inside text-sm font-urw font-medium text-ui-fg-subtle space-y-1">
-                      {section.bullets.map((bullet, bIdx) =>
-                        bullet.toLowerCase() === "/n" ? (
-                          <li key={bIdx} className="list-none h-4" />
-                        ) : (
-                          <li key={bIdx}>{renderWithLineBreaks(bullet)}</li>
-                        )
-                      )}
-                    </ul>
+
+                    {section.rawText ? (
+                      <p className="text-sm font-urw font-medium text-ui-fg-subtle text-justify">
+                        {renderWithLineBreaks(section.rawText)}
+                      </p>
+                    ) : (
+                      <ul className="list-disc list-inside text-sm font-urw font-medium text-ui-fg-subtle space-y-1 text-justify">
+                        {section.bullets.map((bullet, bIdx) =>
+                          bullet.toLowerCase() === "/n" ? (
+                            <li key={bIdx} className="list-none h-4" />
+                          ) : (
+                            <li key={bIdx}>{renderWithLineBreaks(bullet)}</li>
+                          )
+                        )}
+                      </ul>
+                    )}
                   </div>
                 ))
               ) : (
