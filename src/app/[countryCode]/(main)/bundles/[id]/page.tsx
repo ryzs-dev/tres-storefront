@@ -92,16 +92,10 @@ export default async function BundleDetailPage(props: Props) {
   }
 
   try {
-    console.log("🔍 Fetching bundle:", params.id)
-    console.log("🌍 Region:", region.currency_code, region.id)
-
     const response = await getFlexibleBundle(params.id, {
       currency_code: region.currency_code,
       region_id: region.id,
     })
-
-    console.log("📦 Full API response:", response)
-    console.log("🎯 Bundle from response:", response.bundle)
 
     const { bundle } = response
 
@@ -110,7 +104,7 @@ export default async function BundleDetailPage(props: Props) {
       notFound()
     }
 
-    console.log("✅ Bundle successfully loaded:", bundle.title)
+    console.log("✅ Bundle fetched successfully:", bundle)
 
     return (
       <BundleTemplate

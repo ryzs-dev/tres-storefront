@@ -61,30 +61,61 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
 }
 
 const DescriptionTab = ({ bundle }: BundleInfoProps) => {
+  const parseDescription = (description: string) => {
+    const sections: { title: string; bullets: string[] }[] = []
+
+    // Match headers like *Pullover:*
+    const sectionSplit = description.split(/\*(.*?)\:\*/g) // split and keep the title
+
+    for (let i = 1; i < sectionSplit.length; i += 2) {
+      const title = sectionSplit[i].trim() // header like "Pullover"
+      const content = sectionSplit[i + 1] || "" // text block
+
+      const bullets = content
+        .split(/-\s+/) // split by dash bullets
+        .map((b) => b.replace(/\n/g, " ").trim())
+        .filter((b) => b.length > 0)
+
+      sections.push({ title, bullets })
+    }
+
+    return sections
+  }
+
   return (
     <div className="text-small-regular py-8">
       <Accordion type="multiple">
-        {bundle.items.map((item, index) => (
-          <Accordion.Item
-            key={index}
-            title={item.product.title || `Product ${index + 1}`}
-            headingSize="small"
-            value={`description-${index}`}
-            className="space-y-4"
-          >
-            <ul className="list-disc list-inside text-sm font-urw font-medium text-ui-fg-subtle space-y-1">
-              {(item.product.description || "")
-                .replace(/[\u2028\u2029]/g, " ") // Handle invisible Unicode line breaks
-                .replace(/\n/g, " ") // Handle soft line breaks
-                .split(/-\s+/) // Split by dash bullets like "- "
-                .map((line) => line.trim())
-                .filter((line) => line.length > 0)
-                .map((line, i) => (
-                  <li key={i}>{line}</li>
-                ))}
-            </ul>
-          </Accordion.Item>
-        ))}
+        {bundle.items.map((item, index) => {
+          const description = item.product.description || ""
+          const parsedSections = parseDescription(description)
+
+          return (
+            <Accordion.Item
+              key={index}
+              title={item.product.title || `Product ${index + 1}`}
+              headingSize="medium"
+              value={`description-${index}`}
+              className="space-y-4"
+            >
+              {parsedSections.length > 0 ? (
+                parsedSections.map((section, sIdx) => (
+                  <div key={sIdx} className="space-y-2">
+                    <h3 className="font-semibold text-base">{section.title}</h3>
+                    <ul className="list-disc list-inside text-sm font-urw font-medium text-ui-fg-subtle space-y-1">
+                      {section.bullets.map((bullet, bIdx) => (
+                        <li key={bIdx}>{bullet}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-ui-fg-muted">
+                  No description provided.
+                </p>
+              )}
+            </Accordion.Item>
+          )
+        })}
       </Accordion>
     </div>
   )
