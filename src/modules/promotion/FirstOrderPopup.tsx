@@ -41,17 +41,8 @@ const FirstOrderPopup = ({ customer }: Props) => {
   }
 
   useEffect(() => {
-    if (!customer) {
-      console.log("User not signed in — showing popup")
+    if (!customer || !customer.orders?.length) {
       setShowPopup(true)
-      return
-    }
-
-    if (!customer.orders || customer.orders.length === 0) {
-      console.log("Signed in with no orders — showing popup")
-      setShowPopup(true)
-    } else {
-      console.log("Signed in with orders — not showing popup")
     }
   }, [customer])
 
@@ -69,7 +60,6 @@ const FirstOrderPopup = ({ customer }: Props) => {
 
         if (response.ok) {
           const data = await response.json()
-          console.log("Fetched promotions:", data)
           setPromotions(data.promotions || data || [])
         }
       } catch (err) {
@@ -123,11 +113,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
 
         {/* Left Content Section */}
         <div className="bg-white flex-1 px-8 sm:px-12 lg:px-16 py-12 sm:py-16 flex flex-col justify-center relative text-center">
-          {/* Brand Name */}
           <div className="mb-6 sm:mb-8 flex justify-center">
-            {/* <h1 className="font-urw text-3xl sm:text-4xl font-bold tracking-[0.25em] text-gray-900 uppercase">
-              TRES
-            </h1> */}
             <Image
               src="/images/tres-logo-3.svg"
               alt="Tres Triangle Logo"
@@ -138,46 +124,36 @@ const FirstOrderPopup = ({ customer }: Props) => {
           </div>
 
           {/* Main Content */}
-          <div className="my-8">
-            {firstPromotion && (
-              <>
-                <h2 className="font-urw text-xl sm:text-2xl text-gray-600 mb-3 sm:mb-4 leading-relaxed">
-                  Want
-                </h2>
-                <h3 className="font-urw text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 uppercase leading-none mb-4 sm:mb-6">
-                  20% off
-                </h3>
-                {/* <h2 className="font-urw text-xl sm:text-2xl text-gray-600 mb-3 sm:mb-4 leading-relaxed">
-                  your order?
-                </h2> */}
-                <h2 className="font-urw text-xl sm:text-2xl text-gray-600 mb-3 sm:mb-4 leading-relaxed">
-                  WE'VE GOT YOU COVERED!
-                </h2>
-              </>
-            )}
+          <div className="my-6 space-y-3">
+            <h2 className="font-urw text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+              Get <span className="text-[#99B2DD]">15% off</span> your first
+              purchase
+            </h2>
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+              Plus, enjoy exclusive <strong>TRES</strong> discounts in the
+              future.
+            </p>
+            <p className="text-sm sm:text-base text-gray-500 italic">
+              Don’t miss out — be part of something strong.
+            </p>
           </div>
 
           {/* Promotion Code Display */}
           {customer && firstPromotion && (
             <div className="mb-8">
               <div className="bg-gray-50/80 backdrop-blur-sm rounded-lg p-4 border border-gray-100">
-                {/* <p className="text-sm text-gray-500 mb-3 flex items-center gap-2">
-                  <Tag className="w-4 h-4" />
-                  Use code at checkout
-                </p> */}
                 <div
                   className="font-mono text-base sm:text-lg font-semibold bg-white px-4 py-3 rounded-md border border-gray-200 flex flex-row justify-center items-center gap-3 text-gray-800 cursor-pointer hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
                   onClick={() => copyToClipboard(firstPromotion.code)}
                 >
                   <span className="select-all">{firstPromotion.code}</span>
                   {copied ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
-                    </>
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
                   ) : (
                     <Copy className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" />
                   )}
                 </div>
+                <p className="text-xs text-gray-400 mt-2">Click to copy code</p>
               </div>
             </div>
           )}
