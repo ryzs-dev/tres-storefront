@@ -134,6 +134,8 @@ const DescriptionTab = ({ bundle }: DescriptionTabProps) => {
     (item) => item.product.description?.trim().length
   )
 
+  const showTitle = items.length > 1
+
   return (
     <div className="space-y-8">
       {items.map((item, idx) => {
@@ -143,7 +145,9 @@ const DescriptionTab = ({ bundle }: DescriptionTabProps) => {
 
         return (
           <div key={idx}>
-            <h2 className="text-lg font-bold mb-2">{title}</h2>
+            {showTitle && (
+              <p className="font-semibold text-base mb-1">{title}</p>
+            )}
             <div className="space-y-4">
               {sections.map((section, i) => (
                 <div key={i}>
