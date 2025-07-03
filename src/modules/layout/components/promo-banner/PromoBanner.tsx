@@ -14,9 +14,9 @@ const PromoBanner = () => {
       modules={[Autoplay]}
       className="bg-[#99B2DD] text-white text-center font-urw font-medium [&_.swiper-wrapper]:!py-2 [&_.swiper-wrapper]:!m-0"
     >
-      <SwiperSlide>🚀 New Collection Arrived!</SwiperSlide>
-      <SwiperSlide>🎉 Free Shipping on Orders Above RM50</SwiperSlide>
-      <SwiperSlide>💥 Limited Time Offer!</SwiperSlide>
+      <SwiperSlide>New Collection Arrived!</SwiperSlide>
+      <SwiperSlide>Free Delivery for Shipping Above RM180</SwiperSlide>
+      <SwiperSlide>Limited Time Offer!</SwiperSlide>
     </Swiper>
   )
 }
