@@ -26,7 +26,7 @@ export default async function DressesCategoriesPage({
   })
 
   // ✅ Hardcode filter by name
-  const targetNames = ["mirenda", "sefora", "rexa"]
+  const targetNames = ["miranda", "sefora", "rexa"]
 
   const dressesBundles = response.bundles.filter((bundle) =>
     targetNames.includes(bundle.title.toLowerCase())
