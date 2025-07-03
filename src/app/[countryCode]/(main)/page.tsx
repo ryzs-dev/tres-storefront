@@ -1,7 +1,4 @@
 import { Metadata } from "next"
-
-import FeaturedProducts from "@modules/home/components/featured-products"
-import Hero from "@modules/home/components/hero"
 import { listCollections } from "@lib/data/collections"
 import { listCategories } from "@lib/data/categories"
 import { getRegion } from "@lib/data/regions"
@@ -10,6 +7,7 @@ import FeaturedSection from "@modules/layout/components/featured-section/Feature
 import { Heading, Text } from "@medusajs/ui"
 import Image from "next/image"
 import HeroSlider from "@modules/home/components/hero-slider"
+import CollectionSlider from "@modules/home/components/CollectionSlider"
 
 export const metadata: Metadata = {
   title: "Welcome to Tres",
@@ -49,6 +47,33 @@ export default async function Home(props: {
         : "https://storage.tres.my/placeholder.jpg", // fallback image
   }))
 
+  const bundleCollections = [
+    {
+      title: "Pedal & Power",
+      slug: "pedal-and-power",
+      image: "https://storage.tres.my/pedal/pedal-and-power.JPG",
+      hoverImage: "",
+    },
+    {
+      title: "Chill in Style",
+      slug: "chill-in-style",
+      image: "https://storage.tres.my/chill/chill-in-style.JPG",
+      hoverImage: "",
+    },
+    {
+      title: "Cover Me Up",
+      slug: "cover-me-up",
+      image: "https://storage.tres.my/cover/cover-me-up.JPG",
+      hoverImage: "",
+    },
+    {
+      title: "Smash & Swing",
+      slug: "smash-and-swing",
+      image: "https://storage.tres.my/smash/Smash-and-swing.JPG",
+      hoverImage: "",
+    },
+  ]
+
   return (
     <>
       {/* Hero Section 1 */}
@@ -85,10 +110,18 @@ export default async function Home(props: {
       </div>
 
       {/* Featured Products Section */}
-      <section className="w-full bg-gray-100 px-4 sm:px-6 lg:px-0 py-10 sm:py-14">
+      {/* <section className="w-full bg-gray-100 px-4 sm:px-6 lg:px-0 py-10 sm:py-14">
         <div className="mx-auto min-w-full">
           <FeaturedProducts collections={collections} region={region} />
         </div>
+      </section> */}
+
+      <section className="w-full bg-white px-4 sm:px-6 lg:px-0">
+        <CollectionSlider
+          collections={bundleCollections}
+          countryCode={countryCode}
+          heading="Explore Our Exclusive Collections"
+        />
       </section>
 
       {/* Hero Section 2 */}
