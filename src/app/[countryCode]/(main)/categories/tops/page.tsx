@@ -26,7 +26,7 @@ export default async function TopsCategoriesPage({
   })
 
   // ✅ Hardcode filter by name
-  const targetNames = ["celine", "daz", "raven", "rory", "leva"]
+  const targetNames = ["rory", "leva"]
 
   const topBundles = response.bundles.filter((bundle) =>
     targetNames.includes(bundle.title.toLowerCase())
