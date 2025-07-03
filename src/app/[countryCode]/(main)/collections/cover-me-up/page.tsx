@@ -26,7 +26,7 @@ export default async function CoverMeUpCollectionPage({
   })
 
   // ✅ Hardcode filter by name
-  const targetNames = ["daz", "raven", "gal", "sunny"]
+  const targetNames = ["daz", "raven", "gal"]
 
   const unbuckleBundles = response.bundles.filter((bundle) =>
     targetNames.includes(bundle.title.toLowerCase())

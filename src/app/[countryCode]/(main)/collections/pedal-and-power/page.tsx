@@ -26,15 +26,7 @@ export default async function PedalAndPowerCollectionPage({
   })
 
   // ✅ Hardcode filter by name
-  const targetNames = [
-    "celine",
-    "daz",
-    "raven",
-    "lively",
-    "piper",
-    "luxy",
-    "medusa set",
-  ]
+  const targetNames = ["lively", "piper", "luxy", "medusa set"]
 
   const unbuckleBundles = response.bundles.filter((bundle) =>
     targetNames.includes(bundle.title.toLowerCase())
