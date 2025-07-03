@@ -89,10 +89,10 @@ export default function CollectionSlider({
                   alt={collection.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="rounded-xl transition-opacity duration-500 object-[30%_30%] group-hover:opacity-0"
+                  className="rounded-xl  duration-300 object-[30%_30%] group-hover:scale-105"
                   objectFit="cover"
                 />
-                {collection.hoverImage && (
+                {/* {collection.hoverImage && (
                   <Image
                     src={collection.hoverImage}
                     alt={`${collection.title} Hover`}
@@ -101,7 +101,7 @@ export default function CollectionSlider({
                     className="rounded-xl absolute top-0 left-0 object-[30%_30%]  transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                     objectFit="cover"
                   />
-                )}
+                )} */}
                 <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-3 sm:p-4 z-10">
                   <h2 className="text-white text-base sm:text-lg font-semibold">
                     {collection.title}

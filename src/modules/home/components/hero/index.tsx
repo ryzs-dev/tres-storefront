@@ -66,32 +66,31 @@ const Hero = ({
       >
         <div className=" w-full mx-auto flex flex-col gap-6">
           <div className="flex flex-row">
-            <span className="flex flex-col items-center gap-4">
-              <Heading
-                level="h1"
-                className={`text-lg sm:text-4xl leading-tight font-urw font-light p-4 ${textColor}`}
-              >
-                {content}
-              </Heading>
-              {subtitle && (
-                <Text
-                  family="sans"
-                  size="large"
-                  className={`font-urwCond text-3xl ${textColor}`}
-                >
-                  {subtitle}
-                </Text>
-              )}
-            </span>
-
-            {cta && (
+            {cta ? (
               <LocalizedClientLink
-                href={`/store`}
+                href={`/collections/unbuckle`}
                 className="items-center flex"
               >
                 {/* <Button variant="secondary" size="large">
                   Shop Now
                 </Button> */}
+                <span className="flex flex-col items-center gap-4">
+                  <Heading
+                    level="h1"
+                    className={`text-lg sm:text-4xl leading-tight font-urw font-light p-4 ${textColor}`}
+                  >
+                    {content}
+                  </Heading>
+                  {subtitle && (
+                    <Text
+                      family="sans"
+                      size="large"
+                      className={`font-urwCond text-3xl ${textColor}`}
+                    >
+                      {subtitle}
+                    </Text>
+                  )}
+                </span>
                 <Text
                   family="sans"
                   size="large"
@@ -100,6 +99,24 @@ const Hero = ({
                   <ChevronRight className="inline mr-2" />
                 </Text>
               </LocalizedClientLink>
+            ) : (
+              <span className="flex flex-col items-center gap-4">
+                <Heading
+                  level="h1"
+                  className={`text-lg sm:text-4xl leading-tight font-urw font-light p-4 ${textColor}`}
+                >
+                  {content}
+                </Heading>
+                {subtitle && (
+                  <Text
+                    family="sans"
+                    size="large"
+                    className={`font-urwCond text-3xl ${textColor}`}
+                  >
+                    {subtitle}
+                  </Text>
+                )}
+              </span>
             )}
           </div>
         </div>

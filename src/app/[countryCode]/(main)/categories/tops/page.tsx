@@ -5,12 +5,12 @@ import { getRegion } from "@lib/data/regions"
 import BundlesTemplate from "@modules/bundles/templates"
 
 export const metadata: Metadata = {
-  title: "Dresses Categories | Tres",
+  title: "Tops Categories | Tres",
   //   description:
   //     "Explore our Celine, Daz, and Rave bundles from the Unbuckle collection.",
 }
 
-export default async function DressesCategoriesPage({
+export default async function TopsCategoriesPage({
   params,
 }: {
   params: { countryCode: string }
@@ -26,16 +26,16 @@ export default async function DressesCategoriesPage({
   })
 
   // ✅ Hardcode filter by name
-  const targetNames = ["mirenda", "sefora", "rexa"]
+  const targetNames = ["celine", "daz", "raven", "rory", "leva"]
 
-  const dressesBundles = response.bundles.filter((bundle) =>
+  const topBundles = response.bundles.filter((bundle) =>
     targetNames.includes(bundle.title.toLowerCase())
   )
 
   return (
     <BundlesTemplate
-      bundles={dressesBundles}
-      count={dressesBundles.length}
+      bundles={topBundles}
+      count={topBundles.length}
       region={region}
       countryCode={params.countryCode}
       currentPage={1}

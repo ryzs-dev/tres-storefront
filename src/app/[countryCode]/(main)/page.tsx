@@ -34,18 +34,18 @@ export default async function Home(props: {
 
   if (!collections || !region) return null
 
-  const categories = await listCategories()
+  // const categories = await listCategories()
 
   // Only pick the categories you want (by handle or metadata)
-  const featuredItems = categories.slice(0, 3).map((cat) => ({
-    name: cat.name,
-    href: `/categories/${cat.handle}`,
-    image:
-      typeof cat.metadata?.thumbnail === "string" &&
-      cat.metadata?.thumbnail.trim() !== ""
-        ? (cat.metadata.thumbnail as string)
-        : "https://storage.tres.my/placeholder.jpg", // fallback image
-  }))
+  // const featuredItems = categories.slice(0, 3).map((cat) => ({
+  //   name: cat.name,
+  //   href: `/categories/${cat.handle}`,
+  //   image:
+  //     typeof cat.metadata?.thumbnail === "string" &&
+  //     cat.metadata?.thumbnail.trim() !== ""
+  //       ? (cat.metadata.thumbnail as string)
+  //       : "https://storage.tres.my/placeholder.jpg", // fallback image
+  // }))
 
   const bundleCollections = [
     {
@@ -71,6 +71,24 @@ export default async function Home(props: {
       slug: "smash-and-swing",
       image: "https://storage.tres.my/smash/Smash-and-swing.JPG",
       hoverImage: "",
+    },
+  ]
+
+  const categories = [
+    {
+      name: "Tops",
+      href: "/categories/tops",
+      image: "https://storage.tres.my/Featured%20Sections/shop_tops.JPG",
+    },
+    {
+      name: "Sets",
+      href: "/categories/sets",
+      image: "https://storage.tres.my/Featured%20Sections/shop_bottoms.JPG",
+    },
+    {
+      name: "Dresses",
+      href: "/categories/dresses",
+      image: "https://storage.tres.my/Featured%20Sections/dresses.JPG",
     },
   ]
 
@@ -153,7 +171,7 @@ export default async function Home(props: {
       {/* Featured Section */}
       <section className="px- sm:px-0 lg:px-0 py-10 sm:py-14 bg-gray-100">
         <div className=" min-w-full">
-          <FeaturedSection items={featuredItems} />
+          <FeaturedSection items={categories} />
         </div>
       </section>
 
