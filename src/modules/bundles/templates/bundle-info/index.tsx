@@ -12,11 +12,20 @@ type BundleInfoProps = {
 }
 
 const BundleInfo = ({ bundle }: BundleInfoProps) => {
+  const hasValidDescriptions = bundle.items.some(
+    (item) =>
+      item.product.description && item.product.description.trim().length > 0
+  )
+
   const tabs = [
-    {
-      label: "Description",
-      component: <DescriptionTab bundle={bundle} />,
-    },
+    ...(hasValidDescriptions
+      ? [
+          {
+            label: "Description",
+            component: <DescriptionTab bundle={bundle} />,
+          },
+        ]
+      : []),
     {
       label: "Sizing Guide",
       component: <SizingGuideTab />,
@@ -26,21 +35,21 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
   return (
     <div id="bundle-info">
       <div className="flex flex-col gap-y-4 lg:max-w-[500px] mx-auto">
-        {/* Bundle Title */}
         <h1 className="text-3xl font-semibold">{bundle.title}</h1>
 
-        <div>
-          <Text className="text-ui-fg-subtle text-base font-bold">
-            Why You’ll Love It
-          </Text>
-          <ul className="list-disc list-inside text-ui-fg-subtle text-sm space-y-4 mt-4">
-            {bundle.description?.split("/n").map((line, index) => (
-              <div key={index}>✔️ {line.trim()}</div>
-            ))}
-          </ul>
-        </div>
+        {bundle.description && (
+          <div>
+            <Text className="text-ui-fg-subtle text-base font-bold">
+              Why You’ll Love It
+            </Text>
+            <ul className="list-disc list-inside text-ui-fg-subtle text-sm space-y-4 mt-4">
+              {bundle.description.split("/n").map((line, index) => (
+                <div key={index}>✔️ {line.trim()}</div>
+              ))}
+            </ul>
+          </div>
+        )}
 
-        {/* Bundle Subtitle / Description */}
         <div className="w-full">
           <Accordion type="multiple">
             {tabs.map((tab, i) => (
@@ -60,10 +69,30 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
   )
 }
 
-const DescriptionTab = ({ bundle }: BundleInfoProps) => {
+type DescriptionTabProps = {
+  bundle: {
+    items: {
+      product: {
+        title: string
+        description?: string
+      }
+    }[]
+  }
+}
+
+const DescriptionTab = ({ bundle }: DescriptionTabProps) => {
+  const normalizeLineBreaks = (text: string) =>
+    text
+      .replace(/\u2028|\u2029/g, "\n")
+      .replace(/\\n|\/n/g, "\n")
+      .replace(/\r/g, "\n")
+      .replace(/\n+/g, "\n")
+      .trim()
+
   const parseDescription = (description: string) => {
     const sections: { title?: string; bullets: string[]; rawText?: string }[] =
       []
+    description = normalizeLineBreaks(description)
 
     const hasStructuredSections = /\*(.*?)\:\*/.test(description)
     const hasBullets = /-\s+/.test(description)
@@ -77,8 +106,7 @@ const DescriptionTab = ({ bundle }: BundleInfoProps) => {
 
         const bullets = content
           .split(/-\s+/)
-          .flatMap((b) => b.split("/n"))
-          .map((b) => b.replace(/\n/g, " ").trim())
+          .map((b) => b.trim())
           .filter((b) => b.length > 0)
 
         sections.push({ title, bullets })
@@ -86,86 +114,61 @@ const DescriptionTab = ({ bundle }: BundleInfoProps) => {
     } else if (hasBullets) {
       const bullets = description
         .split(/-\s+/)
-        .flatMap((b) => b.split("/n"))
-        .map((b) => b.replace(/\n/g, " ").trim())
+        .map((b) => b.trim())
         .filter((b) => b.length > 0)
 
       if (bullets.length > 0) {
         sections.push({ bullets })
       }
     } else {
-      // Raw paragraph fallback
       const cleaned = description.trim()
       if (cleaned.length > 0) {
-        sections.push({
-          rawText: cleaned,
-          bullets: [],
-        })
+        sections.push({ rawText: cleaned, bullets: [] })
       }
     }
 
     return sections
   }
 
-  const renderWithLineBreaks = (text: string) => {
-    return text.split("/n").map((part, index, arr) => (
-      <span key={index}>
-        {part}
-        {index < arr.length - 1 && <br />}
-      </span>
-    ))
-  }
+  const items = bundle.items.filter(
+    (item) => item.product.description?.trim().length
+  )
 
   return (
-    <div className="text-small-regular py-8">
-      <Accordion type="multiple">
-        {bundle.items.map((item, index) => {
-          const description = item.product.description || ""
-          const parsedSections = parseDescription(description)
+    <div className="space-y-8">
+      {items.map((item, idx) => {
+        const { title, description } = item.product
+        const sections = parseDescription(description || "")
+        if (sections.length === 0) return null
 
-          return (
-            <Accordion.Item
-              key={index}
-              title={item.product.title || `Product ${index + 1}`}
-              headingSize="medium"
-              value={`description-${index}`}
-              className="space-y-4"
-            >
-              {parsedSections.length > 0 ? (
-                parsedSections.map((section, sIdx) => (
-                  <div key={sIdx} className="space-y-2 mb-5">
-                    {section.title && (
-                      <h3 className="font-semibold text-base">
-                        {section.title}
-                      </h3>
-                    )}
-
-                    {section.rawText ? (
-                      <p className="text-sm font-urw font-medium text-ui-fg-subtle text-justify">
-                        {renderWithLineBreaks(section.rawText)}
-                      </p>
-                    ) : (
-                      <ul className="list-disc list-inside text-sm font-urw font-medium text-ui-fg-subtle space-y-1 text-justify">
-                        {section.bullets.map((bullet, bIdx) =>
-                          bullet.toLowerCase() === "/n" ? (
-                            <li key={bIdx} className="list-none h-4" />
-                          ) : (
-                            <li key={bIdx}>{renderWithLineBreaks(bullet)}</li>
-                          )
-                        )}
-                      </ul>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-ui-fg-muted">
-                  No description provided.
-                </p>
-              )}
-            </Accordion.Item>
-          )
-        })}
-      </Accordion>
+        return (
+          <div key={idx}>
+            <h2 className="text-lg font-bold mb-2">{title}</h2>
+            <div className="space-y-4">
+              {sections.map((section, i) => (
+                <div key={i}>
+                  {section.title && (
+                    <p className="font-semibold text-base mb-1">
+                      {section.title}
+                    </p>
+                  )}
+                  {section.bullets.length > 0 ? (
+                    <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1">
+                      {section.bullets.map((b, idx) => (
+                        <li key={idx}>{b}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {section.rawText}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

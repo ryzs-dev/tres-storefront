@@ -11,9 +11,7 @@ type BundlePreviewProps = {
 
 export default function BundlePreview({ bundle, region }: BundlePreviewProps) {
   // Use the first item's thumbnail or a fallback image
-  const thumbnail =
-    bundle.items[0]?.product.thumbnail ||
-    "https://via.placeholder.com/300x400?text=Bundle+Image"
+  const thumbnail = bundle.items[0]?.product.thumbnail || ""
 
   // Calculate the minimum price for display (simplified)
   // const minPrice = bundle.items.reduce((min, item) => {
