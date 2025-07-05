@@ -150,7 +150,7 @@ export default async function Home(props: {
               {
                 content: "Let's Unbuckle With Us",
                 imageUrl:
-                  "https://storage.tres.my/Hero_Image/new_unbuckle_hero.JPG",
+                  "https://storage.tres.my/Hero_Image/unbuckle_hero_2.png",
                 position: "bottom-left",
                 objectPosition: "30%_40%",
                 cta: true,
