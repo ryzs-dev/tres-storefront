@@ -52,35 +52,36 @@ const SideMenu = ({
                 show={open}
                 as={Fragment}
                 enter="transition ease-out duration-150"
-                enterFrom="opacity-0"
-                enterTo="opacity-100 backdrop-blur-2xl"
+                enterFrom="translate-x-full"
+                enterTo="translate-x-0"
                 leave="transition ease-in duration-150"
-                leaveFrom="opacity-100 backdrop-blur-2xl"
-                leaveTo="opacity-0"
+                leaveFrom="translate-x-0"
+                leaveTo="translate-x-full"
               >
-                <PopoverPanel className="flex flex-col absolute w-full pr-4 sm:pr-0 sm:w-1/3 2xl:w-1/4 sm:min-w-min h-[calc(100vh-1rem)] z-30 inset-x-0 text-sm text-ui-fg-on-color m-2 backdrop-blur-2xl">
-                  <div
-                    data-testid="nav-menu-popup"
-                    className="flex flex-col h-full bg-[rgba(3,7,18,0.5)] rounded-rounded justify-between p-6"
-                  >
-                    <div className="flex justify-end" id="xmark">
-                      <button data-testid="close-menu-button" onClick={close}>
-                        <XMark />
-                      </button>
-                    </div>
-                    <ul className="flex flex-col w-full gap-6 items-start justify-start">
-                      {Object.entries(SideMenuItems).map(([name, href]) => {
-                        return (
-                          <li key={name} className="w-full flex">
+                <PopoverPanel className="fixed top-0 right-0 z-30 w-[75vw] max-w-[480px] h-full bg-white shadow-lg border-l border-gray-200 text-ui-fg-base overflow-y-auto">
+                  <div className="flex flex-col justify-between h-full p-6">
+                    {/* Top section: Close button + Nav list */}
+                    <div>
+                      {/* Close button */}
+                      <div className="flex justify-end mb-2">
+                        <button data-testid="close-menu-button" onClick={close}>
+                          <XMark className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      {/* Navigation list */}
+                      <ul className="flex flex-col divide-y divide-gray-200">
+                        {Object.entries(SideMenuItems).map(([name, href]) => (
+                          <li key={name} className="py-4">
                             {name === "Categories" ? (
                               <div
-                                className="flex justify-between w-full items-center cursor-pointer"
+                                className="flex justify-between items-center cursor-pointer"
                                 onMouseEnter={categoriesToggleState.open}
                                 onMouseLeave={categoriesToggleState.close}
                               >
                                 <div className="flex flex-col">
                                   <LocalizedClientLink
-                                    className="text-3xl leading-10 hover:text-ui-fg-disabled"
+                                    className="text-xl font-medium hover:text-ui-fg-muted"
                                     href={href}
                                     onClick={close}
                                     data-testid={`${name.toLowerCase()}-link`}
@@ -91,7 +92,7 @@ const SideMenu = ({
                                     <CategoriesSelect
                                       toggleState={categoriesToggleState}
                                       categories={categories}
-                                      closePopover={close} // Pass Popover close function
+                                      closePopover={close}
                                     />
                                   )}
                                 </div>
@@ -107,7 +108,7 @@ const SideMenu = ({
                             ) : (
                               <LocalizedClientLink
                                 href={href}
-                                className="text-3xl leading-10 hover:text-ui-fg-disabled"
+                                className="text-xl font-medium hover:text-ui-fg-muted"
                                 onClick={close}
                                 data-testid={`${name.toLowerCase()}-link`}
                               >
@@ -115,12 +116,14 @@ const SideMenu = ({
                               </LocalizedClientLink>
                             )}
                           </li>
-                        )
-                      })}
-                    </ul>
-                    <div className="flex flex-col gap-y-6">
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Footer section: at bottom */}
+                    <div className="pt-6 border-t border-gray-200 flex flex-col gap-y-6">
                       <div
-                        className="flex justify-between"
+                        className="flex justify-between items-center"
                         onMouseEnter={regionToggleState.open}
                         onMouseLeave={regionToggleState.close}
                       >
@@ -137,8 +140,8 @@ const SideMenu = ({
                           )}
                         />
                       </div>
-                      <Text className="flex justify-between txt-compact-small">
-                        © {new Date().getFullYear()} TRES EXCLUSIVE EMPIRE All
+                      <Text className="text-xs text-ui-fg-muted">
+                        © {new Date().getFullYear()} TRES EXCLUSIVE EMPIRE. All
                         rights reserved.
                       </Text>
                     </div>

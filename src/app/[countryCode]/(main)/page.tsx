@@ -83,7 +83,7 @@ export default async function Home(props: {
     {
       name: "Sets",
       href: "/categories/sets",
-      image: "https://storage.tres.my/Featured%20Sections/shop_bottoms.JPG",
+      image: "https://storage.tres.my/Featured%20Sections/featured_sets.JPG",
     },
     {
       name: "Dresses",
@@ -158,7 +158,7 @@ export default async function Home(props: {
               {
                 content: "Let's Unbuckle With Us",
                 imageUrl:
-                  "https://storage.tres.my/Hero_Image/unbuckle_hero_2.png",
+                  "https://storage.tres.my/Hero_Image/unbuckle_hero_3.png",
                 position: "bottom-left",
                 objectPosition: "30%_40%",
                 cta: true,
