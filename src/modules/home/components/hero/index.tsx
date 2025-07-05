@@ -95,7 +95,7 @@ const Hero = ({
                 )}
               </span>
 
-              {cta && (
+              {/* {cta && (
                 <Text
                   family="sans"
                   size="large"
@@ -103,7 +103,7 @@ const Hero = ({
                 >
                   <ChevronRight className="inline ml-4" />
                 </Text>
-              )}
+              )} */}
             </div>
           </div>
         </div>

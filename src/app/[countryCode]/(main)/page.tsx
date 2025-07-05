@@ -151,7 +151,7 @@ export default async function Home(props: {
                 content: "Let's Unbuckle With Us",
                 imageUrl:
                   "https://storage.tres.my/Hero_Image/unbuckle_hero_2.png",
-                position: "bottom-left",
+                position: "bottom",
                 objectPosition: "30%_40%",
                 cta: true,
               },
@@ -159,7 +159,7 @@ export default async function Home(props: {
                 content: "Let's Unbuckle With Us",
                 imageUrl:
                   "https://storage.tres.my/Hero_Image/unbuckle_hero_3.png",
-                position: "bottom-left",
+                position: "bottom",
                 objectPosition: "30%_40%",
                 cta: true,
               },
