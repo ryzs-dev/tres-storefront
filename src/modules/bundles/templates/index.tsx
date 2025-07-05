@@ -3,6 +3,7 @@ import { FlexibleBundle } from "@lib/data/bundles"
 import { Heading, Text } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import BundleCard from "@modules/bundles/components/bundle-card"
+import { Pagination } from "@modules/store/components/pagination"
 
 type BundlesTemplateProps = {
   bundles: FlexibleBundle[]
@@ -46,30 +47,13 @@ export const BundlesTemplate: React.FC<BundlesTemplateProps> = ({
           </div>
 
           {/* Pagination */}
+
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
-              {hasPrevPage && (
-                <LocalizedClientLink
-                  href={`/bundles?page=${currentPage - 1}`}
-                  className="px-3 py-1.5 sm:px-4 sm:py-2 border border-ui-border-base rounded-md hover:bg-ui-bg-subtle transition-colors text-sm sm:text-base"
-                >
-                  Previous
-                </LocalizedClientLink>
-              )}
-
-              <span className="text-ui-fg-subtle text-sm sm:text-base">
-                Page {currentPage} of {totalPages}
-              </span>
-
-              {hasNextPage && (
-                <LocalizedClientLink
-                  href={`/bundles?page=${currentPage + 1}`}
-                  className="px-3 py-1.5 sm:px-4 sm:py-2 border border-ui-border-base rounded-md hover:bg-ui-bg-subtle transition-colors text-sm sm:text-base"
-                >
-                  Next
-                </LocalizedClientLink>
-              )}
-            </div>
+            <Pagination
+              page={currentPage}
+              totalPages={totalPages}
+              data-testid="pagination"
+            />
           )}
         </>
       ) : (
