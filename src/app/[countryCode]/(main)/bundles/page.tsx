@@ -3,7 +3,7 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { listBundles } from "@lib/data/bundles"
 import { getRegion, listRegions } from "@lib/data/regions"
-import BundlesTemplate from "@modules/bundles/templates"
+import { BundlesTemplate } from "@modules/bundles/templates"
 
 type Props = {
   params: Promise<{ countryCode: string }>
