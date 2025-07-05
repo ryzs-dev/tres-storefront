@@ -96,7 +96,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
       onClick={handleOverlayClick}
     >
       <div
-        className={`bg-white shadow-2xl max-w-5xl w-full relative overflow-hidden flex h-[700px] transition-all duration-300 ease-out ${
+        className={`bg-white shadow-2xl max-w-5xl w-full relative overflow-hidden flex flex-col md:flex-row-reverse transition-all duration-300 ease-out rounded-lg ${
           isClosing
             ? "scale-95 opacity-0 translate-y-4"
             : "scale-100 opacity-100 translate-y-0"
@@ -105,14 +105,28 @@ const FirstOrderPopup = ({ customer }: Props) => {
         {/* Close button */}
         <button
           onClick={closePopup}
-          className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center transition-all duration-200 z-20 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white hover:scale-110 shadow-sm"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center transition-all duration-200 z-20 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white hover:scale-110 shadow-sm"
           aria-label="Close popup"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Left Content Section */}
-        <div className="bg-white flex-1 px-8 sm:px-12 lg:px-16 py-12 sm:py-16 flex flex-col justify-center relative text-center">
+        {/* Image (top on mobile, right on desktop) */}
+        <div className="w-full md:w-1/2 relative h-64 sm:h-96 md:h-auto min-h-[300px]">
+          <Image
+            src="https://storage.tres.my/promotion_banner_1.JPG"
+            alt="Fashion models"
+            fill
+            className="object-cover transition-transform duration-700 hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-transparent" />
+        </div>
+
+        {/* Content (below image on mobile, left on desktop) */}
+        <div className="bg-white w-full md:w-1/2 px-6 sm:px-10 lg:px-16 py-10 sm:py-16 flex flex-col justify-center relative text-center">
+          {/* Logo */}
           <div className="mb-6 sm:mb-8 flex justify-center">
             <Image
               src="/images/tres-logo-3.svg"
@@ -124,7 +138,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
           </div>
 
           {/* Main Content */}
-          <div className="my-6 space-y-3">
+          <div className="my-4 space-y-3">
             <h2 className="font-urw text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
               Get <span className="text-[#99B2DD]">15% off</span> your first
               purchase
@@ -138,7 +152,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
             </p>
           </div>
 
-          {/* Promotion Code Display */}
+          {/* Promotion Code */}
           {customer && firstPromotion && (
             <div className="mb-8">
               <div className="bg-gray-50/80 backdrop-blur-sm rounded-lg p-4 border border-gray-100">
@@ -158,7 +172,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
             </div>
           )}
 
-          {/* Action Buttons */}
+          {/* Buttons */}
           <div className="space-y-3">
             <Link onClick={closePopup} href={"/account"}>
               <button className="w-full bg-[#99B2DD] text-white font-urw font-bold text-lg sm:text-xl uppercase tracking-wide py-4 px-8 transition-all duration-300 hover:bg-[#8AA5D3] hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#99B2DD] focus:ring-offset-2">
@@ -173,21 +187,6 @@ const FirstOrderPopup = ({ customer }: Props) => {
               No thanks, I don't want a discount
             </button>
           </div>
-        </div>
-
-        {/* Right Image Section */}
-        <div className="flex-1 relative h-[700px] hidden md:block">
-          <Image
-            src="https://storage.tres.my/promotion_banner_1.JPG"
-            alt="Fashion models"
-            fill
-            className="object-cover transition-transform duration-700 hover:scale-105"
-            sizes="50vw"
-            priority
-          />
-
-          {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-transparent" />
         </div>
       </div>
     </div>
