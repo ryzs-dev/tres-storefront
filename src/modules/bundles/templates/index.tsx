@@ -12,8 +12,7 @@ type BundlesTemplateProps = {
   countryCode: string
   currentPage: number
 }
-
-export const BundlesTemplate: React.FC<BundlesTemplateProps> = ({
+const BundlesTemplate: React.FC<BundlesTemplateProps> = ({
   bundles,
   count,
   region,
@@ -69,3 +68,5 @@ export const BundlesTemplate: React.FC<BundlesTemplateProps> = ({
     </div>
   )
 }
+
+export default BundlesTemplate
