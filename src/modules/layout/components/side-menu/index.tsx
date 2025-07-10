@@ -14,6 +14,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import CountrySelect from "../country-select"
 import { HttpTypes } from "@medusajs/types"
 import CategoriesSelect from "./CategoriesSelect"
+import { MenuIcon, ShoppingBag } from "lucide-react"
 
 const SideMenuItems = {
   Home: "/",
@@ -35,7 +36,20 @@ const SideMenu = ({
 
   return (
     <div className="h-full">
-      <div className="flex items-center h-full">
+      <div className="flex items-center h-full gap-4">
+        {/* Cart Button */}
+        <LocalizedClientLink
+          href="/cart"
+          className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none hover:text-ui-fg-base"
+          data-testid="nav-cart-button"
+        >
+          <ShoppingBag className="w-6 h-6" />
+          {/* Optional: Add cart count badge */}
+          {/* <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            3
+          </span> */}
+        </LocalizedClientLink>
+        {/* Hamburger Menu */}
         <Popover className="h-full flex">
           {({ open, close }) => (
             <>
@@ -44,7 +58,7 @@ const SideMenu = ({
                   data-testid="nav-menu-button"
                   className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none hover:text-ui-fg-base"
                 >
-                  Menu
+                  <MenuIcon className="w-6 h-6" />
                 </PopoverButton>
               </div>
 
