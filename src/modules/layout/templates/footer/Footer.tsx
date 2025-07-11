@@ -19,11 +19,11 @@ export default function Footer() {
   ]
 
   const serviceLinks = [
-    { name: "TRES Care", href: "/services/tres-care" },
+    { name: "TRES Care", href: "/services/care" },
     { name: "TRES Sizing Guide", href: "/services/size-guide" },
-    { name: "Model Introduction", href: "/services/model-introduction" },
+    { name: "TRES Order & Shipping", href: "/services/order-and-shipping" },
     { name: "Terms & Conditions", href: "/terms" },
-    { name: "Shipping & Return Policy", href: "/services/shipping-return" },
+    { name: "Return Policy", href: "/services/refund-policy" },
   ]
 
   return (
