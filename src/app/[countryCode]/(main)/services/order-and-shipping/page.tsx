@@ -1,7 +1,5 @@
 "use client"
 
-import Image from "next/image"
-
 const TresShipping = () => {
   return (
     <div className="min-h-screen bg-white">

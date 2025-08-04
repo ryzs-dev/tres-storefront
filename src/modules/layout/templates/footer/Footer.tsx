@@ -22,8 +22,9 @@ export default function Footer() {
     { name: "TRES Care", href: "/services/care" },
     { name: "TRES Sizing Guide", href: "/services/size-guide" },
     { name: "TRES Order & Shipping", href: "/services/order-and-shipping" },
-    { name: "Terms & Conditions", href: "/terms" },
-    { name: "Return Policy", href: "/services/refund-policy" },
+    // { name: "Privacy Policy", href: "/services/privacy-policy" },
+    // { name: "Return Policy", href: "/services/refund-policy" },
+    // { name: "Terms & Conditions", href: "/services/terms" },
   ]
 
   return (
@@ -122,22 +123,22 @@ export default function Footer() {
             {/* Optional: Add social links or additional info */}
             <div className="flex items-center gap-6 text-xs text-gray-500">
               <LocalizedClientLink
-                href="/privacy-policy"
+                href="/services/privacy-policy"
                 className="hover:text-gray-900 transition-colors duration-200"
               >
                 Privacy Policy
               </LocalizedClientLink>
               <LocalizedClientLink
-                href="/terms-of-service"
+                href="/services/refund-policy"
                 className="hover:text-gray-900 transition-colors duration-200"
               >
-                Terms of Service
+                Return Policy
               </LocalizedClientLink>
               <LocalizedClientLink
-                href="/contact"
+                href="/services/terms"
                 className="hover:text-gray-900 transition-colors duration-200"
               >
-                Contact Us
+                Terms and Conditons
               </LocalizedClientLink>
             </div>
           </div>
