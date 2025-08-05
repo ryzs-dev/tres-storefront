@@ -18,7 +18,7 @@ export default function AboutPage() {
             <p className="text-neutral-500 text-sm mt-6 max-w-2xl mx-auto">
               A comprehensive brand story showcase demonstrating modern web
               development, authentic storytelling, and user engagement
-              strategies - crafted for <strong>Rydev</strong>.
+              strategies - crafted for <strong>TRES</strong>.
             </p>
           </div>
         </div>

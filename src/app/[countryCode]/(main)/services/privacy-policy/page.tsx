@@ -14,7 +14,7 @@ const TresPrivacy = () => {
           A comprehensive privacy framework template designed for modern
           e-commerce platforms. This demonstrates structured data protection
           policies and transparent user information practices - showcasing
-          professional compliance solutions for <strong>Rydev</strong>.
+          professional compliance solutions for <strong>TRES</strong>.
         </p>
       </div>
 

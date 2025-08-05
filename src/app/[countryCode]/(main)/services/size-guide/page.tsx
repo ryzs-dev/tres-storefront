@@ -14,7 +14,7 @@ const TresSizing = () => {
           A comprehensive sizing guide interface designed for the Tres platform.
           This page showcases intuitive user experience design and clear
           information hierarchy - demonstrating modern e-commerce solutions
-          developed for <strong>Rydev</strong>.
+          developed for <strong>TRES</strong>.
         </p>
       </div>
 

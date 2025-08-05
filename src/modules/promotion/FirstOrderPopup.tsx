@@ -140,7 +140,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
           {/* Main Content */}
           <div className="my-3 sm:my-4 space-y-2 sm:space-y-3">
             <h2 className="font-urw text-lg sm:text-3xl font-bold text-gray-900 leading-tight">
-              Get <span className="text-[#99B2DD]">15% off</span> your first
+              Get <span className="text-[#99B2DD]">10% off</span> your first
               purchase
             </h2>
             <p className="text-sm sm:text-lg text-gray-600 leading-relaxed">

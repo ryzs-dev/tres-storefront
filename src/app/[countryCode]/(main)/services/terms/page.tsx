@@ -14,7 +14,7 @@ const TresTerms = () => {
           A comprehensive legal framework template designed for e-commerce
           platforms. This demonstrates structured legal documentation and clear
           policy presentation - showcasing professional web development
-          solutions for <strong>Rydev</strong>.
+          solutions for <strong>TRES</strong>.
         </p>
       </div>
 
