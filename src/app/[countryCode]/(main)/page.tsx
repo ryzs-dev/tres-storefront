@@ -98,7 +98,7 @@ export default async function Home(props: {
       <div>
         <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
           <Image
-            src="https://storage.tres.my/Hero_Image/hero_image_0.png"
+            src="https://storage.tres.my/Hero_Image/DSCF2829.jpg"
             fill
             alt="Hero background"
             className={`object-cover object-[30%_30%]`} // Use the objectPosition prop
