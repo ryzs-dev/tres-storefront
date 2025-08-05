@@ -206,17 +206,22 @@ const TresSizing = () => {
           </h2>
           <div className="text-center">
             <div className="inline-block p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-600 text-sm mb-2">
-                Measurement reference image would be displayed here
-              </p>
-              <div className="w-full h-80 bg-gray-200 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-500 ">
+              {/* <div className="w-full h-80 bg-gray-200 rounded-lg flex items-center justify-center"> */}
+              {/* <div className="text-center text-gray-500 ">
                   <p className="text-sm">Model showing measurement points:</p>
                   <p className="text-xs mt-2">• Bust</p>
                   <p className="text-xs">• Waist</p>
                   <p className="text-xs">• Hip</p>
-                </div>
-              </div>
+                </div> */}
+              <Image
+                src="https://storage.tres.my/size-guide.png"
+                alt="Measurement Guide"
+                width={400}
+                height={200}
+                className="rounded-lg shadow-md mx-auto"
+                priority
+              />
+              {/* </div> */}
             </div>
           </div>
         </div>

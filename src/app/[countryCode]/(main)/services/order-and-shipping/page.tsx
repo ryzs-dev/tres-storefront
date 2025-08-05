@@ -22,14 +22,14 @@ const TresShipping = () => {
               <span className="text-blue-600 font-bold">•</span>
               <span className="text-gray-700">
                 <strong>Order Processing:</strong> Your order will be processed
-                within <strong>24 hours</strong> of payment confirmation.
+                within <strong>48 hours</strong> of payment confirmation.
               </span>
             </div>
             <div className="flex gap-3">
               <span className="text-blue-600 font-bold">•</span>
               <span className="text-gray-700">
                 <strong>Order Shipment:</strong> Items will be shipped out{" "}
-                <strong>within the next 24 hours</strong> after processing.
+                <strong>within the next 48 hours</strong> after processing.
               </span>
             </div>
           </div>

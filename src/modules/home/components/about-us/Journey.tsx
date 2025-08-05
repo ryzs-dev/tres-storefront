@@ -15,6 +15,11 @@ export default function AboutPage() {
               Born from passion. Built for every woman. A movement that
               celebrates strength, confidence, and inclusivity.
             </p>
+            <p className="text-neutral-500 text-sm mt-6 max-w-2xl mx-auto">
+              A comprehensive brand story showcase demonstrating modern web
+              development, authentic storytelling, and user engagement
+              strategies - crafted for <strong>Rydev</strong>.
+            </p>
           </div>
         </div>
       </div>
@@ -143,6 +148,221 @@ export default function AboutPage() {
                 beauty of our differences while uniting us through movement and
                 empowerment.
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Meet Our Models Section */}
+        <div className="mb-24">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-slate-600 mb-4">
+              Meet the Faces Behind the Moves
+            </h2>
+            <p className="text-lg text-neutral-700 max-w-3xl mx-auto mb-2">
+              Our models are more than just faces—they're real women who train,
+              hustle, and live boldly. Each one brings her own story, strength,
+              and energy to the pieces she wears.
+            </p>
+            <p className="text-lg text-neutral-700 max-w-3xl mx-auto">
+              Get to know the powerful women repping our gear—and why they
+              choose to move with us.
+            </p>
+          </div>
+
+          {/* Lynn - Model 1 */}
+          <div className="mb-16">
+            <div className="bg-white rounded-lg p-8 shadow-sm border border-neutral-100">
+              <div className="grid md:grid-cols-3 gap-8 items-start">
+                {/* Profile Image Placeholder */}
+                <div className="md:col-span-1">
+                  <div className="aspect-[3/4] bg-neutral-100 rounded-lg flex items-center justify-center">
+                    <Image
+                      src="https://storage.tres.my/Journey/lynn.JPG"
+                      alt="Maki's Photo"
+                      className="w-full h-auto rounded-lg object-cover object-[30%_20%]"
+                      width={200}
+                      height={300}
+                    />
+                  </div>
+                </div>
+
+                {/* Story Content */}
+                <div className="md:col-span-2">
+                  <div className="space-y-4 text-neutral-700">
+                    <p className="italic">
+                      My name is Nuralynn Bt Mohd Shaari, but everyone calls me
+                      Lynn. I'm 18 years old and from Penang, Malaysia. I'm
+                      currently studying Form 6 at SMJK Heng Ee Hamilton.
+                    </p>
+
+                    <p className="italic">
+                      I'm someone who loves expressing myself through modeling
+                      and fashion. I enjoy being in front of the camera and also
+                      capturing creative moments through photography. My
+                      favourite sport is synchronized swimming—I actually
+                      represented Malaysia and Penang in various national and
+                      international competitions.
+                    </p>
+
+                    <div className="p-4 bg-slate-50 border-l-4 border-slate-300 rounded-r-lg">
+                      <p className="italic text-slate-700">
+                        I feel incredibly comfortable and confident when wearing
+                        TRES outfits. The inner protective layer makes me feel
+                        secure, while the lightweight fabric allows me to move
+                        freely and effortlessly. The quality is top-notch and
+                        the high-fashion design makes it perfect for both daily
+                        wear and stylish moments.
+                      </p>
+                    </div>
+
+                    <div className="pt-2">
+                      <p className="italic font-medium text-slate-600">
+                        "To all the incredible women, never dim your light to
+                        fit into a smaller space. You are strong, worthy, and
+                        capable."
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Maki - Model 2 */}
+          <div className="mb-16">
+            <div className="bg-white rounded-lg p-8 shadow-sm border border-neutral-100">
+              <div className="grid md:grid-cols-3 gap-8 items-start">
+                {/* Profile Image Placeholder */}
+                <div className="md:col-span-1 md:order-2">
+                  <div className="aspect-[3/4] bg-neutral-100 rounded-lg flex items-center justify-center">
+                    {/* <div className="text-center text-neutral-500">
+                      <p className="text-sm font-medium">Maki's Photo</p>
+                      <p className="text-xs mt-1">45, Japan</p>
+                    </div> */}
+                    <Image
+                      src="https://storage.tres.my/Journey/maki.JPG"
+                      alt="Maki's Photo"
+                      className="w-full h-auto rounded-lg object-cover object-[30%_20%]"
+                      width={200}
+                      height={300}
+                    />
+                  </div>
+                </div>
+
+                {/* Story Content */}
+                <div className="md:col-span-2 md:order-1">
+                  <div className="space-y-4 text-neutral-700">
+                    <p className="italic">
+                      My name is Maki, and I'm 45 years old and from Japan. I
+                      worked as a fashion model in Tokyo and Taiwan, but I
+                      stepped away from the industry after giving birth at 30.
+                      As I devoted myself to raising my child, I gradually
+                      gained 20kg and began to lose sight of who I was.
+                    </p>
+
+                    <p className="italic">
+                      Everything began to shift when I discovered strength
+                      training at 42. In 2022, I proudly took home 1st place in
+                      the SSA Tokyo Bikini Model category, and in 2024, I earned
+                      1st place in the APF Tokyo Runway Model competition. These
+                      wins weren't just trophies—they were reminders of what
+                      discipline, self-belief, and hard work can truly build.
+                    </p>
+
+                    <p className="italic">
+                      Today, I'm drawing from my roots as a model to teach
+                      walking and posing—empowering others to move with
+                      confidence and grace. I also continue to deepen my
+                      practice of yoga, exploring breathwork and meditation to
+                      bring harmony to both body and mind.
+                    </p>
+
+                    <div className="p-4 bg-slate-50 border-l-4 border-slate-300 rounded-r-lg">
+                      <p className="italic text-slate-700">
+                        And one thing that supports me in this journey is TRES
+                        outfit. The gentle fit that frees my body also releases
+                        tension in my heart. TRES is a cherished partner that
+                        helps me feel truly like myself.
+                      </p>
+                    </div>
+
+                    <div className="pt-2">
+                      <p className="italic font-medium text-slate-600">
+                        "Life can begin again—at any stage. Motherhood, body
+                        changes, career pauses...Even after it all, you can find
+                        your way back to yourself. A new chapter isn't something
+                        you wait for—it's something you create, whenever you're
+                        ready."
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lyn - Model 3 */}
+          <div className="mb-16">
+            <div className="bg-white rounded-lg p-8 shadow-sm border border-neutral-100">
+              <div className="grid md:grid-cols-3 gap-8 items-start">
+                {/* Profile Image Placeholder */}
+                <div className="md:col-span-1">
+                  <div className="aspect-[3/4] bg-neutral-100 rounded-lg flex items-center justify-center">
+                    <Image
+                      src="https://storage.tres.my/Journey/lyn.JPG"
+                      alt="Maki's Photo"
+                      className="w-full h-auto rounded-lg object-cover object-[30%_20%]"
+                      width={200}
+                      height={300}
+                    />
+                  </div>
+                </div>
+
+                {/* Story Content */}
+                <div className="md:col-span-2">
+                  <div className="space-y-4 text-neutral-700">
+                    <p className="italic">
+                      Hey there, I'm Lyn! 34 years young and a proud island girl
+                      from the one and only Penang!
+                    </p>
+
+                    <p className="italic">
+                      By day, I'm a gazetting Family Medicine Specialist. By
+                      heart, I'm the founder of SelflessTogether, an
+                      organisation that provides free education to refugee and
+                      stateless children right here in Penang. I've always
+                      believed in standing up for the voiceless, lifting up the
+                      helpless, and making sure no one gets left behind.
+                    </p>
+
+                    <p className="italic">
+                      When I'm not in clinic or running community projects,
+                      you'll probably catch me sweating it out on a spin bike,
+                      running, or throwing weights around. That's my kind of
+                      therapy!
+                    </p>
+
+                    <div className="p-4 bg-slate-50 border-l-4 border-slate-300 rounded-r-lg">
+                      <p className="italic text-slate-700">
+                        Oh, yes I'm obsessed with TRES' outfits. Their outfits
+                        don't just look good, they feel incredible. Perfect for
+                        my chaotic, on-the-go, sweat-soaked lifestyle.
+                      </p>
+                    </div>
+
+                    <div className="pt-2">
+                      <p className="italic font-medium text-slate-600">
+                        There's this quote from Michelle Obama that has stuck
+                        with me: "There's no limit to what we as women can
+                        accomplish". It reminds me that women are powerful,
+                        resilient, and so beautifully capable of creating
+                        change, not just for ourselves, but for the people
+                        around us too.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
