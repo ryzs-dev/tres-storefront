@@ -80,7 +80,7 @@ const Summary = ({ cart }: SummaryProps) => {
       <div className="h-px w-full border-b border-gray-200" />
       <div className="flex items-center gap-x-2 py-2">
         <LocalizedClientLink
-          href={`/${countryCode}/checkout`}
+          href={`/checkout`}
           className="w-full"
           data-testid="checkout-button"
         >
