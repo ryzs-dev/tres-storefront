@@ -17,6 +17,90 @@ import Thumbnail from "@modules/products/components/thumbnail"
 import { usePathname } from "next/navigation"
 import { Fragment, useEffect, useRef, useState } from "react"
 
+// Enhanced currency formatting that matches BundleActions
+const formatCurrency = (amount: number, currency: string = "MYR"): string => {
+  const formattedAmount = amount.toFixed(2)
+  switch (currency.toUpperCase()) {
+    case "MYR":
+      return `RM${formattedAmount}`
+    case "USD":
+      return `$${formattedAmount}`
+    case "EUR":
+      return `€${formattedAmount}`
+    default:
+      return `${formattedAmount} ${currency}`
+  }
+}
+
+// Function to calculate item savings - works with the actual metadata structure
+const calculateItemSavings = (item: any) => {
+  // Get metadata values
+  const originalPriceCents = item.metadata?.original_price_cents as number
+  const discountedPriceCents = item.metadata?.discounted_price_cents as number
+  const bundleDiscountPercentage = item.metadata
+    ?.bundle_discount_percentage as number
+  const bundleDiscountType = item.metadata?.bundle_discount_type as string
+  const fixedDiscountAmount = item.metadata?.fixed_discount_amount as number
+  const actualDiscountAmount = item.metadata?.actual_discount_amount as number
+  const discountApplied = item.metadata?.discount_applied as boolean
+
+  // Calculate prices and savings
+  let originalPrice = 0
+  let discountedPrice = 0
+  let savings = 0
+  let discountText = ""
+  let finalDiscountType: "fixed" | "percentage" | "none" = "none"
+
+  // If discount has been applied, use the stored values
+  if (discountApplied && originalPriceCents && discountedPriceCents) {
+    originalPrice = originalPriceCents / 100
+    discountedPrice = discountedPriceCents / 100
+    savings = originalPrice - discountedPrice
+
+    if (
+      bundleDiscountType === "fixed" &&
+      (fixedDiscountAmount > 0 || actualDiscountAmount > 0)
+    ) {
+      const discountAmountToShow = actualDiscountAmount || fixedDiscountAmount
+      discountText = `${formatCurrency(discountAmountToShow / 100)} off` // Convert from cents to currency
+      finalDiscountType = "fixed"
+    } else if (bundleDiscountPercentage > 0) {
+      discountText = `${Math.round(bundleDiscountPercentage)}% off`
+      finalDiscountType = "percentage"
+    }
+  }
+  // If discount hasn't been applied yet, but we have the discount info, calculate what it should be
+  else if (bundleDiscountType === "fixed" && fixedDiscountAmount > 0) {
+    // Current price from item (unit_price is already in correct currency units)
+    originalPrice = item.unit_price
+    // What the discounted price should be (fixedDiscountAmount is in cents, so divide by 100)
+    discountedPrice = Math.max(0, originalPrice - fixedDiscountAmount / 100)
+    savings = originalPrice - discountedPrice
+    discountText = `${formatCurrency(fixedDiscountAmount / 100)} off`
+    finalDiscountType = "fixed"
+  } else if (
+    bundleDiscountType === "percentage" &&
+    bundleDiscountPercentage > 0
+  ) {
+    originalPrice = item.unit_price
+    discountedPrice = originalPrice * (1 - bundleDiscountPercentage / 100)
+    savings = originalPrice - discountedPrice
+    discountText = `${Math.round(bundleDiscountPercentage)}% off`
+    finalDiscountType = "percentage"
+  }
+
+  const result = {
+    originalPrice,
+    discountedPrice,
+    savings,
+    discountType: finalDiscountType,
+    discountText,
+    discountApplied: !!discountApplied,
+  }
+
+  return result
+}
+
 const CartDropdown = ({
   cart: cartState,
 }: {
@@ -40,9 +124,7 @@ const CartDropdown = ({
 
   const timedOpen = () => {
     open()
-
     const timer = setTimeout(close, 5000)
-
     setActiveTimer(timer)
   }
 
@@ -50,7 +132,6 @@ const CartDropdown = ({
     if (activeTimer) {
       clearTimeout(activeTimer)
     }
-
     open()
   }
 
@@ -73,21 +154,36 @@ const CartDropdown = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalItems, itemRef.current])
 
-  // Calculate bundle savings - ADDED
-  const bundleItems = cartState?.items?.filter(item => 
-    item.metadata?.is_from_bundle === true
-  ) || []
+  // Enhanced bundle savings calculation with fixed discount support
+  const bundleItems =
+    cartState?.items?.filter(
+      (item) => item.metadata?.is_from_bundle === true
+    ) || []
 
   const totalBundleSavings = bundleItems.reduce((total, item) => {
-    const originalPriceCents = item.metadata?.original_price_cents as number
-    const discountedPriceCents = item.metadata?.discounted_price_cents as number
-    
-    if (originalPriceCents && discountedPriceCents) {
-      const itemSavings = ((originalPriceCents - discountedPriceCents) / 100) * item.quantity
-      return total + itemSavings
-    }
-    return total
+    const savingsInfo = calculateItemSavings(item)
+    return total + savingsInfo.savings * item.quantity
   }, 0)
+
+  // Group bundle items by bundle_id for better display
+  const bundleGroups = bundleItems.reduce((groups, item) => {
+    const bundleId = item.metadata?.bundle_id as string
+    const bundleTitle = item.metadata?.bundle_title as string
+
+    if (!groups[bundleId]) {
+      groups[bundleId] = {
+        title: bundleTitle || `Bundle ${bundleId}`,
+        items: [],
+        totalSavings: 0,
+      }
+    }
+
+    const savingsInfo = calculateItemSavings(item)
+    groups[bundleId].items.push(item)
+    groups[bundleId].totalSavings += savingsInfo.savings * item.quantity
+
+    return groups
+  }, {} as Record<string, { title: string; items: any[]; totalSavings: number }>)
 
   return (
     <div
@@ -123,21 +219,6 @@ const CartDropdown = ({
             </div>
             {cartState && cartState.items?.length ? (
               <>
-                {/* Bundle Savings Summary - ADDED */}
-                {totalBundleSavings > 0 && (
-                  <div className="mx-4 mb-4 p-3 bg-green-50 border border-green-200 rounded">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-green-700">🎉 Bundle Savings</span>
-                      <Badge className="bg-green-100 text-green-800 text-xs">
-                        {convertToLocale({
-                          amount: totalBundleSavings * 100,
-                          currency_code: cartState.currency_code,
-                        })} saved
-                      </Badge>
-                    </div>
-                  </div>
-                )}
-
                 <div className="overflow-y-scroll max-h-[402px] px-4 grid grid-cols-1 gap-y-8 no-scrollbar p-px">
                   {cartState.items
                     .sort((a, b) => {
@@ -146,16 +227,11 @@ const CartDropdown = ({
                         : 1
                     })
                     .map((item) => {
-                      // Bundle item info - ADDED
-                      const isBundleItem = item.metadata?.is_from_bundle === true
-                      const bundleDiscountPercentage = item.metadata?.bundle_discount_percentage as number
+                      // Enhanced bundle item info with fixed discount support
+                      const isBundleItem =
+                        item.metadata?.is_from_bundle === true
                       const bundleTitle = item.metadata?.bundle_title as string
-                      const originalPriceCents = item.metadata?.original_price_cents as number
-                      const discountedPriceCents = item.metadata?.discounted_price_cents as number
-                      
-                      const showBundleDiscount = isBundleItem && bundleDiscountPercentage > 0
-                      const originalPrice = originalPriceCents ? originalPriceCents / 100 : 0
-                      const savings = originalPrice > 0 ? ((originalPriceCents - discountedPriceCents) / 100) * item.quantity : 0
+                      const savingsInfo = calculateItemSavings(item)
 
                       return (
                         <div
@@ -190,20 +266,34 @@ const CartDropdown = ({
                                     data-testid="cart-item-variant"
                                     data-value={item.variant}
                                   />
-                                  
-                                  {/* Bundle Info - ADDED */}
-                                  {isBundleItem && (
-                                    <div className="mt-1">
-                                      <Badge className="text-xs">
-                                        📦 {bundleTitle}
+
+                                  {/* Enhanced Bundle Info with Fixed Discount Support */}
+                                  {/* {isBundleItem && (
+                                    <div className="mt-1 space-y-1">
+                                      <Badge className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                        📦 {bundleTitle || "Bundle"}
                                       </Badge>
-                                      {showBundleDiscount && (
-                                        <div className="text-xs text-green-600 mt-1">
-                                          🎉 {bundleDiscountPercentage}% off
+                                      {savingsInfo.discountType !== "none" && (
+                                        <div className="text-xs text-green-600 font-medium flex items-center gap-1">
+                                          <span>🎉</span>
+                                          <span>
+                                            {savingsInfo.discountText}
+                                          </span>
+                                          {savingsInfo.discountType ===
+                                            "fixed" && (
+                                            <span className="text-gray-500">
+                                              (fixed)
+                                            </span>
+                                          )}
+                                          {!savingsInfo.discountApplied && (
+                                            <span className="text-orange-500">
+                                              (pending)
+                                            </span>
+                                          )}
                                         </div>
                                       )}
                                     </div>
-                                  )}
+                                  )} */}
 
                                   <span
                                     data-testid="cart-item-quantity"
@@ -213,31 +303,25 @@ const CartDropdown = ({
                                   </span>
                                 </div>
                                 <div className="flex flex-col justify-end items-end">
-                                  {/* Show original price crossed out - ADDED */}
-                                  {showBundleDiscount && originalPrice > 0 && (
-                                    <div className="text-xs text-gray-500 line-through">
-                                      {convertToLocale({
-                                        amount: originalPrice * item.quantity * 100,
-                                        currency_code: cartState.currency_code,
-                                      })}
-                                    </div>
-                                  )}
-                                  
+                                  {/* Enhanced pricing display with fixed discount support */}
+                                  {savingsInfo.discountType !== "none" &&
+                                    savingsInfo.originalPrice > 0 && (
+                                      <div className="text-xs text-gray-500 line-through">
+                                        {convertToLocale({
+                                          amount:
+                                            savingsInfo.originalPrice *
+                                            item.quantity,
+                                          currency_code:
+                                            cartState.currency_code,
+                                        })}
+                                      </div>
+                                    )}
+
                                   <LineItemPrice
                                     item={item}
                                     style="tight"
                                     currencyCode={cartState.currency_code}
                                   />
-                                  
-                                  {/* Show savings - ADDED */}
-                                  {showBundleDiscount && savings > 0 && (
-                                    <div className="text-xs text-green-600 font-medium">
-                                      Saved: {convertToLocale({
-                                        amount: savings * 100,
-                                        currency_code: cartState.currency_code,
-                                      })}
-                                    </div>
-                                  )}
                                 </div>
                               </div>
                             </div>
@@ -256,7 +340,25 @@ const CartDropdown = ({
                       )
                     })}
                 </div>
+
+                {/* Enhanced cart summary */}
                 <div className="p-4 flex flex-col gap-y-4 text-small-regular">
+                  {/* Show bundle savings summary in cart total area */}
+                  {totalBundleSavings > 0 && (
+                    <div className="flex items-center justify-between text-green-600 border-t pt-2">
+                      <span className="text-sm font-medium">
+                        Total Bundle Savings:
+                      </span>
+                      <span className="text-sm font-semibold">
+                        -
+                        {convertToLocale({
+                          amount: totalBundleSavings,
+                          currency_code: cartState.currency_code,
+                        })}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <span className="text-ui-fg-base font-semibold">
                       Subtotal{" "}

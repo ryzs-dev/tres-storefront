@@ -31,7 +31,7 @@ const TopMenu = ({
     <div className="w-full bg-white shadow-md z-50">
       <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
         {/* Left side: logo or brand */}
-        <div className="text-xl font-bold">TRES EXCLUSIVE EMPIRE</div>
+        <div className="text-xl font-bold">© TRES</div>
 
         {/* Center menu items */}
         <ul className="flex gap-6 items-center">

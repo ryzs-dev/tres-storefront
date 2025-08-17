@@ -36,15 +36,14 @@ export default function Footer() {
             <LocalizedClientLink href="/" className="inline-block">
               <Image
                 src="/images/tres-logo-3.svg"
-                alt="Tres Exclusive Empire"
+                alt="Tres-logo"
                 width={85}
                 height={85}
                 className="transition-all hover:scale-105 duration-300 drop-shadow-sm"
               />
             </LocalizedClientLink>
             <p className="mt-4 text-sm text-gray-600 leading-relaxed">
-              Discover exclusive collections and premium categories at Tres
-              Exclusive Empire.
+              Discover exclusive collections and premium categories at TRES.
             </p>
           </div>
 
@@ -116,8 +115,7 @@ export default function Footer() {
         <div className="border-t border-gray-200 py-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-xs text-gray-500 font-medium">
-              © {new Date().getFullYear()} TRES EXCLUSIVE EMPIRE. All rights
-              reserved.
+              © TRES {new Date().getFullYear()} All rights reserved.
             </p>
 
             {/* Optional: Add social links or additional info */}

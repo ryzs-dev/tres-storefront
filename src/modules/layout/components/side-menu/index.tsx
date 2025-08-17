@@ -155,8 +155,7 @@ const SideMenu = ({
                         />
                       </div>
                       <Text className="text-xs text-ui-fg-muted">
-                        © {new Date().getFullYear()} TRES EXCLUSIVE EMPIRE. All
-                        rights reserved.
+                        © {new Date().getFullYear()} TRES All rights reserved.
                       </Text>
                     </div>
                   </div>

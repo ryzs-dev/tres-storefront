@@ -13,9 +13,16 @@ export type FlexibleBundle = {
   max_items?: number
   selection_type: "flexible" | "required_all"
 
-  // UPDATED: Discount configuration fields from backend
+  // UPDATED: Complete discount configuration
+  discount_type?: "percentage" | "fixed" // NEW: Discount type
+
+  // Percentage discount fields (legacy)
   discount_2_items?: number // Percentage discount for 2 items
   discount_3_items?: number // Percentage discount for 3+ items
+
+  // Fixed amount discount fields (new) - in cents
+  discount_2_items_amount?: number // NEW: Fixed amount for 2 items (e.g., 2000 = 20 RM)
+  discount_3_items_amount?: number // NEW: Fixed amount for 3+ items (e.g., 5000 = 50 RM)
 
   items: {
     id: string
@@ -42,7 +49,6 @@ export type FlexibleBundle = {
           amount: number
           currency_code: string
         }>
-        // Add other variant properties as needed
       }>
     }
   }[]
@@ -52,7 +58,7 @@ export type FlexibleBundle = {
 }
 
 export type BundleListResponse = {
-  flexible_bundles: FlexibleBundle[] // ← Change from "bundles" to "flexible_bundles"
+  flexible_bundles: FlexibleBundle[]
   count: number
   limit: number
   offset: number
@@ -186,4 +192,50 @@ export const addFlexibleBundleToCart = async (
       selectedItems,
     },
   })
+}
+
+export const getBundleDiscountInfo = (
+  bundle: FlexibleBundle,
+  itemCount: number
+) => {
+  const discountType = bundle.discount_type || "percentage"
+
+  if (discountType === "fixed") {
+    // Fixed amount discounts
+    if (itemCount === 2 && bundle.discount_2_items_amount) {
+      return {
+        type: "fixed",
+        amount: bundle.discount_2_items_amount,
+        amountRM: bundle.discount_2_items_amount / 100,
+        hasDiscount: true,
+      }
+    } else if (itemCount >= 3 && bundle.discount_3_items_amount) {
+      return {
+        type: "fixed",
+        amount: bundle.discount_3_items_amount,
+        amountRM: bundle.discount_3_items_amount / 100,
+        hasDiscount: true,
+      }
+    }
+  } else {
+    // Percentage discounts (legacy)
+    if (itemCount === 2 && bundle.discount_2_items) {
+      return {
+        type: "percentage",
+        percentage: bundle.discount_2_items,
+        hasDiscount: true,
+      }
+    } else if (itemCount >= 3 && bundle.discount_3_items) {
+      return {
+        type: "percentage",
+        percentage: bundle.discount_3_items,
+        hasDiscount: true,
+      }
+    }
+  }
+
+  return {
+    type: discountType,
+    hasDiscount: false,
+  }
 }

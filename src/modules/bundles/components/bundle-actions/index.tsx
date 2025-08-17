@@ -1,53 +1,126 @@
+// src/modules/bundles/components/bundle-actions/index.tsx
 "use client"
 
+import { Button, Heading, Text } from "@medusajs/ui"
 import { HttpTypes } from "@medusajs/types"
-import { FlexibleBundle } from "@lib/data/bundles"
-import { Button, Heading, Text, Alert, Badge } from "@medusajs/ui"
+import { useRef, useState, useEffect } from "react"
 import { useBundleSelection } from "../../context/bundle-selection-context"
-import { useState, useEffect, useRef } from "react"
 import { addFlexibleBundleToCart } from "@lib/data/cart"
-import { getPricesForVariant } from "@lib/util/get-product-price"
-import MobileActions from "@modules/products/components/product-actions/mobile-actions"
 import { useIntersection } from "@lib/hooks/use-in-view"
+import { getPricesForVariant } from "@lib/util/get-product-price"
+import { formatCurrency } from "@lib/utils/currency"
+import Spinner from "@modules/common/icons/spinner"
 
+type FlexibleBundle = {
+  id: string
+  title: string
+  discount_type?: string
+  discount_2_items?: number
+  discount_3_items?: number
+  discount_2_items_amount?: number
+  discount_3_items_amount?: number
+  min_items: number
+  max_items?: number
+  items?: Array<{
+    id: string
+    product?: {
+      variants?: Array<{
+        id: string
+        [key: string]: any
+      }>
+      [key: string]: any
+    }
+    [key: string]: any
+  }>
+}
+
+// Updated pricing hook to handle fixed discounts
 const useBundlePricing = (
   bundle: FlexibleBundle,
   selectedItems: any[],
   region: HttpTypes.StoreRegion
 ) => {
-  const getDiscountRate = (count: number) => {
-    if (count === 2 && bundle.discount_2_items) {
-      return Number(bundle.discount_2_items) / 100
-    }
-    if (count >= 3 && bundle.discount_3_items) {
-      return Number(bundle.discount_3_items) / 100
-    }
-    return 0
-  }
-
   const baseTotal = selectedItems.reduce((sum, item) => {
-    const bItem = bundle.items.find((i) => i.id === item.itemId)
-    const variant = bItem?.product.variants?.find(
-      (v) => v.id === item.variantId
-    )
+    const variant = bundle.items
+      ?.find((bundleItem) => bundleItem.id === item.itemId)
+      ?.product?.variants?.find((v) => v.id === item.variantId)
+
     const price = variant
       ? getPricesForVariant(variant, region)?.calculated_price_number || 0
       : 0
     return sum + price * item.quantity
   }, 0)
 
-  const discountRate = getDiscountRate(selectedItems.length)
-  const promotionalTotal = baseTotal * (1 - discountRate)
-  const savings = baseTotal - promotionalTotal
-  const discountPercentage = Math.round(discountRate * 100)
-  const hasPromotion = discountRate > 0
+  // Support both fixed and percentage discounts
+  const getDiscountInfo = (itemCount: number) => {
+    // Check for fixed discount first (new system)
+    if (
+      bundle.discount_type === "fixed" ||
+      bundle.discount_2_items_amount ||
+      bundle.discount_3_items_amount
+    ) {
+      let discountAmount = 0 // in cents
+
+      if (itemCount === 2 && bundle.discount_2_items_amount) {
+        discountAmount = bundle.discount_2_items_amount
+      } else if (itemCount >= 3 && bundle.discount_3_items_amount) {
+        discountAmount = bundle.discount_3_items_amount
+      }
+
+      if (discountAmount > 0) {
+        const discountInRM = discountAmount / 100
+        const promotionalTotal = Math.max(0, baseTotal - discountInRM)
+        const savings = baseTotal - promotionalTotal
+
+        return {
+          type: "fixed",
+          discountAmount: discountInRM,
+          promotionalTotal,
+          savings,
+          hasPromotion: true,
+          displayText: `${formatCurrency(discountInRM)} off`,
+        }
+      }
+    }
+
+    // Fallback to percentage system (backward compatibility)
+    let rate = 0
+    if (itemCount === 2 && bundle.discount_2_items) {
+      rate = Number(bundle.discount_2_items) / 100
+    } else if (itemCount >= 3 && bundle.discount_3_items) {
+      rate = Number(bundle.discount_3_items) / 100
+    }
+
+    if (rate > 0) {
+      const promotionalTotal = baseTotal * (1 - rate)
+      const savings = baseTotal - promotionalTotal
+      const discountPercentage = Math.round(rate * 100)
+
+      return {
+        type: "percentage",
+        discountRate: rate,
+        promotionalTotal,
+        savings,
+        discountPercentage,
+        hasPromotion: true,
+        displayText: `${discountPercentage}% off`,
+      }
+    }
+
+    return {
+      type: "none",
+      promotionalTotal: baseTotal,
+      savings: 0,
+      hasPromotion: false,
+      displayText: "",
+    }
+  }
+
+  const discountInfo = getDiscountInfo(selectedItems.length)
 
   return {
     baseTotal,
-    promotionalTotal,
-    savings,
-    discountPercentage,
-    hasPromotion,
+    ...discountInfo,
   }
 }
 
@@ -63,13 +136,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
   const [isAdding, setIsAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const summary = getSelectionSummary()
-  const {
-    baseTotal,
-    promotionalTotal,
-    savings,
-    discountPercentage,
-    hasPromotion,
-  } = useBundlePricing(bundle, selectedItems, region)
+  const pricingInfo = useBundlePricing(bundle, selectedItems, region)
 
   const actionsRef = useRef<HTMLDivElement>(null)
   const inView = useIntersection(actionsRef, "0px")
@@ -79,11 +146,11 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
       new CustomEvent("bundle-changed", {
         detail: {
           selectedItems,
-          promotionalTotal,
+          promotionalTotal: pricingInfo.promotionalTotal,
         },
       })
     )
-  }, [selectedItems])
+  }, [selectedItems, pricingInfo.promotionalTotal])
 
   const handleAddToCart = async () => {
     if (!canAddToCart()) return
@@ -120,77 +187,148 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
       </Heading>
 
       <div className="border-t pt-4 mb-4">
-        {hasPromotion && (
+        {/* Show pricing based on discount type */}
+        {pricingInfo.hasPromotion && (
           <div className="flex justify-between text-sm text-ui-fg-muted line-through">
             <Text>Regular Price:</Text>
-            <Text>MYR {baseTotal.toFixed(2)}</Text>
+            <Text>{formatCurrency(pricingInfo.baseTotal)}</Text>
           </div>
         )}
         <div className="flex justify-between">
           <Text className="font-medium">
-            {hasPromotion ? "Bundle Price:" : "Total:"}
+            {pricingInfo.hasPromotion ? "Bundle Price:" : "Total:"}
           </Text>
           <Text
             className={`text-lg font-semibold ${
-              hasPromotion ? "text-green-600" : ""
+              pricingInfo.hasPromotion ? "text-green-600" : ""
             }`}
           >
-            MYR {promotionalTotal.toFixed(2)}
+            {formatCurrency(pricingInfo.promotionalTotal)}
           </Text>
         </div>
-        {hasPromotion && (
-          <div className="flex justify-between text-sm text-green-600 mt-1">
-            <Text>You Save ({discountPercentage}% off):</Text>
-            <Text>MYR {savings.toFixed(2)}</Text>
+
+        {/* Show discount information */}
+        {pricingInfo.hasPromotion && (
+          <div className="mt-2 space-y-1">
+            <div className="flex justify-between text-sm text-green-600">
+              <Text>Discount Applied:</Text>
+              <Text className="font-medium">{pricingInfo.displayText}</Text>
+            </div>
+            <div className="flex justify-between text-sm text-green-600">
+              <Text>You Save:</Text>
+              <Text className="font-medium">
+                {formatCurrency(pricingInfo.savings)}
+              </Text>
+            </div>
           </div>
         )}
       </div>
 
-      {error && (
-        <Alert className="mb-4">
-          <Text className="text-sm text-ui-fg-error">{error}</Text>
-        </Alert>
-      )}
-
-      <div className="space-y-2">
-        <Button
-          onClick={handleAddToCart}
-          disabled={!canAddToCart() || isAdding}
-          isLoading={isAdding}
-          className="w-full"
-        >
-          {isAdding
-            ? "Adding to Cart..."
-            : summary.totalItems === 0
-            ? "Select Items to Add"
-            : hasPromotion
-            ? `Add Bundle - Save MYR ${savings.toFixed(
-                2
-              )} (${discountPercentage}% Off)`
-            : `Add to Cart`}
-        </Button>
-
-        {selectedItems.length > 0 && (
-          <Button
-            variant="secondary"
-            onClick={clearSelection}
-            className="w-full"
-            disabled={isAdding}
-          >
-            Clear Selection
-          </Button>
+      {/* Selection Summary */}
+      <div className="mb-4">
+        <Text className="text-sm text-ui-fg-subtle mb-2">
+          Selected: {summary.totalItems} items
+        </Text>
+        {summary.totalItems < bundle.min_items && (
+          <Text className="text-sm text-orange-600">
+            Select at least {bundle.min_items - summary.totalItems} more item(s)
+          </Text>
         )}
       </div>
 
-      {/* <MobileActions
-        product={undefined}
-        variant={undefined}
-        inStock={canAddToCart()}
-        handleAddToCart={handleAddToCart}
-        isAdding={isAdding}
-        show={!inView}
-        optionsDisabled={isAdding}
-      /> */}
+      {/* Discount Tiers Info */}
+      <div className="mb-4 p-3 bg-ui-bg-subtle rounded-lg">
+        <Text className="text-sm font-medium mb-2">Bundle Discounts:</Text>
+        <div className="space-y-1 text-xs text-ui-fg-subtle">
+          <div className="flex justify-between">
+            <span>• 1 item:</span>
+            <span>Regular price</span>
+          </div>
+          {(bundle.discount_2_items_amount || bundle.discount_2_items) && (
+            <div className="flex justify-between">
+              <span>• 2 items:</span>
+              <span className="text-green-600 font-medium">
+                {bundle.discount_type === "fixed" ||
+                bundle.discount_2_items_amount
+                  ? `${formatCurrency(
+                      (bundle.discount_2_items_amount || 0) / 100
+                    )} off`
+                  : `${bundle.discount_2_items}% off`}
+              </span>
+            </div>
+          )}
+          {(bundle.discount_3_items_amount || bundle.discount_3_items) && (
+            <div className="flex justify-between">
+              <span>• 3+ items:</span>
+              <span className="text-green-600 font-medium">
+                {bundle.discount_type === "fixed" ||
+                bundle.discount_3_items_amount
+                  ? `${formatCurrency(
+                      (bundle.discount_3_items_amount || 0) / 100
+                    )} off`
+                  : `${bundle.discount_3_items}% off`}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {error && <Text className="text-red-500 text-sm mb-4">{error}</Text>}
+
+      <Button
+        onClick={handleAddToCart}
+        disabled={!canAddToCart() || isAdding}
+        className="w-full"
+        size="large"
+      >
+        {isAdding ? (
+          <div className="flex items-center gap-2">
+            <Spinner />
+            Adding to Cart...
+          </div>
+        ) : (
+          `Add ${summary.totalItems} Item${
+            summary.totalItems !== 1 ? "s" : ""
+          } to Cart`
+        )}
+      </Button>
+
+      {/* Sticky behavior for mobile */}
+      {!inView && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-ui-border-base p-4 z-50 md:hidden">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <Text className="font-semibold">
+                {formatCurrency(pricingInfo.promotionalTotal)}
+              </Text>
+              {pricingInfo.hasPromotion && (
+                <Text className="text-sm text-green-600">
+                  Save {formatCurrency(pricingInfo.savings)}
+                </Text>
+              )}
+            </div>
+            <Text className="text-sm text-ui-fg-subtle">
+              {summary.totalItems} item{summary.totalItems !== 1 ? "s" : ""}{" "}
+              selected
+            </Text>
+          </div>
+          <Button
+            onClick={handleAddToCart}
+            disabled={!canAddToCart() || isAdding}
+            className="w-full"
+            size="large"
+          >
+            {isAdding ? (
+              <div className="flex items-center gap-2">
+                <Spinner />
+                Adding...
+              </div>
+            ) : (
+              "Add to Cart"
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

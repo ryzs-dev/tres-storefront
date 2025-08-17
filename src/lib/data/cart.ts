@@ -497,13 +497,14 @@ export async function addFlexibleBundleToCart({
   console.log("Bundle ID:", bundleId)
   console.log("Selected items:", selectedItems)
 
+  // Add bundle items to cart
   await sdk.client
     .fetch<HttpTypes.StoreCartResponse>(
       `/store/carts/${cart.id}/flexible-bundle-items`,
       {
         method: "POST",
         body: {
-          bundle_id: bundleId, // ← Change from bundleId to bundle_id
+          bundle_id: bundleId,
           selectedItems,
         },
         headers,
@@ -520,6 +521,24 @@ export async function addFlexibleBundleToCart({
       console.error("Cart API error:", error)
       throw error
     })
+
+  console.log("✅ Bundle items added, waiting for discount processing...")
+
+  // Wait for the subscriber to process discounts (it runs async)
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+
+  console.log("🔄 Refreshing cart to get applied discounts...")
+
+  // Force refresh the cart to get the updated prices with discounts
+  const cartCacheTag = await getCacheTag("carts")
+  revalidateTag(cartCacheTag)
+
+  // Refetch the cart with applied discounts
+  const updatedCart = await retrieveCart(cart.id)
+
+  console.log("✅ Cart refreshed with discounts applied")
+
+  return updatedCart
 }
 
 export async function removeFlexibleBundleFromCart(bundleId: string) {
