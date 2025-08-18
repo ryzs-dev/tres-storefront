@@ -168,7 +168,43 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
           quantity: item.quantity,
         })),
       })
+
       clearSelection()
+
+      // IMMEDIATELY update cart badge count
+      const totalItemsAdded = selectedItems.reduce(
+        (total, item) => total + item.quantity,
+        0
+      )
+      console.log(
+        `✅ Added ${totalItemsAdded} items to cart, updating badge...`
+      )
+
+      // Dispatch immediate update event
+      window.dispatchEvent(
+        new CustomEvent("cart-updated", {
+          detail: {
+            itemsAdded: totalItemsAdded,
+            bundleId: bundle.id,
+          },
+        })
+      )
+
+      // Also dispatch bundle-changed event for compatibility
+      window.dispatchEvent(
+        new CustomEvent("bundle-changed", {
+          detail: {
+            selectedItems,
+            promotionalTotal: pricingInfo.promotionalTotal,
+            itemsAdded: totalItemsAdded,
+          },
+        })
+      )
+
+      // Force another update after a short delay to ensure server sync
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("cart-updated"))
+      }, 500)
     } catch (err) {
       console.error(err)
       setError("Failed to add items to cart")

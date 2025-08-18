@@ -15,6 +15,12 @@ import {
 } from "./cookies"
 import { getRegion } from "./regions"
 
+const dispatchCartUpdate = () => {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("cart-updated"))
+  }
+}
+
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
  * @param cartId - optional - The ID of the cart to retrieve.
@@ -150,6 +156,9 @@ export async function addToCart({
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
+
+      // Dispatch cart update event
+      dispatchCartUpdate()
     })
     .catch(medusaError)
 }
@@ -183,6 +192,9 @@ export async function updateLineItem({
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
+
+      // Dispatch cart update event
+      dispatchCartUpdate()
     })
     .catch(medusaError)
 }
@@ -210,6 +222,9 @@ export async function deleteLineItem(lineId: string) {
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
+
+      // Dispatch cart update event
+      dispatchCartUpdate()
     })
     .catch(medusaError)
 }
