@@ -19,7 +19,7 @@ const BundlesTemplate: React.FC<BundlesTemplateProps> = ({
   countryCode,
   currentPage,
 }) => {
-  const itemsPerPage = 1
+  const itemsPerPage = 12
   const totalPages = Math.ceil(count / itemsPerPage)
   const hasNextPage = currentPage < totalPages
   const hasPrevPage = currentPage > 1
