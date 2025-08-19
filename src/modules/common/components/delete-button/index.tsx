@@ -27,6 +27,15 @@ const DeleteButton = ({
         setIsDeleting(false)
       })
     }
+    window.dispatchEvent(
+      new CustomEvent("item-removed", {
+        detail: {
+          itemId: id,
+          bundleId: bundle_id || null,
+          action: bundle_id ? "bundle-removed" : "item-removed",
+        },
+      })
+    )
   }
 
   return (

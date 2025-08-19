@@ -580,6 +580,18 @@ export async function removeFlexibleBundleFromCart(bundleId: string) {
       revalidateTag(cartCacheTag)
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
+
+      // Dispatch event for cart badge update (immediate for removals)
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("cart-updated", {
+            detail: {
+              action: "bundle-removed",
+              bundleId,
+            },
+          })
+        )
+      }
     })
     .catch(medusaError)
 }
