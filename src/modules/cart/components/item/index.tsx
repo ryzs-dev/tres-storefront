@@ -4,7 +4,6 @@
 import { Table, Text, clx, Badge } from "@medusajs/ui"
 import { updateLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
-import CartItemSelect from "@modules/cart/components/cart-item-select"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import DeleteButton from "@modules/common/components/delete-button"
 import LineItemOptions from "@modules/common/components/line-item-options"
@@ -42,117 +41,136 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
       })
   }
 
-  console.log("🔍 CartItemSelect debug:", {
-    itemId: item.id,
-    quantity: item.quantity,
-    quantityType: typeof item.quantity,
-    value: item.quantity,
-  })
-
-  // TODO: Update this to grab the actual max inventory
-  const maxQtyFromInventory = 10
-  const maxQuantity = item.variant?.manage_inventory ? 10 : maxQtyFromInventory
-
-  // UPDATED: Bundle discount information - supports both fixed and percentage discounts
+  // Bundle discount information
   const isBundleItem = item.metadata?.is_from_bundle === true
   const bundleTitle = item.metadata?.bundle_title as string
   const savingsInfo = calculateItemSavings(item)
 
   return (
     <Table.Row className="w-full" data-testid="product-row">
-      <Table.Cell className="!pl-0 p-4 w-24">
+      {/* Item Column - Product Image */}
+      <Table.Cell className="!pl-0 p-2 small:p-4 w-16 small:w-24 align-top">
         <LocalizedClientLink
           href={`/products/${item.product_handle}`}
-          className={clx("flex", {
-            "w-16": type === "preview",
-            "small:w-24 w-12": type === "full",
-          })}
+          className="flex"
         >
           <Thumbnail
             thumbnail={item.thumbnail}
             images={item.variant?.product?.images}
             size="square"
+            className={clx("rounded-md", {
+              "w-12 h-12": type === "preview",
+              "w-14 h-14 small:w-20 small:h-20": type === "full",
+            })}
           />
         </LocalizedClientLink>
       </Table.Cell>
 
-      <Table.Cell className="text-left">
-        <Text
-          className="txt-medium-plus text-ui-fg-base"
-          data-testid="product-title"
-        >
-          {item.product_title}
-        </Text>
-        <LineItemOptions variant={item.variant} data-testid="product-variant" />
-        <DeleteButton
-          id={item.id}
-          data-testid="product-delete-button"
-          bundle_id={item.metadata?.bundle_id as string}
-        >
-          {item.metadata?.bundle_id !== undefined
-            ? "Remove from Bundle"
-            : "Remove"}
-        </DeleteButton>
+      {/* Second Column - Product Details */}
+      <Table.Cell className="text-left p-2 small:p-4 align-top">
+        <div className="space-y-1 small:space-y-2">
+          <Text
+            className="text-sm small:txt-medium-plus text-ui-fg-base font-medium"
+            data-testid="product-title"
+          >
+            {item.product_title}
+          </Text>
 
-        {/* UPDATED: Bundle Information with Fixed Discount Support
-        {isBundleItem && (
-          <div className="mt-2 space-y-1">
-            <Badge className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-              📦 {bundleTitle || "Bundle Item"}
-            </Badge>
-            {savingsInfo.discountType !== "none" && (
-              <div className="text-xs text-green-600 font-medium">
-                🎉 {savingsInfo.discountText}
-              </div>
+          <LineItemOptions
+            variant={item.variant}
+            data-testid="product-variant"
+          />
+
+          {/* Remove Button */}
+          <DeleteButton
+            id={item.id}
+            data-testid="product-delete-button"
+            bundle_id={item.metadata?.bundle_id as string}
+            className="text-xs text-gray-300 hover:text-black hover:underline block mt-2"
+          >
+            {item.metadata?.bundle_id !== undefined ? (
+              <>
+                Remove
+                <span className="hidden small:inline"> from Bundle</span>
+              </>
+            ) : (
+              "Remove"
             )}
-            {savingsInfo.savings > 0 && (
-              <div className="text-xs text-green-600">
-                Saved: {formatCurrency(savingsInfo.savings)}
-              </div>
-            )}
-          </div>
-        )} */}
+          </DeleteButton>
+
+          {/* Error Message */}
+          {error && (
+            <ErrorMessage error={error} data-testid="product-error-message" />
+          )}
+        </div>
       </Table.Cell>
 
+      {/* Quantity Column */}
       {type === "full" && (
-        <Table.Cell>
-          <div className="flex gap-2 items-center">
-            {/* <CartItemSelect
-              value={item.quantity}
-              onChange={(e) => changeQuantity(Number(e.target.value))}
-              disabled={updating}
-              data-testid="product-quantity-select"
-            >
-            </CartItemSelect> */}
-            {item.quantity}
+        <Table.Cell className="p-2 small:p-4 align-top">
+          <div className="flex flex-col items-center gap-1 small:gap-2">
+            {/* Quantity buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                className="text-lg px-2 py-1 rounded hover:bg-ui-bg-subtle disabled:opacity-40"
+                onClick={() => changeQuantity(item.quantity - 1)}
+                disabled={item.quantity <= 1 || updating}
+              >
+                –
+              </button>
+
+              <span className="w-8 text-center text-ui-fg-base">
+                {item.quantity}
+              </span>
+
+              <button
+                className="text-lg px-2 py-1 rounded hover:bg-ui-bg-subtle disabled:opacity-40"
+                onClick={() => changeQuantity(item.quantity + 1)}
+                disabled={item.quantity >= 5 || updating}
+              >
+                +
+              </button>
+            </div>
+
+            {updating && <Spinner className="w-3 h-3 small:w-4 small:h-4" />}
           </div>
-          <ErrorMessage error={error} data-testid="product-error-message" />
         </Table.Cell>
       )}
 
-      <Table.Cell className="hidden small:table-cell">
+      {/* Price Column - Desktop Only */}
+      <Table.Cell className="hidden small:table-cell p-4 align-top">
         <LineItemUnitPrice
           item={item}
           style="default"
           currencyCode={currencyCode}
         />
-        {/* Show original price if discounted
-        {savingsInfo.savings > 0 &&
-          savingsInfo.originalPrice > savingsInfo.discountedPrice && (
-            <div className="text-xs text-ui-fg-muted line-through">
-              Original: {formatCurrency(savingsInfo.originalPrice)}
-            </div>
-          )} */}
       </Table.Cell>
 
-      <Table.Cell>
-        <div className="flex flex-col items-end">
+      {/* Total Column */}
+      <Table.Cell className="!pr-0 text-right p-2 small:p-4 align-top">
+        <div className="flex flex-col items-end space-y-1">
+          {/* Mobile: Show unit price */}
+          <div className="small:hidden text-xs text-gray-600">
+            <LineItemUnitPrice
+              item={item}
+              style="tight"
+              currencyCode={currencyCode}
+            />
+          </div>
+
+          {/* Total Price */}
           <LineItemPrice
             item={item}
             style="default"
             currencyCode={currencyCode}
           />
-          {updating && <Spinner />}
+
+          {/* Savings Display */}
+          {isBundleItem && savingsInfo.savings > 0 && (
+            <div className="text-xs text-green-600">
+              Saved: {formatCurrency(savingsInfo.savings * item.quantity)}
+            </div>
+          )}
         </div>
       </Table.Cell>
     </Table.Row>

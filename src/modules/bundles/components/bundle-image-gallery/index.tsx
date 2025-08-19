@@ -160,6 +160,8 @@ const BundleImageGallery = ({
           loop={displayImages.length > 1}
           pagination={{
             clickable: true,
+            dynamicBullets: true,
+            dynamicMainBullets: 2,
           }}
           modules={[Pagination]}
           className="w-full max-w-screen-md mx-auto"
