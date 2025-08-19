@@ -15,12 +15,6 @@ import {
 } from "./cookies"
 import { getRegion } from "./regions"
 
-const dispatchCartUpdate = () => {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("cart-updated"))
-  }
-}
-
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
  * @param cartId - optional - The ID of the cart to retrieve.
@@ -156,9 +150,6 @@ export async function addToCart({
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
-
-      // Dispatch cart update event
-      dispatchCartUpdate()
     })
     .catch(medusaError)
 }
@@ -192,9 +183,6 @@ export async function updateLineItem({
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
-
-      // Dispatch cart update event
-      dispatchCartUpdate()
     })
     .catch(medusaError)
 }
@@ -214,17 +202,20 @@ export async function deleteLineItem(lineId: string) {
     ...(await getAuthHeaders()),
   }
 
+  console.log("🗑️ About to delete line item:", lineId, "from cart:", cartId)
+
   await sdk.store.cart
     .deleteLineItem(cartId, lineId, headers)
     .then(async () => {
+      console.log("✅ Line item deleted successfully, invalidating cache...")
+
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
 
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
 
-      // Dispatch cart update event
-      dispatchCartUpdate()
+      console.log("📢 Cache invalidated, cart.updated event should fire now")
     })
     .catch(medusaError)
 }
@@ -580,18 +571,6 @@ export async function removeFlexibleBundleFromCart(bundleId: string) {
       revalidateTag(cartCacheTag)
       const fulfillmentCacheTag = await getCacheTag("fulfillment")
       revalidateTag(fulfillmentCacheTag)
-
-      // Dispatch event for cart badge update (immediate for removals)
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(
-          new CustomEvent("cart-updated", {
-            detail: {
-              action: "bundle-removed",
-              bundleId,
-            },
-          })
-        )
-      }
     })
     .catch(medusaError)
 }
