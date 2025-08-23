@@ -121,10 +121,7 @@ const Summary = ({ cart }: SummaryProps) => {
         </Text>
       </div>
 
-      <LocalizedClientLink
-        href={`/${countryCode}/checkout`}
-        data-testid="checkout-button"
-      >
+      <LocalizedClientLink href={`/checkout`} data-testid="checkout-button">
         <Button className="w-full h-10">Checkout</Button>
       </LocalizedClientLink>
     </div>
