@@ -236,7 +236,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
           </Text>
           <Text
             className={`text-lg font-semibold ${
-              pricingInfo.hasPromotion ? "text-green-600" : ""
+              pricingInfo.hasPromotion ? "text-[#99b2dd]" : ""
             }`}
           >
             {formatCurrency(pricingInfo.promotionalTotal)}
@@ -246,11 +246,11 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
         {/* Show discount information */}
         {pricingInfo.hasPromotion && (
           <div className="mt-2 space-y-1">
-            <div className="flex justify-between text-sm text-green-600">
+            <div className="flex justify-between text-sm text-[#99b2dd]">
               <Text>Discount Applied:</Text>
               <Text className="font-medium">{pricingInfo.displayText}</Text>
             </div>
-            <div className="flex justify-between text-sm text-green-600">
+            <div className="flex justify-between text-sm text-[#99b2dd]">
               <Text>You Save:</Text>
               <Text className="font-medium">
                 {formatCurrency(pricingInfo.savings)}
@@ -266,7 +266,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
           Selected: {summary.totalItems} items
         </Text>
         {summary.totalItems < bundle.min_items && (
-          <Text className="text-sm text-orange-600">
+          <Text className="text-sm text-[#99b2dd]">
             Select at least {bundle.min_items - summary.totalItems} more item(s)
           </Text>
         )}
@@ -283,7 +283,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
           {(bundle.discount_2_items_amount || bundle.discount_2_items) && (
             <div className="flex justify-between">
               <span>• 2 items:</span>
-              <span className="text-green-600 font-medium">
+              <span className="text-[#99b2dd] font-medium">
                 {bundle.discount_type === "fixed" ||
                 bundle.discount_2_items_amount
                   ? `${formatCurrency(
@@ -296,7 +296,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
           {(bundle.discount_3_items_amount || bundle.discount_3_items) && (
             <div className="flex justify-between">
               <span>• 3+ items:</span>
-              <span className="text-green-600 font-medium">
+              <span className="text-[#99b2dd] font-medium">
                 {bundle.discount_type === "fixed" ||
                 bundle.discount_3_items_amount
                   ? `${formatCurrency(
@@ -338,7 +338,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
                 {formatCurrency(pricingInfo.promotionalTotal)}
               </Text>
               {pricingInfo.hasPromotion && (
-                <Text className="text-sm text-green-600">
+                <Text className="text-sm text-[#99b2dd]">
                   Save {formatCurrency(pricingInfo.savings)}
                 </Text>
               )}

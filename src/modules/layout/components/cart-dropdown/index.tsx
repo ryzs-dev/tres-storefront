@@ -345,7 +345,7 @@ const CartDropdown = ({
                 <div className="p-4 flex flex-col gap-y-4 text-small-regular">
                   {/* Show bundle savings summary in cart total area */}
                   {totalBundleSavings > 0 && (
-                    <div className="flex items-center justify-between text-green-600 border-t pt-2">
+                    <div className="flex items-center justify-between text-[#99b2dd] border-t pt-2">
                       <span className="text-sm font-medium">
                         Total Bundle Savings:
                       </span>

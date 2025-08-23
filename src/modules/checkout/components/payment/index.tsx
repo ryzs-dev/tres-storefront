@@ -1,7 +1,12 @@
+// Updated Payment Component - src/modules/checkout/components/payment/index.tsx
 "use client"
 
 import { RadioGroup } from "@headlessui/react"
-import { isStripe as isStripeFunc, paymentInfoMap } from "@lib/constants"
+import {
+  isStripe as isStripeFunc,
+  isRazorpay,
+  paymentInfoMap,
+} from "@lib/constants"
 import { initiatePaymentSession } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard, Loader } from "@medusajs/icons"
 import { Button, Container, Heading, Text, clx } from "@medusajs/ui"
@@ -18,27 +23,96 @@ const refreshPaymentSession = async (cartId: string) => {
   try {
     console.log("🔄 Refreshing payment session for updated cart total...")
 
-    const response = await fetch(`/store/carts/${cartId}/refresh-payment`, {
-      method: "POST",
+    // First, let's try to get the current payment sessions
+    const cartResponse = await fetch(`/store/carts/${cartId}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     })
 
-    if (response.ok) {
-      const data = await response.json()
-      console.log("✅ Payment session refreshed successfully")
-      return data.cart
-    } else {
-      console.error(
-        "❌ Failed to refresh payment session:",
-        await response.text()
-      )
+    if (!cartResponse.ok) {
+      throw new Error("Failed to fetch cart")
     }
+
+    const cartData = await cartResponse.json()
+    const cart = cartData.cart
+    const paymentSessions = cart.payment_collection?.payment_sessions || []
+
+    // If there are existing payment sessions, recreate them with the new amount
+    if (paymentSessions.length > 0) {
+      for (const session of paymentSessions) {
+        try {
+          // Delete the existing payment session
+          const deleteResponse = await fetch(
+            `/store/payment-collections/${cart.payment_collection.id}/payment-sessions/${session.id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          )
+
+          if (deleteResponse.ok) {
+            console.log(`✅ Deleted payment session: ${session.id}`)
+
+            // Create a new payment session with the updated amount
+            const createResponse = await fetch(
+              `/store/payment-collections/${cart.payment_collection.id}/payment-sessions`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  provider_id: session.provider_id,
+                  data: {
+                    amount: Math.round(cart.total * 100), // Use current cart total
+                    currency: cart.currency_code,
+                  },
+                }),
+              }
+            )
+
+            if (createResponse.ok) {
+              console.log(
+                `✅ Created new payment session for ${session.provider_id}`
+              )
+            } else {
+              console.error(
+                `❌ Failed to create payment session for ${session.provider_id}`
+              )
+            }
+          }
+        } catch (error) {
+          console.error(
+            `❌ Error refreshing payment session ${session.id}:`,
+            error
+          )
+        }
+      }
+
+      // Fetch the updated cart
+      const updatedCartResponse = await fetch(`/store/carts/${cartId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      if (updatedCartResponse.ok) {
+        const updatedCartData = await updatedCartResponse.json()
+        console.log("✅ Payment sessions refreshed successfully")
+        return updatedCartData.cart
+      }
+    }
+
+    return cart
   } catch (error) {
     console.error("❌ Error refreshing payment session:", error)
+    return null
   }
-  return null
 }
 
 const Payment = ({
@@ -68,6 +142,7 @@ const Payment = ({
   const isOpen = searchParams.get("step") === "payment"
 
   const isStripe = isStripeFunc(selectedPaymentMethod)
+  const isRazorpayMethod = isRazorpay(selectedPaymentMethod) // Add Razorpay detection
 
   // Check if cart has bundle discounts
   const hasBundleDiscounts = cart.items?.some(
@@ -90,15 +165,30 @@ const Payment = ({
         paymentMismatch,
         hasBundleDiscounts,
         activeSessionId: activeSession?.id,
+        selectedMethod: selectedPaymentMethod,
+        isRazorpay: isRazorpayMethod,
       })
     }
-  }, [cartTotal, currentPaymentTotal, hasBundleDiscounts, activeSession?.id])
+  }, [
+    cartTotal,
+    currentPaymentTotal,
+    hasBundleDiscounts,
+    activeSession?.id,
+    selectedPaymentMethod,
+    isRazorpayMethod,
+  ])
 
   const setPaymentMethod = async (method: string) => {
     setError(null)
     setSelectedPaymentMethod(method)
 
-    if (isStripeFunc(method)) {
+    console.log("🎯 Setting payment method:", method, {
+      isStripe: isStripeFunc(method),
+      isRazorpay: isRazorpay(method),
+    })
+
+    // Handle both Stripe and Razorpay payment methods
+    if (isStripeFunc(method) || isRazorpay(method)) {
       try {
         setIsLoading(true)
 
@@ -112,13 +202,16 @@ const Payment = ({
         })
 
         console.log(
-          `✅ Payment session initiated with amount: ${cartTotal} (${Math.round(
+          `✅ Payment session initiated for ${method} with amount: ${cartTotal} (${Math.round(
             cartTotal * 100
           )} cents)`
         )
       } catch (err: any) {
         setError(err.message)
-        console.error("❌ Failed to initiate payment session:", err)
+        console.error(
+          `❌ Failed to initiate payment session for ${method}:`,
+          err
+        )
       } finally {
         setIsLoading(false)
       }
@@ -229,6 +322,7 @@ const Payment = ({
         })
       }
 
+      // For Razorpay, we don't need card input - go directly to review
       if (!shouldInputCard) {
         return router.push(
           pathname + "?" + createQueryString("step", "review"),
@@ -365,7 +459,9 @@ const Payment = ({
             {isRefreshingPayment
               ? "Updating payment amount..."
               : !activeSession && isStripeFunc(selectedPaymentMethod)
-              ? " Enter card details"
+              ? "Enter card details"
+              : isRazorpayMethod
+              ? "Continue to Razorpay Payment"
               : "Continue to review"}
           </Button>
         </div>
@@ -401,6 +497,8 @@ const Payment = ({
                   <Text>
                     {isStripeFunc(selectedPaymentMethod) && cardBrand
                       ? cardBrand
+                      : isRazorpayMethod
+                      ? "Razorpay payment will open in modal"
                       : "Another step will appear"}
                   </Text>
                 </div>

@@ -1,9 +1,10 @@
+// src/modules/cart/templates/summary.tsx - Enhanced version
 "use client"
-// src/modules/cart/templates/summary.tsx
+
 import { Badge, Button, Heading, Text } from "@medusajs/ui"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
-import { BundleSavingsSummary } from "@modules/common/components/bundle-discount-display"
+import { BundleDiscountDisplay } from "@modules/common/components/bundle-discount-display"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useParams } from "next/navigation"
 
@@ -17,13 +18,32 @@ type SummaryProps = {
 const Summary = ({ cart }: SummaryProps) => {
   const { countryCode } = useParams() as { countryCode: string }
 
+  // Calculate bundle savings
+  const bundleSavings =
+    cart.items?.reduce((total, item) => {
+      if (
+        item.metadata?.discounted_price_cents &&
+        item.metadata?.original_price_cents
+      ) {
+        const originalPrice = item.metadata.original_price_cents
+        const currentPrice = item.metadata.discounted_price_cents
+        const savings =
+          ((Number(originalPrice) - Number(currentPrice)) * item.quantity) / 100
+        return total + savings
+      }
+      return total
+    }, 0) || 0
+
+  console.log(cart.items)
+
   return (
-    <div className="flex flex-col gap-y-4">
+    <div className="flex flex-col gap-y-6">
       <Heading level="h2" className="text-[2rem] leading-[2.75rem]">
         Summary
       </Heading>
 
-      <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle ">
+      {/* Price Breakdown */}
+      <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle">
         <div className="flex items-center justify-between">
           <Text className="flex items-center gap-x-1">Subtotal</Text>
           <Text data-testid="cart-subtotal">
@@ -33,14 +53,33 @@ const Summary = ({ cart }: SummaryProps) => {
             })}
           </Text>
         </div>
+
+        {/* Bundle Discounts */}
+        {bundleSavings > 0 && (
+          <div className="flex items-center justify-between">
+            <Text className="text-[#99b2dd]">Bundle Discounts</Text>
+            <Text
+              className="text-[#99b2dd] font-medium"
+              data-testid="bundle-savings"
+            >
+              -
+              {convertToLocale({
+                amount: bundleSavings,
+                currency_code: cart.currency_code,
+              })}
+            </Text>
+          </div>
+        )}
+
+        {/* Regular Discounts */}
         {!!cart.discount_total && (
           <div className="flex items-center justify-between">
-            <Text>Discount</Text>
+            <Text>Other Discounts</Text>
             <Text
               className="text-ui-fg-interactive"
               data-testid="cart-discount"
             >
-              -{" "}
+              -
               {convertToLocale({
                 amount: cart.discount_total,
                 currency_code: cart.currency_code,
@@ -48,6 +87,7 @@ const Summary = ({ cart }: SummaryProps) => {
             </Text>
           </div>
         )}
+
         <div className="flex items-center justify-between">
           <Text>Shipping</Text>
           <Text data-testid="cart-shipping">
@@ -57,6 +97,7 @@ const Summary = ({ cart }: SummaryProps) => {
             })}
           </Text>
         </div>
+
         <div className="flex justify-between">
           <Text className="flex items-center gap-x-1">Taxes</Text>
           <Text data-testid="cart-taxes">
@@ -67,26 +108,25 @@ const Summary = ({ cart }: SummaryProps) => {
           </Text>
         </div>
       </div>
+
       <div className="h-px w-full border-b border-gray-200" />
+
       <div className="flex items-center justify-between text-ui-fg-base txt-medium-plus">
         <Text>Total</Text>
         <Text className="txt-xlarge-plus" data-testid="cart-total">
           {convertToLocale({
-            amount: cart.total ?? 0,
+            amount: cart.total - bundleSavings,
             currency_code: cart.currency_code,
           })}
         </Text>
       </div>
-      <div className="h-px w-full border-b border-gray-200" />
-      <div className="flex items-center gap-x-2 py-2">
-        <LocalizedClientLink
-          href={`/checkout`}
-          className="w-full"
-          data-testid="checkout-button"
-        >
-          <Button className="w-full h-10">Go to checkout</Button>
-        </LocalizedClientLink>
-      </div>
+
+      <LocalizedClientLink
+        href={`/${countryCode}/checkout`}
+        data-testid="checkout-button"
+      >
+        <Button className="w-full h-10">Checkout</Button>
+      </LocalizedClientLink>
     </div>
   )
 }

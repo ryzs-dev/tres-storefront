@@ -29,13 +29,13 @@ export const BundleDiscountDisplay = ({
       </Badge>
 
       {savingsInfo.discountType !== "none" && (
-        <div className="text-xs text-green-600 font-medium">
+        <div className="text-xs text-[#99b2dd] font-medium">
           🎉 {savingsInfo.discountText}
         </div>
       )}
 
       {showSavings && savingsInfo.savings > 0 && (
-        <div className="text-xs text-green-600">
+        <div className="text-xs text-[#99b2dd]">
           Saved: {formatCurrency(savingsInfo.savings)}
         </div>
       )}
