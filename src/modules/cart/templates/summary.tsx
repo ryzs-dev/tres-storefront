@@ -34,6 +34,24 @@ const Summary = ({ cart }: SummaryProps) => {
       return total
     }, 0) || 0
 
+  // Calculate original and discounted totals
+  const originalCartTotal =
+    cart.items?.reduce((total, item) => {
+      if (item.metadata?.original_price_cents) {
+        return (
+          total +
+          (Number(item.metadata.original_price_cents) * item.quantity) / 100
+        )
+      }
+      // Fallback to current price if no original price is set
+      return total + item.unit_price * item.quantity
+    }, 0) || 0
+
+  const discountedCartTotal =
+    cart.items?.reduce((total, item) => {
+      return total + item.unit_price * item.quantity
+    }, 0) || 0
+
   console.log(cart.items)
 
   return (
@@ -45,6 +63,26 @@ const Summary = ({ cart }: SummaryProps) => {
       {/* Price Breakdown */}
       <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle">
         <div className="flex items-center justify-between">
+          <Text>Original Total</Text>
+          <Text className="line-through text-gray-600">
+            {convertToLocale({
+              amount: originalCartTotal,
+              currency_code: cart.currency_code,
+            })}
+          </Text>
+        </div>
+        <div className="flex items-center justify-between">
+          <Text>Discounted Total</Text>
+          <Text data-testid="cart-bundle-saving">
+            -{" "}
+            {convertToLocale({
+              amount: bundleSavings,
+              currency_code: cart.currency_code,
+            })}
+          </Text>
+        </div>
+
+        <div className="flex items-center justify-between">
           <Text className="flex items-center gap-x-1">Subtotal</Text>
           <Text data-testid="cart-subtotal">
             {convertToLocale({
@@ -55,7 +93,7 @@ const Summary = ({ cart }: SummaryProps) => {
         </div>
 
         {/* Bundle Discounts */}
-        {bundleSavings > 0 && (
+        {/* {bundleSavings > 0 && (
           <div className="flex items-center justify-between">
             <Text className="text-[#99b2dd]">Bundle Discounts</Text>
             <Text
@@ -69,7 +107,7 @@ const Summary = ({ cart }: SummaryProps) => {
               })}
             </Text>
           </div>
-        )}
+        )} */}
 
         {/* Regular Discounts */}
         {!!cart.discount_total && (
@@ -115,7 +153,7 @@ const Summary = ({ cart }: SummaryProps) => {
         <Text>Total</Text>
         <Text className="txt-xlarge-plus" data-testid="cart-total">
           {convertToLocale({
-            amount: cart.total - bundleSavings,
+            amount: cart.total,
             currency_code: cart.currency_code,
           })}
         </Text>

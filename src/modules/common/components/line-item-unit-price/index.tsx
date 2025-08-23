@@ -1,6 +1,6 @@
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
-import { clx } from "@medusajs/ui"
+import { clx, Text } from "@medusajs/ui"
 
 type LineItemUnitPriceProps = {
   item: HttpTypes.StoreCartLineItem | HttpTypes.StoreOrderLineItem
@@ -13,18 +13,15 @@ const LineItemUnitPrice = ({
   style = "default",
   currencyCode,
 }: LineItemUnitPriceProps) => {
-  const { total, original_total } = item
-  const hasReducedPrice = total < original_total
-
-  const percentage_diff = Math.round(
-    ((original_total - total) / original_total) * 100
-  )
+  const originalPriceCents = Number(item.metadata?.original_price_cents) || 0
+  const hasReducedPrice =
+    originalPriceCents > 0 && originalPriceCents > item.unit_price * 100
 
   return (
-    <div className="flex flex-col text-ui-fg-muted justify-center h-full">
+    <div className="flex flex-col text-ui-fg-muted justify-start h-full">
       {hasReducedPrice && (
         <>
-          <p>
+          <Text>
             {style === "default" && (
               <span className="text-ui-fg-muted">Original: </span>
             )}
@@ -33,14 +30,11 @@ const LineItemUnitPrice = ({
               data-testid="product-unit-original-price"
             >
               {convertToLocale({
-                amount: original_total / item.quantity,
+                amount: (originalPriceCents ?? 0) / 100,
                 currency_code: currencyCode,
               })}
             </span>
-          </p>
-          {style === "default" && (
-            <span className="text-ui-fg-interactive">-{percentage_diff}%</span>
-          )}
+          </Text>
         </>
       )}
       <span
@@ -50,7 +44,7 @@ const LineItemUnitPrice = ({
         data-testid="product-unit-price"
       >
         {convertToLocale({
-          amount: total / item.quantity,
+          amount: item.unit_price,
           currency_code: currencyCode,
         })}
       </span>

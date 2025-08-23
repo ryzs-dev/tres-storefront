@@ -12,7 +12,7 @@ const DeleteButton = ({
   children,
   className,
   bundle_id,
-  remove_entire_bundle = false,
+  remove_entire_bundle = true,
 }: {
   id: string
   children?: React.ReactNode

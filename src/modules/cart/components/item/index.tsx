@@ -47,8 +47,8 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
   const savingsInfo = calculateItemSavings(item)
 
   return (
-    <Table.Row className="w-full" data-testid="product-row">
-      {/* Item Column - Product Image */}
+    <Table.Row className="w-full items-start" data-testid="product-row">
+      {/* Product Image */}
       <Table.Cell className="!pl-0 p-2 small:p-4 w-16 small:w-24 align-top">
         <LocalizedClientLink
           href={`/products/${item.product_handle}`}
@@ -66,9 +66,9 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
         </LocalizedClientLink>
       </Table.Cell>
 
-      {/* Second Column - Product Details */}
+      {/* Product Details */}
       <Table.Cell className="text-left p-2 small:p-4 align-top">
-        <div className="space-y-1 small:space-y-2">
+        <div className="flex flex-col gap-1 small:gap-2">
           <Text
             className="text-sm small:txt-medium-plus text-ui-fg-base font-medium"
             data-testid="product-title"
@@ -81,12 +81,11 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
             data-testid="product-variant"
           />
 
-          {/* Remove Button */}
           <DeleteButton
             id={item.id}
             data-testid="product-delete-button"
             bundle_id={item.metadata?.bundle_id as string}
-            className="text-xs text-gray-300 hover:text-black hover:underline block mt-2"
+            className="text-xs text-gray-400 hover:text-black hover:underline mt-1"
           >
             {item.metadata?.bundle_id !== undefined ? (
               <>
@@ -98,7 +97,6 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
             )}
           </DeleteButton>
 
-          {/* Error Message */}
           {error && (
             <ErrorMessage error={error} data-testid="product-error-message" />
           )}
@@ -107,9 +105,8 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
 
       {/* Quantity Column */}
       {type === "full" && (
-        <Table.Cell className="p-2 small:p-4 align-top">
-          <div className="flex flex-col items-center gap-1 small:gap-2">
-            {/* Quantity buttons */}
+        <Table.Cell className="p-2 small:p-4 align-top text-center">
+          <div className="flex flex-col items-center gap-2">
             <div className="flex items-center gap-2">
               <button
                 className="text-lg px-2 py-1 rounded hover:bg-ui-bg-subtle disabled:opacity-40"
@@ -137,8 +134,8 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
         </Table.Cell>
       )}
 
-      {/* Price Column - Desktop Only */}
-      <Table.Cell className="hidden small:table-cell p-4 align-top">
+      {/* Unit Price (desktop only) */}
+      <Table.Cell className="hidden small:table-cell p-2 small:p-4 align-top text-right">
         <LineItemUnitPrice
           item={item}
           style="default"
@@ -147,9 +144,9 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
       </Table.Cell>
 
       {/* Total Column */}
-      <Table.Cell className="!pr-0 text-right p-2 small:p-4 align-top">
-        <div className="flex flex-col items-end space-y-1">
-          {/* Mobile: Show unit price */}
+      <Table.Cell className="!pr-0 p-2 small:p-4 align-top text-right">
+        <div className="flex flex-col items-end gap-1">
+          {/* Mobile: Show unit price above total */}
           <div className="small:hidden text-xs text-gray-600">
             <LineItemUnitPrice
               item={item}
