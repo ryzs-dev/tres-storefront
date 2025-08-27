@@ -2,8 +2,8 @@
 
 import { Heading, Text, clx } from "@medusajs/ui"
 
-import PaymentButton from "../payment-button"
 import { useSearchParams } from "next/navigation"
+import PaymentButton from "../payment-button"
 
 const Review = ({ cart }: { cart: any }) => {
   const searchParams = useSearchParams()

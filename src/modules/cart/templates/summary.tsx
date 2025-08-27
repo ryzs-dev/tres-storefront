@@ -1,17 +1,18 @@
-// src/modules/cart/templates/summary.tsx - Enhanced version
+// src/modules/cart/templates/summary.tsx - Enhanced version with Custom Promo
 "use client"
 
-import { Badge, Button, Heading, Text } from "@medusajs/ui"
+import { Button, Heading, Text } from "@medusajs/ui"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
-import { BundleDiscountDisplay } from "@modules/common/components/bundle-discount-display"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import CustomPromoCode from "@modules/checkout/components/custom-promo-code"
 import { useParams } from "next/navigation"
 
 type SummaryProps = {
   cart: HttpTypes.StoreCart & {
     shipping_total: number
     tax_total: number
+    metadata?: Record<string, any>
   }
 }
 
@@ -47,12 +48,7 @@ const Summary = ({ cart }: SummaryProps) => {
       return total + item.unit_price * item.quantity
     }, 0) || 0
 
-  const discountedCartTotal =
-    cart.items?.reduce((total, item) => {
-      return total + item.unit_price * item.quantity
-    }, 0) || 0
-
-  console.log(cart.items)
+  const otherDiscount = cart.discount_total
 
   return (
     <div className="flex flex-col gap-y-6">
@@ -71,60 +67,42 @@ const Summary = ({ cart }: SummaryProps) => {
             })}
           </Text>
         </div>
-        <div className="flex items-center justify-between">
-          <Text>Discounted Total</Text>
-          <Text data-testid="cart-bundle-saving">
-            -{" "}
-            {convertToLocale({
-              amount: bundleSavings,
-              currency_code: cart.currency_code,
-            })}
-          </Text>
-        </div>
 
-        <div className="flex items-center justify-between">
-          <Text className="flex items-center gap-x-1">Subtotal</Text>
-          <Text data-testid="cart-subtotal">
-            {convertToLocale({
-              amount: cart.subtotal ?? 0,
-              currency_code: cart.currency_code,
-            })}
-          </Text>
-        </div>
-
-        {/* Bundle Discounts */}
-        {/* {bundleSavings > 0 && (
+        {bundleSavings > 0 && (
           <div className="flex items-center justify-between">
-            <Text className="text-[#99b2dd]">Bundle Discounts</Text>
-            <Text
-              className="text-[#99b2dd] font-medium"
-              data-testid="bundle-savings"
-            >
-              -
+            <Text>Bundle Discount</Text>
+            <Text data-testid="cart-bundle-saving" className="text-[#99b2dd]">
+              -{" "}
               {convertToLocale({
                 amount: bundleSavings,
                 currency_code: cart.currency_code,
               })}
             </Text>
           </div>
-        )} */}
+        )}
 
-        {/* Regular Discounts */}
-        {!!cart.discount_total && (
+        {otherDiscount > 0 && (
           <div className="flex items-center justify-between">
-            <Text>Other Discounts</Text>
-            <Text
-              className="text-ui-fg-interactive"
-              data-testid="cart-discount"
-            >
-              -
+            <Text>Other Discount</Text>
+            <Text data-testid="cart-bundle-saving" className="text-[#99b2dd]">
+              -{" "}
               {convertToLocale({
-                amount: cart.discount_total,
+                amount: otherDiscount,
                 currency_code: cart.currency_code,
               })}
             </Text>
           </div>
         )}
+
+        <div className="flex items-center justify-between">
+          <Text className="flex items-center gap-x-1">Subtotal</Text>
+          <Text data-testid="cart-subtotal">
+            {convertToLocale({
+              amount: cart.total ?? 0,
+              currency_code: cart.currency_code,
+            })}
+          </Text>
+        </div>
 
         <div className="flex items-center justify-between">
           <Text>Shipping</Text>
@@ -147,20 +125,28 @@ const Summary = ({ cart }: SummaryProps) => {
         </div>
       </div>
 
+      {/* Custom Promo Code Component */}
+
       <div className="h-px w-full border-b border-gray-200" />
 
       <div className="flex items-center justify-between text-ui-fg-base txt-medium-plus">
         <Text>Total</Text>
         <Text className="txt-xlarge-plus" data-testid="cart-total">
           {convertToLocale({
-            amount: cart.total,
+            amount: cart.total, // Now cart.total should already include all discounts
             currency_code: cart.currency_code,
           })}
         </Text>
       </div>
 
       <LocalizedClientLink href={`/checkout`} data-testid="checkout-button">
-        <Button className="w-full h-10">Checkout</Button>
+        <Button className="w-full h-10">
+          Checkout{" "}
+          {convertToLocale({
+            amount: cart.total, // Use native cart total
+            currency_code: cart.currency_code,
+          })}
+        </Button>
       </LocalizedClientLink>
     </div>
   )

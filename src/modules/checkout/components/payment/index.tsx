@@ -181,12 +181,6 @@ const Payment = ({
   const setPaymentMethod = async (method: string) => {
     setError(null)
     setSelectedPaymentMethod(method)
-
-    console.log("🎯 Setting payment method:", method, {
-      isStripe: isStripeFunc(method),
-      isRazorpay: isRazorpay(method),
-    })
-
     // Handle both Stripe and Razorpay payment methods
     if (isStripeFunc(method) || isRazorpay(method)) {
       try {

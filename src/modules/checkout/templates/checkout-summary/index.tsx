@@ -1,7 +1,7 @@
 import { Heading } from "@medusajs/ui"
 
 import ItemsPreviewTemplate from "@modules/cart/templates/preview"
-import DiscountCode from "@modules/checkout/components/discount-code"
+import CustomPromoCode from "@modules/checkout/components/custom-promo-code"
 import CartTotals from "@modules/common/components/cart-totals"
 import Divider from "@modules/common/components/divider"
 
@@ -20,7 +20,7 @@ const CheckoutSummary = ({ cart }: { cart: any }) => {
         <CartTotals totals={cart} />
         <ItemsPreviewTemplate cart={cart} />
         <div className="my-6">
-          <DiscountCode cart={cart} />
+          <CustomPromoCode cart={cart} />
         </div>
       </div>
     </div>
