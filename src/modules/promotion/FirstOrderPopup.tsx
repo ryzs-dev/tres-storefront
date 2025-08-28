@@ -3,72 +3,31 @@
 import { HttpTypes } from "@medusajs/types"
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import { X, Copy, CheckCircle2 } from "lucide-react"
+import { X } from "lucide-react"
 import Link from "next/link"
 
 interface Props {
   customer?: HttpTypes.StoreCustomer | null
 }
 
-interface Promotion {
-  id: string
-  code: string
-  type: string
-  value: number
-  is_automatic: boolean
-  campaign?: {
-    name: string
-    description?: string
-  }
-}
-
-const BASE_URL = process.env.MEDUSA_BACKEND_URL || "https://admin.tres.my"
+const POPUP_DISMISSED_KEY = "tres_first_order_popup_dismissed"
 
 const FirstOrderPopup = ({ customer }: Props) => {
   const [showPopup, setShowPopup] = useState(false)
-  const [promotions, setPromotions] = useState<Promotion[]>([])
-  const [copied, setCopied] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error("Failed to copy:", err)
-    }
-  }
-
   useEffect(() => {
-    if (!customer || !customer.orders?.length) {
+    // Check if user has dismissed the popup before
+    const hasBeenDismissed =
+      localStorage.getItem(POPUP_DISMISSED_KEY) === "true"
+
+    // Show popup if:
+    // 1. User hasn't dismissed it before AND
+    // 2. (No customer OR customer has no orders)
+    if (!hasBeenDismissed && (!customer || !customer.orders?.length)) {
       setShowPopup(true)
     }
   }, [customer])
-
-  useEffect(() => {
-    const fetchPromotions = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/store/promotions`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "x-publishable-api-key":
-              process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
-          },
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setPromotions(data.promotions || data || [])
-        }
-      } catch (err) {
-        console.error("Error fetching promotions:", err)
-      }
-    }
-
-    fetchPromotions()
-  }, [])
 
   const closePopup = () => {
     setIsClosing(true)
@@ -78,6 +37,17 @@ const FirstOrderPopup = ({ customer }: Props) => {
     }, 300)
   }
 
+  const handleOptOut = () => {
+    // Save user preference to not show popup again
+    localStorage.setItem(POPUP_DISMISSED_KEY, "true")
+    closePopup()
+  }
+
+  const handleContinue = () => {
+    // Just close without saving preference (will show again next time)
+    closePopup()
+  }
+
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       closePopup()
@@ -85,8 +55,6 @@ const FirstOrderPopup = ({ customer }: Props) => {
   }
 
   if (!showPopup) return null
-
-  const firstPromotion = promotions[0]
 
   return (
     <div
@@ -140,53 +108,42 @@ const FirstOrderPopup = ({ customer }: Props) => {
           {/* Main Content */}
           <div className="my-3 sm:my-4 space-y-2 sm:space-y-3">
             <h2 className="font-urw text-lg sm:text-3xl font-bold text-gray-900 leading-tight">
-              Get <span className="text-[#99B2DD]">10% off</span> your first
-              purchase
+              Welcome to <span className="text-[#99B2DD]">TRES</span>
             </h2>
             <p className="text-sm sm:text-lg text-gray-600 leading-relaxed">
-              Plus, enjoy exclusive <strong>TRES</strong> discounts in the
-              future.
+              {customer ? (
+                <>
+                  Hi {customer.first_name || "there"}! Check your email for your
+                  exclusive <strong>10% discount code</strong>.
+                </>
+              ) : (
+                <>
+                  Sign up to get <strong>10% off</strong> your first purchase
+                  and exclusive <strong>TRES</strong> discounts.
+                </>
+              )}
             </p>
             <p className="text-xs sm:text-base text-gray-500 italic">
               Don't miss out — be part of something strong.
             </p>
           </div>
 
-          {/* Promotion Code */}
-          {customer && firstPromotion && (
-            <div className="mb-4 sm:mb-8">
-              <div className="bg-gray-50/80 backdrop-blur-sm rounded-lg p-3 sm:p-4 border border-gray-100">
-                <div
-                  className="font-mono text-sm sm:text-lg font-semibold bg-white px-3 py-2 sm:px-4 sm:py-3 rounded-md border border-gray-200 flex flex-row justify-center items-center gap-2 sm:gap-3 text-gray-800 cursor-pointer hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
-                  onClick={() => copyToClipboard(firstPromotion.code)}
-                >
-                  <span className="select-all">{firstPromotion.code}</span>
-                  {copied ? (
-                    <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
-                  ) : (
-                    <Copy className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 hover:text-gray-600 transition-colors" />
-                  )}
-                </div>
-                <p className="text-xs text-gray-400 mt-1 sm:mt-2">
-                  Click to copy code
-                </p>
-              </div>
-            </div>
-          )}
-
           {/* Buttons */}
           <div className="space-y-2 sm:space-y-3">
-            <Link onClick={closePopup} href={"/account"}>
+            <Link
+              onClick={handleContinue}
+              href={customer ? "/account" : "/account/login"}
+            >
               <button className="w-full bg-[#99B2DD] text-white font-urw font-bold text-base sm:text-xl uppercase tracking-wide py-3 sm:py-4 px-6 sm:px-8 transition-all duration-300 hover:bg-[#8AA5D3] hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#99B2DD] focus:ring-offset-2">
-                Yes Please
+                {customer ? "Continue Shopping" : "Sign Up"}
               </button>
             </Link>
 
             <button
-              onClick={closePopup}
+              onClick={handleOptOut}
               className="w-full text-gray-500 font-urw text-sm sm:text-lg py-2 sm:py-3 transition-all duration-200 hover:text-gray-700 underline decoration-1 underline-offset-4 hover:decoration-2"
             >
-              No thanks, I don't want a discount
+              Don't show this again
             </button>
           </div>
         </div>
