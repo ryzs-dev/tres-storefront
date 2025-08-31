@@ -132,10 +132,10 @@ const FirstOrderPopup = ({ customer }: Props) => {
           <div className="space-y-2 sm:space-y-3">
             <Link
               onClick={handleContinue}
-              href={customer ? "/account" : "/account/login"}
+              href={customer ? "/bundles" : "/account"}
             >
               <button className="w-full bg-[#99B2DD] text-white font-urw font-bold text-base sm:text-xl uppercase tracking-wide py-3 sm:py-4 px-6 sm:px-8 transition-all duration-300 hover:bg-[#8AA5D3] hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#99B2DD] focus:ring-offset-2">
-                {customer ? "Continue Shopping" : "Sign Up"}
+                {customer ? "Continue Shopping" : "Join Us !"}
               </button>
             </Link>
 

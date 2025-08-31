@@ -93,22 +93,86 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
     throw new Error("No existing cart found, please create one before updating")
   }
 
+  console.log("🔍 updateCart called with:", data)
+
   const headers = {
     ...(await getAuthHeaders()),
   }
 
-  return sdk.store.cart
+  // STEP 1: Capture bundle discount info before update
+  const currentCart = await retrieveCart(cartId)
+  const bundleItems =
+    currentCart?.items?.filter(
+      (item) => item.metadata?.is_from_bundle && item.metadata?.discount_applied
+    ) || []
+
+  console.log(
+    "📦 Bundle items before update:",
+    bundleItems.map((item) => ({
+      id: item.id,
+      unit_price: item.unit_price,
+      original_price: item.metadata?.original_price_cents,
+      discounted_price: item.metadata?.discounted_price_cents,
+    }))
+  )
+
+  // STEP 2: Update cart (this resets prices)
+  const updatedCart = await sdk.store.cart
     .update(cartId, data, {}, headers)
-    .then(async ({ cart }) => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
+    .then(({ cart }) => cart)
 
-      const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
+  console.log("💰 Cart after Medusa update (prices reset):", {
+    total: updatedCart.total,
+    items: updatedCart.items?.map((item) => ({
+      id: item.id,
+      unit_price: item.unit_price,
+    })),
+  })
 
-      return cart
-    })
-    .catch(medusaError)
+  // STEP 3: Restore bundle discounts using custom endpoint
+  if (bundleItems.length > 0) {
+    console.log("🔄 Restoring bundle discounts via custom API...")
+
+    const itemsToRestore = bundleItems.map((item) => ({
+      id: item.id,
+      unit_price: item.unit_price, // Use the discounted price
+      metadata: item.metadata,
+    }))
+
+    try {
+      const response = await fetch(
+        `${process.env.MEDUSA_BACKEND_URL}/store/carts/${cartId}/restore-bundle-discounts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-publishable-api-key":
+              process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+            ...(headers?.authorization && {
+              authorization: headers.authorization,
+            }),
+          },
+          body: JSON.stringify({
+            items: itemsToRestore,
+          }),
+        }
+      )
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log("✅ Bundle discounts restored successfully:", result)
+      } else {
+        console.error("❌ Failed to restore bundle discounts:", response.status)
+      }
+    } catch (error) {
+      console.error("❌ Error calling restore bundle discounts API:", error)
+    }
+  }
+
+  const cartCacheTag = await getCacheTag("carts")
+  revalidateTag(cartCacheTag)
+
+  return updatedCart
 }
 
 export async function addToCart({

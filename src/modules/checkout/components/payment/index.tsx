@@ -339,28 +339,6 @@ const Payment = ({
 
   return (
     <div className="bg-white">
-      {/* Payment Amount Mismatch Warning */}
-      {paymentMismatch && hasBundleDiscounts && isOpen && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <div className="flex items-center gap-2">
-            {isRefreshingPayment ? (
-              <>
-                <Loader className="animate-spin h-4 w-4" />
-                <span className="text-sm text-yellow-800">
-                  Updating payment amount for bundle discounts...
-                </span>
-              </>
-            ) : (
-              <span className="text-sm text-yellow-800">
-                💰 Payment amount will be updated to reflect bundle discounts (
-                {formatCurrency(cartTotal)} instead of{" "}
-                {formatCurrency(currentPaymentTotal / 100)})
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
       <div className="flex flex-row items-center justify-between mb-6">
         <Heading
           level="h2"
