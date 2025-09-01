@@ -124,7 +124,7 @@ export default async function BundleDetailPage(props: Props) {
 
         const availability = await fetchVariantAvailability(
           variant_id,
-          "sc_01JQ41G40QHMRTH269SSZ8XAHB" // your fixed sales channel
+          "sc_01JY0GVTDD9V9JQMBZ858ZR8J8" // your fixed sales channel
         )
 
         return { variant_id, availability }
