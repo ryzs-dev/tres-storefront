@@ -68,9 +68,33 @@ export default async function BundlesPage(props: Props) {
     },
   })
 
+  console.log("Fetched bundles:", response.bundles)
+
+  const bundles = response.bundles
+
+  // IDs of bundles you want at the top
+  const topBundles = [
+    "01JYXDEGQVDT5QPS0MFZZKF11R",
+    "01JZ055N4Q8SFDGWD0R2XF6K1D",
+    "01JZ057ZB0WNXHSWVYVSYNQJEK",
+    "01JZ0AP8RMKSV9PDTN0KT0GNR7",
+  ]
+
+  // Separate top bundles and the rest
+  const top = bundles.filter((b) => topBundles.includes(b.id))
+  const rest = bundles.filter((b) => !topBundles.includes(b.id))
+
+  // Sort top bundles according to your desired order
+  const sortedTop = top.sort(
+    (a, b) => topBundles.indexOf(a.id) - topBundles.indexOf(b.id)
+  )
+
+  // Merge sorted top bundles with the rest (original order)
+  const rearrangedBundles = [...sortedTop, ...rest]
+
   return (
     <BundlesTemplate
-      bundles={response.bundles}
+      bundles={rearrangedBundles}
       count={response.count}
       region={region}
       countryCode={params.countryCode}
