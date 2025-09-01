@@ -124,6 +124,12 @@ const RazorpayPaymentButton = ({
     setErrorMessage(null)
 
     try {
+      console.log("🚀 Initiating Razorpay payment:", {
+        session_id: paymentSession.id,
+        amount: paymentSession.data.amount,
+        currency: paymentSession.data.currency,
+      })
+
       const options = {
         key: paymentSession.data.key_id,
         amount: paymentSession.data.amount,
@@ -131,55 +137,90 @@ const RazorpayPaymentButton = ({
         name: "Tres Malaysia",
         description: "Payment for your order",
         order_id: paymentSession.data.order_id,
-        handler: async (response: {
-          razorpay_payment_id: any
-          razorpay_order_id: any
-          razorpay_signature: any
-        }) => {
+        handler: async (response: any) => {
           try {
-            // Send verification data to your custom backend route
-            const result = await sdk.client.fetch("/store/payments/authorize", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "x-publishable-api-key":
-                  process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
-              },
-              body: JSON.stringify({
-                cart_id: cart.id,
-                payment_session_id: paymentSession.id,
-                payment_id: response.razorpay_payment_id,
-                order_id: response.razorpay_order_id,
-                signature: response.razorpay_signature,
-              }),
-            })
+            console.log("Payment successful:", response)
 
-            if (result.success) {
-              await onPaymentCompleted()
-            } else {
-              throw new Error(result.message || "Payment confirmation failed")
+            const completionResponse = await fetch(
+              `/api/razorpay-complete/${cart.id}`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  payment_id: response.razorpay_payment_id,
+                  order_id: response.razorpay_order_id,
+                  signature: response.razorpay_signature,
+                  country_code: "my",
+                }),
+              }
+            )
+
+            if (!completionResponse.ok) {
+              throw new Error("Payment completion failed")
+            }
+
+            const result = await completionResponse.json()
+
+            if (result.success && result.redirect_url) {
+              // Redirect to order confirmation page
+              window.location.href = result.redirect_url
             }
           } catch (error) {
-            setErrorMessage(error.message)
+            console.error("Payment completion error:", error)
+            setErrorMessage("Payment processing failed")
+          } finally {
             setSubmitting(false)
           }
         },
+        // ... rest of your options remain the same
+        prefill: {
+          name: `${cart.billing_address?.first_name || ""} ${
+            cart.billing_address?.last_name || ""
+          }`.trim(),
+          email: cart.email || "",
+          contact: cart.billing_address?.phone || "",
+        },
+        notes: {
+          cart_id: cart.id,
+          session_id: paymentSession.id,
+          customer_email: cart.email || "",
+        },
+        theme: { color: "#3B82F6" },
+        method: {
+          netbanking: true,
+          card: true,
+          wallet: true,
+          upi: false,
+          fpx: true,
+        },
+        modal: {
+          ondismiss: () => {
+            console.log("🚪 Payment modal dismissed")
+            setSubmitting(false)
+          },
+          confirm_close: true,
+          animation: true,
+        },
+        retry: { enabled: true, max_count: 3 },
+        timeout: 300,
+        remember_customer: false,
       }
 
       const razorpay = new window.Razorpay(options)
 
-      razorpay.on("payment.failed", (response) => {
+      razorpay.on("payment.failed", (response: any) => {
+        console.error("💥 Payment failed:", response.error)
         setErrorMessage(`Payment failed: ${response.error.description}`)
         setSubmitting(false)
       })
 
       razorpay.open()
-    } catch (error) {
+    } catch (error: any) {
+      console.error("❌ Error initiating payment:", error)
       setErrorMessage(error.message)
       setSubmitting(false)
     }
   }
-
   const disabled = !razorpayLoaded || !paymentSession || submitting
 
   return (
