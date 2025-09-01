@@ -162,12 +162,12 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
             currencyCode={currencyCode}
           />
 
-          {/* Savings Display */}
+          {/* Savings Display
           {isBundleItem && savingsInfo.savings > 0 && (
             <div className="text-xs text-[#99b2dd]">
               Saved: {formatCurrency(savingsInfo.savings * item.quantity)}
             </div>
-          )}
+          )} */}
         </div>
       </Table.Cell>
     </Table.Row>

@@ -15,12 +15,14 @@ type BundleDetailTemplateProps = {
   bundle: FlexibleBundle
   region: HttpTypes.StoreRegion
   countryCode: string
+  stockData?: { variant_id: string; availability: any }[]
 }
 
 const BundleDetailTemplate = ({
   bundle,
   region,
   countryCode,
+  stockData = [],
 }: BundleDetailTemplateProps) => {
   const getSelectionRulesText = () => {
     if (bundle.selection_type === "required_all") {
@@ -59,9 +61,25 @@ const BundleDetailTemplate = ({
           <div className="lg:col-span-3">
             <div className="sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto custom-scrollbar">
               <div className="space-y-6">
-                {bundle.items.map((item) => (
-                  <BundleItemCard key={item.id} item={item} region={region} />
-                ))}
+                {bundle.items.map((item) => {
+                  const variantId = item?.variant?.id
+                  const variantStock = stockData.find(
+                    (s) => s.variant_id === variantId
+                  )
+
+                  return (
+                    <BundleItemCard
+                      key={item.id}
+                      item={{
+                        ...item,
+                        stock:
+                          variantStock?.availability?.[0]?.available_quantity ??
+                          null,
+                      }}
+                      region={region}
+                    />
+                  )
+                })}
               </div>
               <div className="mt-6">
                 <BundleActions

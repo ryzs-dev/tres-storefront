@@ -37,16 +37,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   // Route to appropriate payment button based on provider
   switch (true) {
     case isRazorpay(paymentSession?.provider_id):
-      return (
-        <RazorpayPaymentButton
-          cart={cart}
-          data-testid={dataTestId}
-          notReady={false}
-          onPaymentCompleted={function (): Promise<void> {
-            throw new Error("Function not implemented.")
-          }}
-        />
-      )
+      return <RazorpayPaymentButton cart={cart} data-testid={dataTestId} />
     case isCustom(paymentSession?.provider_id):
       return <CustomStripePaymentButton cart={cart} data-testid={dataTestId} />
     case isStripe(paymentSession?.provider_id):
@@ -69,25 +60,62 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 // Razorpay Payment Button Component
 const RazorpayPaymentButton = ({
   cart,
-  notReady,
   "data-testid": dataTestId,
-  onPaymentCompleted,
 }: {
   cart: HttpTypes.StoreCart
-  notReady: boolean
   "data-testid"?: string
-  onPaymentCompleted: () => Promise<void>
 }) => {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false)
 
   const paymentSession = cart.payment_collection?.payment_sessions?.find(
-    (s) => s.status === "pending" && s.provider_id === "razorpay"
+    (s) => s.status === "pending"
   )
 
+  // Load Razorpay script dynamically
+  useEffect(() => {
+    if (window.Razorpay) {
+      setRazorpayLoaded(true)
+      return
+    }
+
+    const script = document.createElement("script")
+    script.src = "https://checkout.razorpay.com/v1/checkout.js"
+    script.async = true
+    script.onload = () => {
+      setRazorpayLoaded(true)
+      console.log("✅ Razorpay script loaded successfully")
+    }
+    script.onerror = () => {
+      setErrorMessage("Failed to load Razorpay. Please refresh and try again.")
+      console.error("❌ Failed to load Razorpay script")
+    }
+    document.body.appendChild(script)
+
+    // Cleanup function
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script)
+      }
+    }
+  }, [])
+
+  const onPaymentCompleted = async () => {
+    try {
+      await placeOrder()
+      console.log("✅ Order placed successfully")
+      // Redirect will be handled by placeOrder function
+    } catch (err: any) {
+      setErrorMessage(err.message)
+      setSubmitting(false)
+      console.error("❌ Failed to place order:", err)
+    }
+  }
+
   const handlePayment = async () => {
-    if (!paymentSession) {
-      setErrorMessage("No pending Razorpay session")
+    if (!razorpayLoaded || !window.Razorpay || !paymentSession) {
+      setErrorMessage("Razorpay is not ready. Please try again.")
       return
     }
 
@@ -95,6 +123,12 @@ const RazorpayPaymentButton = ({
     setErrorMessage(null)
 
     try {
+      console.log("🚀 Initiating Razorpay payment:", {
+        session_id: paymentSession.id,
+        amount: paymentSession.data.amount,
+        currency: paymentSession.data.currency,
+      })
+
       const options = {
         key: paymentSession.data.key_id,
         amount: paymentSession.data.amount,
@@ -102,37 +136,16 @@ const RazorpayPaymentButton = ({
         name: "Tres Malaysia",
         description: "Payment for your order",
         order_id: paymentSession.data.order_id,
-        notes: {
-          cart_id: cart.id,
-          session_id: paymentSession.id,
-          customer_email: cart.email || "",
-        },
-        handler: () => {
-          // Payment was initiated; we now poll the Medusa backend
-          const pollOrderStatus = async () => {
-            try {
-              const maxRetries = 10
-              let retries = 0
-              while (retries < maxRetries) {
-                const res = await fetch(`/store/orders/${cart.id}`)
-                const order = await res.json()
-                if (order.payment_status === "captured") {
-                  await onPaymentCompleted()
-                  return
-                } else if (order.payment_status === "failed") {
-                  throw new Error("Payment failed")
-                }
-                retries++
-                await new Promise((r) => setTimeout(r, 1000))
-              }
-              throw new Error("Payment not confirmed after 10 seconds")
-            } catch (err: any) {
-              setErrorMessage(err.message)
-              setSubmitting(false)
-            }
-          }
+        handler: async (response: any) => {
+          try {
+            console.log("💳 Payment successful:", response)
 
-          pollOrderStatus()
+            await onPaymentCompleted()
+          } catch (error: any) {
+            console.error("❌ Payment confirmation error:", error)
+            setErrorMessage(error.message)
+            setSubmitting(false)
+          }
         },
         prefill: {
           name: `${cart.billing_address?.first_name || ""} ${
@@ -141,44 +154,101 @@ const RazorpayPaymentButton = ({
           email: cart.email || "",
           contact: cart.billing_address?.phone || "",
         },
-        theme: { color: "#3B82F6" },
-        modal: {
-          ondismiss: () => setSubmitting(false),
+        notes: {
+          cart_id: cart.id,
+          session_id: paymentSession.id,
+          customer_email: cart.email || "",
         },
+        theme: {
+          color: "#3B82F6", // Your brand color
+        },
+        // Malaysian payment methods configuration
+        method: {
+          netbanking: true, // FPX banking
+          card: true, // Credit/Debit cards
+          wallet: true, // E-wallets (Boost, GrabPay, etc.)
+          upi: false, // Not available in Malaysia
+          fpx: true, // Malaysian FPX specifically
+        },
+        modal: {
+          ondismiss: () => {
+            console.log("🚪 Payment modal dismissed")
+            setSubmitting(false)
+          },
+          confirm_close: true,
+          animation: true,
+        },
+        // Retry configuration for failed payments
+        retry: {
+          enabled: true,
+          max_count: 3,
+        },
+        timeout: 300, // 5 minutes timeout
+        remember_customer: false,
       }
+
+      console.log("🎯 Opening Razorpay checkout with options:", {
+        key: options.key,
+        amount: options.amount,
+        currency: options.currency,
+        order_id: options.order_id,
+      })
 
       const razorpay = new window.Razorpay(options)
 
+      // Handle payment failure
       razorpay.on("payment.failed", (response: any) => {
+        console.error("💥 Payment failed:", response.error)
         setErrorMessage(`Payment failed: ${response.error.description}`)
         setSubmitting(false)
+
+        // Log failure for analytics
+        fetch("/api/razorpay/log-failure", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cart_id: cart.id,
+            error: response.error,
+            session_id: paymentSession.id,
+          }),
+        }).catch(console.error)
       })
 
+      // Open the payment modal
       razorpay.open()
-    } catch (err: any) {
-      console.error("Error initiating Razorpay payment:", err)
-      setErrorMessage(err.message)
+    } catch (error: any) {
+      console.error("❌ Error initiating payment:", error)
+      setErrorMessage(error.message)
       setSubmitting(false)
     }
   }
 
+  const disabled = !razorpayLoaded || !paymentSession || submitting
+
   return (
     <>
       <Button
-        disabled={!paymentSession || notReady}
+        disabled={disabled}
         onClick={handlePayment}
         size="large"
         isLoading={submitting}
         data-testid={dataTestId}
+        className="w-full"
       >
-        Place order
+        {submitting ? "Processing Payment..." : "Pay with Razorpay Malaysia"}
       </Button>
-      {errorMessage && (
-        <ErrorMessage
-          error={errorMessage}
-          data-testid="razorpay-payment-error"
-        />
+
+      {/* Payment method hints */}
+      {!submitting && (
+        <div className="mt-2 text-xs text-gray-500 text-center">
+          Supports FPX, Credit Cards, Boost, GrabPay, Touch 'n Go & more
+        </div>
       )}
+
+      <ErrorMessage
+        error={errorMessage}
+        data-testid="razorpay-payment-error-message"
+      />
     </>
   )
 }

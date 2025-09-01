@@ -9,6 +9,29 @@ type Props = {
   params: Promise<{ countryCode: string; id: string }>
 }
 
+// helper to fetch inventory for a variant
+async function fetchVariantAvailability(
+  variant_id: string,
+  sales_channel_id?: string
+) {
+  const url = new URL(
+    `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/inventory`
+  )
+  url.searchParams.append("variant_id", variant_id)
+  if (sales_channel_id) {
+    url.searchParams.append("sales_channel_id", sales_channel_id)
+  }
+
+  const res = await fetch(url.toString(), { cache: "no-store" })
+  if (!res.ok) {
+    console.error(`❌ Failed to fetch availability for variant ${variant_id}`)
+    return null
+  }
+
+  const json = await res.json()
+  return json.data
+}
+
 export async function generateStaticParams() {
   try {
     const countryCodes = await listRegions().then((regions) =>
@@ -19,9 +42,8 @@ export async function generateStaticParams() {
       return []
     }
 
-    // Get all bundles to generate static paths
     const bundles = await listBundles({
-      countryCode: "MY", // Use a default country to get bundles
+      countryCode: "MY",
       queryParams: { fields: "id", limit: 100 },
     }).then(({ response }) => response.bundles)
 
@@ -35,11 +57,7 @@ export async function generateStaticParams() {
       .flat()
       .filter((param) => param.id)
   } catch (error) {
-    console.error(
-      `Failed to generate static paths for bundle pages: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }.`
-    )
+    console.error("Failed to generate static paths for bundle pages:", error)
     return []
   }
 }
@@ -49,9 +67,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const { id } = params
   const region = await getRegion(params.countryCode)
 
-  if (!region) {
-    notFound()
-  }
+  if (!region) notFound()
 
   try {
     const { bundle } = await getFlexibleBundle(id, {
@@ -59,9 +75,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       region_id: region.id,
     })
 
-    if (!bundle) {
-      notFound()
-    }
+    if (!bundle) notFound()
 
     return {
       title: `${bundle.title} | Tres Store`,
@@ -78,7 +92,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
           : [],
       },
     }
-  } catch (error) {
+  } catch {
     notFound()
   }
 }
@@ -87,9 +101,7 @@ export default async function BundleDetailPage(props: Props) {
   const params = await props.params
   const region = await getRegion(params.countryCode)
 
-  if (!region) {
-    notFound()
-  }
+  if (!region) notFound()
 
   try {
     const response = await getFlexibleBundle(params.id, {
@@ -104,13 +116,34 @@ export default async function BundleDetailPage(props: Props) {
       notFound()
     }
 
-    console.log("✅ Bundle fetched successfully:", bundle)
+    // 🔥 Fetch inventory for all variants in the bundle
+    const stockData = await Promise.all(
+      bundle.items.map(async (item) => {
+        const variant_id = item?.variant?.id
+        if (!variant_id) return null
+
+        const availability = await fetchVariantAvailability(
+          variant_id,
+          "sc_01JQ41G40QHMRTH269SSZ8XAHB" // your fixed sales channel
+        )
+
+        return { variant_id, availability }
+      })
+    ).then((res) =>
+      res.filter(
+        (item): item is { variant_id: string; availability: any } =>
+          item !== null
+      )
+    )
+
+    console.log("✅ Stock availability:", stockData)
 
     return (
       <BundleTemplate
         bundle={bundle}
         region={region}
         countryCode={params.countryCode}
+        stockData={stockData} // pass down stock info
       />
     )
   } catch (error) {

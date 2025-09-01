@@ -48,6 +48,8 @@ export const getBundleProduct = async (
     query: {
       currency_code,
       region_id,
+      fields:
+        "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
     },
   })
 }

@@ -1,4 +1,4 @@
-// src/modules/bundles/components/bundle-actions/index.tsx
+// src/modules/bundles/components/bundle-actions/index.tsx - FIXED VERSION
 "use client"
 
 import { Button, Heading, Text } from "@medusajs/ui"
@@ -34,7 +34,7 @@ type FlexibleBundle = {
   }>
 }
 
-// Updated pricing hook to handle fixed discounts
+// FIXED: Updated pricing hook to use total quantity instead of item count
 const useBundlePricing = (
   bundle: FlexibleBundle,
   selectedItems: any[],
@@ -51,8 +51,14 @@ const useBundlePricing = (
     return sum + price * item.quantity
   }, 0)
 
-  // Support both fixed and percentage discounts
-  const getDiscountInfo = (itemCount: number) => {
+  // FIXED: Calculate total quantity (1 quantity = 1 item)
+  const totalQuantity = selectedItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  )
+
+  // Support both fixed and percentage discounts based on TOTAL QUANTITY
+  const getDiscountInfo = (totalQuantity: number) => {
     // Check for fixed discount first (new system)
     if (
       bundle.discount_type === "fixed" ||
@@ -61,9 +67,9 @@ const useBundlePricing = (
     ) {
       let discountAmount = 0 // in cents
 
-      if (itemCount === 2 && bundle.discount_2_items_amount) {
+      if (totalQuantity === 2 && bundle.discount_2_items_amount) {
         discountAmount = bundle.discount_2_items_amount
-      } else if (itemCount >= 3 && bundle.discount_3_items_amount) {
+      } else if (totalQuantity >= 3 && bundle.discount_3_items_amount) {
         discountAmount = bundle.discount_3_items_amount
       }
 
@@ -85,9 +91,9 @@ const useBundlePricing = (
 
     // Fallback to percentage system (backward compatibility)
     let rate = 0
-    if (itemCount === 2 && bundle.discount_2_items) {
+    if (totalQuantity === 2 && bundle.discount_2_items) {
       rate = Number(bundle.discount_2_items) / 100
-    } else if (itemCount >= 3 && bundle.discount_3_items) {
+    } else if (totalQuantity >= 3 && bundle.discount_3_items) {
       rate = Number(bundle.discount_3_items) / 100
     }
 
@@ -116,10 +122,12 @@ const useBundlePricing = (
     }
   }
 
-  const discountInfo = getDiscountInfo(selectedItems.length)
+  // FIXED: Pass total quantity instead of selectedItems.length
+  const discountInfo = getDiscountInfo(totalQuantity)
 
   return {
     baseTotal,
+    totalQuantity, // Add this for debugging/display
     ...discountInfo,
   }
 }
@@ -171,13 +179,10 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
 
       clearSelection()
 
-      // IMMEDIATELY update cart badge count
+      // FIXED: Calculate total items correctly
       const totalItemsAdded = selectedItems.reduce(
         (total, item) => total + item.quantity,
         0
-      )
-      console.log(
-        `✅ Added ${totalItemsAdded} items to cart, updating badge...`
       )
 
       // Dispatch immediate update event
@@ -222,6 +227,14 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
         Your Selection
       </Heading>
 
+      {/* DEBUG: Show quantity calculation */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="mb-2 p-2 bg-yellow-100 rounded text-xs">
+          Debug: {selectedItems.length} products, {pricingInfo.totalQuantity}{" "}
+          total items
+        </div>
+      )}
+
       <div className="border-t pt-4 mb-4">
         {/* Show pricing based on discount type */}
         {pricingInfo.hasPromotion && (
@@ -250,39 +263,21 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
               <Text>Discount Applied:</Text>
               <Text className="font-medium">{pricingInfo.displayText}</Text>
             </div>
-            <div className="flex justify-between text-sm text-[#99b2dd]">
-              <Text>You Save:</Text>
-              <Text className="font-medium">
-                {formatCurrency(pricingInfo.savings)}
-              </Text>
-            </div>
           </div>
         )}
       </div>
 
-      {/* Selection Summary */}
-      <div className="mb-4">
-        <Text className="text-sm text-ui-fg-subtle mb-2">
-          Selected: {summary.totalItems} items
-        </Text>
-        {summary.totalItems < bundle.min_items && (
-          <Text className="text-sm text-[#99b2dd]">
-            Select at least {bundle.min_items - summary.totalItems} more item(s)
-          </Text>
-        )}
-      </div>
-
-      {/* Discount Tiers Info */}
+      {/* FIXED: Discount Tiers Info - Updated text to clarify quantity */}
       <div className="mb-4 p-3 bg-ui-bg-subtle rounded-lg">
         <Text className="text-sm font-medium mb-2">Bundle Discounts:</Text>
         <div className="space-y-1 text-xs text-ui-fg-subtle">
           <div className="flex justify-between">
-            <span>• 1 item:</span>
+            <span>• 1 item total:</span>
             <span>Regular price</span>
           </div>
           {(bundle.discount_2_items_amount || bundle.discount_2_items) && (
             <div className="flex justify-between">
-              <span>• 2 items:</span>
+              <span>• 2 items total:</span>
               <span className="text-[#99b2dd] font-medium">
                 {bundle.discount_type === "fixed" ||
                 bundle.discount_2_items_amount
@@ -295,7 +290,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
           )}
           {(bundle.discount_3_items_amount || bundle.discount_3_items) && (
             <div className="flex justify-between">
-              <span>• 3+ items:</span>
+              <span>• 3+ items total:</span>
               <span className="text-[#99b2dd] font-medium">
                 {bundle.discount_type === "fixed" ||
                 bundle.discount_3_items_amount
@@ -323,9 +318,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             Adding to Cart...
           </div>
         ) : (
-          `Add ${summary.totalItems} Item${
-            summary.totalItems !== 1 ? "s" : ""
-          } to Cart`
+          `Add to Cart`
         )}
       </Button>
 

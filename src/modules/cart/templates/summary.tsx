@@ -60,7 +60,7 @@ const Summary = ({ cart }: SummaryProps) => {
       <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle">
         <div className="flex items-center justify-between">
           <Text>Original Total</Text>
-          <Text className="line-through text-gray-600">
+          <Text className=" text-gray-600">
             {convertToLocale({
               amount: originalCartTotal,
               currency_code: cart.currency_code,

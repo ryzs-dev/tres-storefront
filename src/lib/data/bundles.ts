@@ -27,6 +27,7 @@ export type FlexibleBundle = {
   discount_3_items_amount?: number // NEW: Fixed amount for 3+ items (e.g., 5000 = 50 RM)
 
   items: {
+    variant: any
     id: string
     quantity: number
     is_optional: boolean
