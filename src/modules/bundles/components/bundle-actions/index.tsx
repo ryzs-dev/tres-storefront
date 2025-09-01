@@ -227,14 +227,6 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
         Your Selection
       </Heading>
 
-      {/* DEBUG: Show quantity calculation */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="mb-2 p-2 bg-yellow-100 rounded text-xs">
-          Debug: {selectedItems.length} products, {pricingInfo.totalQuantity}{" "}
-          total items
-        </div>
-      )}
-
       <div className="border-t pt-4 mb-4">
         {/* Show pricing based on discount type */}
         {pricingInfo.hasPromotion && (

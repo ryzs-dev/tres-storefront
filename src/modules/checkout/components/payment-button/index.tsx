@@ -8,6 +8,7 @@ import { Button } from "@medusajs/ui"
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
+import { sdk } from "@lib/config"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -123,12 +124,6 @@ const RazorpayPaymentButton = ({
     setErrorMessage(null)
 
     try {
-      console.log("🚀 Initiating Razorpay payment:", {
-        session_id: paymentSession.id,
-        amount: paymentSession.data.amount,
-        currency: paymentSession.data.currency,
-      })
-
       const options = {
         key: paymentSession.data.key_id,
         amount: paymentSession.data.amount,
@@ -136,88 +131,50 @@ const RazorpayPaymentButton = ({
         name: "Tres Malaysia",
         description: "Payment for your order",
         order_id: paymentSession.data.order_id,
-        handler: async (response: any) => {
+        handler: async (response: {
+          razorpay_payment_id: any
+          razorpay_order_id: any
+          razorpay_signature: any
+        }) => {
           try {
-            console.log("💳 Payment successful:", response)
+            // Send verification data to your custom backend route
+            const result = await sdk.client.fetch("/store/payments/authorize", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-publishable-api-key":
+                  process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+              },
+              body: JSON.stringify({
+                cart_id: cart.id,
+                payment_session_id: paymentSession.id,
+                payment_id: response.razorpay_payment_id,
+                order_id: response.razorpay_order_id,
+                signature: response.razorpay_signature,
+              }),
+            })
 
-            await onPaymentCompleted()
-          } catch (error: any) {
-            console.error("❌ Payment confirmation error:", error)
+            if (result.success) {
+              await onPaymentCompleted()
+            } else {
+              throw new Error(result.message || "Payment confirmation failed")
+            }
+          } catch (error) {
             setErrorMessage(error.message)
             setSubmitting(false)
           }
         },
-        prefill: {
-          name: `${cart.billing_address?.first_name || ""} ${
-            cart.billing_address?.last_name || ""
-          }`.trim(),
-          email: cart.email || "",
-          contact: cart.billing_address?.phone || "",
-        },
-        notes: {
-          cart_id: cart.id,
-          session_id: paymentSession.id,
-          customer_email: cart.email || "",
-        },
-        theme: {
-          color: "#3B82F6", // Your brand color
-        },
-        // Malaysian payment methods configuration
-        method: {
-          netbanking: true, // FPX banking
-          card: true, // Credit/Debit cards
-          wallet: true, // E-wallets (Boost, GrabPay, etc.)
-          upi: false, // Not available in Malaysia
-          fpx: true, // Malaysian FPX specifically
-        },
-        modal: {
-          ondismiss: () => {
-            console.log("🚪 Payment modal dismissed")
-            setSubmitting(false)
-          },
-          confirm_close: true,
-          animation: true,
-        },
-        // Retry configuration for failed payments
-        retry: {
-          enabled: true,
-          max_count: 3,
-        },
-        timeout: 300, // 5 minutes timeout
-        remember_customer: false,
       }
-
-      console.log("🎯 Opening Razorpay checkout with options:", {
-        key: options.key,
-        amount: options.amount,
-        currency: options.currency,
-        order_id: options.order_id,
-      })
 
       const razorpay = new window.Razorpay(options)
 
-      // Handle payment failure
-      razorpay.on("payment.failed", (response: any) => {
-        console.error("💥 Payment failed:", response.error)
+      razorpay.on("payment.failed", (response) => {
         setErrorMessage(`Payment failed: ${response.error.description}`)
         setSubmitting(false)
-
-        // Log failure for analytics
-        fetch("/api/razorpay/log-failure", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            cart_id: cart.id,
-            error: response.error,
-            session_id: paymentSession.id,
-          }),
-        }).catch(console.error)
       })
 
-      // Open the payment modal
       razorpay.open()
-    } catch (error: any) {
-      console.error("❌ Error initiating payment:", error)
+    } catch (error) {
       setErrorMessage(error.message)
       setSubmitting(false)
     }
