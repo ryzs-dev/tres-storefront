@@ -33,6 +33,8 @@ const Addresses = ({
       : true
   )
 
+  console.log("Cart from Addresses component:", cart)
+
   const handleEdit = () => {
     router.push(pathname + "?step=address")
   }
