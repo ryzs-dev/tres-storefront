@@ -119,7 +119,8 @@ const BundleItemCard = ({ item, region }: Props) => {
       })
 
       if (isSelected && newMatchedVariant) {
-        updateItemQuantity(item.id, selectedQuantity, newMatchedVariant.id)
+        // Reset quantity to 1 when switching variant
+        updateItemQuantity(item.id, 1, newMatchedVariant.id)
       }
       setCurrentImageIndex(0)
     },
@@ -128,7 +129,6 @@ const BundleItemCard = ({ item, region }: Props) => {
       item.id,
       item.product.variants,
       updateItemQuantity,
-      selectedQuantity,
       matchedVariant,
     ]
   )
