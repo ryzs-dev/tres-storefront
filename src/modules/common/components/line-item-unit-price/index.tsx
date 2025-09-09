@@ -24,7 +24,7 @@ const LineItemUnitPrice = ({
           <Text>
             <span data-testid="product-unit-original-price">
               {convertToLocale({
-                amount: (hasReducedPrice ?? 0) / 100,
+                amount: hasReducedPrice,
                 currency_code: currencyCode,
               })}
             </span>
