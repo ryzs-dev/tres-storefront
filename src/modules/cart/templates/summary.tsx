@@ -50,8 +50,6 @@ const Summary = ({ cart }: SummaryProps) => {
 
   const otherDiscount = cart.discount_total
 
-  console.log("Cart in Summary:", cart)
-
   return (
     <div className="flex flex-col gap-y-6">
       <Heading level="h2" className="text-[2rem] leading-[2.75rem]">

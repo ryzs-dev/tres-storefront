@@ -1,17 +1,16 @@
 "use client"
 
-import { Table, Text, clx } from "@medusajs/ui"
+import { Table, Text, clx, toast } from "@medusajs/ui"
 import { updateFlexibleBundleInCart, updateLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import DeleteButton from "@modules/common/components/delete-button"
 import LineItemOptions from "@modules/common/components/line-item-options"
-import LineItemPrice from "@modules/common/components/line-item-price"
 import LineItemUnitPrice from "@modules/common/components/line-item-unit-price"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Spinner from "@modules/common/icons/spinner"
 import Thumbnail from "@modules/products/components/thumbnail"
 import { useState } from "react"
+import LineItemPrice from "@modules/common/components/line-item-price"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem
@@ -56,7 +55,7 @@ const Item = ({
         window.dispatchEvent(new Event("cart-updated"))
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update quantity")
+      setError("Insufficient Inventory")
     } finally {
       setUpdating(false)
     }
@@ -230,9 +229,9 @@ const Item = ({
       </Table.Cell>
 
       {/* Total Column */}
-      {/* <Table.Cell className="!pr-0 p-2 small:p-4 align-top text-right">
+      <Table.Cell className="!pr-0 p-2 small:p-4 align-top text-right">
         <div className="flex flex-col items-end gap-1">
-          Mobile: Show unit price above total
+          {/* Mobile: Show unit price above total */}
           <div className="small:hidden text-xs text-gray-600">
             <LineItemUnitPrice
               item={item}
@@ -241,14 +240,16 @@ const Item = ({
             />
           </div>
 
-          Total Price
-          <LineItemPrice
+          {/* Total Price */}
+          {/* <LineItemPrice
             item={item}
             style="default"
             currencyCode={currencyCode}
-          />
+          /> */}
         </div>
-      </Table.Cell> */}
+      </Table.Cell>
+
+      {/* Total Column */}
     </Table.Row>
   )
 }

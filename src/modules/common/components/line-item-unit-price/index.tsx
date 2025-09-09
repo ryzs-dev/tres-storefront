@@ -13,38 +13,37 @@ const LineItemUnitPrice = ({
   style = "default",
   currencyCode,
 }: LineItemUnitPriceProps) => {
-  const originalPriceCents = Number(item.metadata?.original_price_cents) || 0
-  const hasReducedPrice =
-    originalPriceCents > 0 && originalPriceCents > item.unit_price * 100
+  const originalPrice = Number(item.original_total) || 0
 
-  const amount = Number(item?.metadata?.original_price_cents) / 100
+  const hasReducedPrice = Number(item?.metadata?.original_price_cents) / 100
 
   return (
     <div className="flex flex-col text-ui-fg-muted justify-start h-full">
-      {/* {hasReducedPrice && (
+      {hasReducedPrice ? (
         <>
           <Text>
             <span data-testid="product-unit-original-price">
               {convertToLocale({
-                amount: (originalPriceCents ?? 0) / 100,
+                amount: (hasReducedPrice ?? 0) / 100,
                 currency_code: currencyCode,
               })}
             </span>
           </Text>
         </>
-      )} */}
-      <span
-        // className={clx("text-base-regular", {
-        //   "text-ui-fg-interactive": hasReducedPrice,
-        // })}
-        // data-testid="product-unit-price"
-        className="text-gray-900 text-sm"
-      >
-        {convertToLocale({
-          amount: amount,
-          currency_code: currencyCode,
-        })}
-      </span>
+      ) : (
+        <span
+          // className={clx("text-base-regular", {
+          //   "text-ui-fg-interactive": hasReducedPrice,
+          // })}
+          // data-testid="product-unit-price"
+          className="text-gray-900 text-sm"
+        >
+          {convertToLocale({
+            amount: originalPrice,
+            currency_code: currencyCode,
+          })}
+        </span>
+      )}
     </div>
   )
 }
