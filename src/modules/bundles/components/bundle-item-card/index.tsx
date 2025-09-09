@@ -44,11 +44,6 @@ const BundleItemCard = ({ item, region }: Props) => {
     useBundleSelection()
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [availability, setAvailability] = useState<{
-    stock: number
-    in_stock: boolean
-  } | null>(null)
-  const [loadingStock, setLoadingStock] = useState(false)
 
   const isSelected = isItemSelected(item.id)
   const images = item.product.images || []
@@ -67,6 +62,25 @@ const BundleItemCard = ({ item, region }: Props) => {
       (variant) => variant.id === selectedVariantId
     )
   }, [item.product.variants, selectedVariantId])
+
+  const availability = useMemo(() => {
+    if (
+      !matchedVariant?.inventory_items?.[0]?.inventory?.location_levels?.[0]
+    ) {
+      return null
+    }
+
+    const locationLevel =
+      matchedVariant.inventory_items[0].inventory.location_levels[0]
+    const availableStock = locationLevel.available_quantity || 0
+
+    return {
+      stock: availableStock,
+      in_stock: availableStock > 0,
+      stocked_quantity: locationLevel.stocked_quantity || 0,
+      reserved_quantity: locationLevel.reserved_quantity || 0,
+    }
+  }, [matchedVariant])
 
   const optionValues = useMemo(() => {
     return getOptionMap(matchedVariant?.options || [])
@@ -94,17 +108,6 @@ const BundleItemCard = ({ item, region }: Props) => {
       image.url.toLowerCase().includes(selectedColor)
     )
   }, [images, matchedVariant, item.product.options])
-
-  // 🔹 Fetch stock from API whenever variant changes
-  useEffect(() => {
-    if (!matchedVariant?.id) return
-    setLoadingStock(true)
-    fetchVariantAvailability(matchedVariant.id)
-      .then((avail) =>
-        setAvailability(avail as { stock: number; in_stock: boolean } | null)
-      )
-      .finally(() => setLoadingStock(false))
-  }, [matchedVariant?.id])
 
   const handleOptionChange = useCallback(
     (optionId: string, value: string) => {
@@ -342,78 +345,65 @@ const BundleItemCard = ({ item, region }: Props) => {
 
           {/* Stock & Quantity */}
           <div className="flex flex-col gap-2">
-            {loadingStock ? (
-              <p className="text-xs text-gray-500 mt-0.5">Loading stock...</p>
-            ) : availability ? (
-              <>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {availability.in_stock ? (
-                    <>
-                      <span className="text-black font-medium">
-                        {availability.stock} available
-                      </span>{" "}
-                      <span className="text-green-500 font-medium ml-2">
-                        In Stock
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-red-500 font-medium">
-                      Out of stock
-                    </span>
-                  )}
-                </p>
-
-                {/* Quantity controls */}
-                {!isOutOfStock && (
-                  <div className="flex items-center gap-2">
-                    <label
-                      htmlFor={`quantity-${item.id}`}
-                      className="text-sm font-medium"
-                    >
-                      Qty:
-                    </label>
-                    <div className="flex items-center border rounded">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleQuantityChange(selectedQuantity - 1)
-                        }
-                        disabled={selectedQuantity <= 1}
-                        className="px-2 py-1 bg-white hover:bg-gray-100 disabled:opacity-50 transition-colors"
-                      >
-                        −
-                      </button>
-                      <input
-                        id={`quantity-${item.id}`}
-                        type="number"
-                        min={1}
-                        max={availability.stock} // limit to stock
-                        value={selectedQuantity}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value) || 1
-                          handleQuantityChange(
-                            Math.min(value, availability.stock)
-                          )
-                        }}
-                        className="w-12 h-8 text-center text-sm border-0 focus:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleQuantityChange(
-                            Math.min(selectedQuantity + 1, availability.stock)
-                          )
-                        }
-                        disabled={selectedQuantity >= availability.stock}
-                        className="px-2 py-1 bg-white hover:bg-gray-100 transition-colors"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
+            <>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {availability ? (
+                  <>
+                    <span className="text-green-500 font-medium">In Stock</span>
+                  </>
+                ) : (
+                  <span className="text-red-500 font-medium">Out of stock</span>
                 )}
-              </>
-            ) : null}
+              </p>
+
+              {/* Quantity controls */}
+              {!isOutOfStock && (
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor={`quantity-${item.id}`}
+                    className="text-sm font-medium"
+                  >
+                    Quantity:
+                  </label>
+                  <div className="flex items-center border rounded">
+                    <button
+                      type="button"
+                      onClick={() => handleQuantityChange(selectedQuantity - 1)}
+                      disabled={selectedQuantity <= 1}
+                      className="px-2 py-1 bg-white hover:bg-gray-100 disabled:opacity-50 transition-colors"
+                    >
+                      −
+                    </button>
+                    <input
+                      id={`quantity-${item.id}`}
+                      type="number"
+                      min={1}
+                      max={availability?.stock} // limit to stock
+                      value={selectedQuantity}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 1
+                        handleQuantityChange(
+                          Math.min(value, availability?.stock)
+                        )
+                      }}
+                      className="w-12 h-8 text-center text-sm border-0 focus:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleQuantityChange(
+                          Math.min(selectedQuantity + 1, availability?.stock)
+                        )
+                      }
+                      disabled={selectedQuantity >= availability?.stock}
+                      className="px-2 py-1 bg-white hover:bg-gray-100 transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           </div>
 
           {/* {matchedVariant && (

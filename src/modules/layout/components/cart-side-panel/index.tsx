@@ -1,0 +1,277 @@
+"use client"
+
+import { Transition, Dialog } from "@headlessui/react"
+import { convertToLocale } from "@lib/util/money"
+import { HttpTypes } from "@medusajs/types"
+import { Button, Table } from "@medusajs/ui"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Item from "@modules/cart/components/item" // Import the existing Item component
+import { Fragment } from "react"
+import { XMark } from "@medusajs/icons"
+
+// Function to calculate item savings - same as other components for bundle savings
+const calculateItemSavings = (item: any) => {
+  const originalPriceCents = item.metadata?.original_price_cents as number
+  const discountedPriceCents = item.metadata?.discounted_price_cents as number
+  const bundleDiscountPercentage = item.metadata
+    ?.bundle_discount_percentage as number
+  const bundleDiscountType = item.metadata?.bundle_discount_type as string
+  const fixedDiscountAmount = item.metadata?.fixed_discount_amount as number
+  const actualDiscountAmount = item.metadata?.actual_discount_amount as number
+  const discountApplied = item.metadata?.discount_applied as boolean
+
+  let originalPrice = 0
+  let discountedPrice = 0
+  let savings = 0
+  let finalDiscountType: "fixed" | "percentage" | "none" = "none"
+
+  if (discountApplied && originalPriceCents && discountedPriceCents) {
+    originalPrice = originalPriceCents / 100
+    discountedPrice = discountedPriceCents / 100
+    savings = originalPrice - discountedPrice
+
+    if (
+      bundleDiscountType === "fixed" &&
+      (fixedDiscountAmount > 0 || actualDiscountAmount > 0)
+    ) {
+      finalDiscountType = "fixed"
+    } else if (bundleDiscountPercentage > 0) {
+      finalDiscountType = "percentage"
+    }
+  } else if (bundleDiscountType === "fixed" && fixedDiscountAmount > 0) {
+    originalPrice = item.unit_price
+    discountedPrice = Math.max(0, originalPrice - fixedDiscountAmount / 100)
+    savings = originalPrice - discountedPrice
+    finalDiscountType = "fixed"
+  } else if (
+    bundleDiscountType === "percentage" &&
+    bundleDiscountPercentage > 0
+  ) {
+    originalPrice = item.unit_price
+    discountedPrice = originalPrice * (1 - bundleDiscountPercentage / 100)
+    savings = originalPrice - discountedPrice
+    finalDiscountType = "percentage"
+  }
+
+  return {
+    originalPrice,
+    discountedPrice,
+    savings,
+    discountType: finalDiscountType,
+    discountApplied: !!discountApplied,
+  }
+}
+
+interface CartSidePanelProps {
+  cart?: HttpTypes.StoreCart | null
+  isOpen: boolean
+  onClose: () => void
+}
+
+const CartSidePanel = ({
+  cart: cartState,
+  isOpen,
+  onClose,
+}: CartSidePanelProps) => {
+  const totalItems =
+    cartState?.items?.reduce((acc, item) => {
+      return acc + item.quantity
+    }, 0) || 0
+
+  const subtotal = cartState?.subtotal ?? 0
+
+  // Enhanced bundle savings calculation with fixed discount support
+  const bundleItems =
+    cartState?.items?.filter(
+      (item) => item.metadata?.is_from_bundle === true
+    ) || []
+
+  const totalBundleSavings = bundleItems.reduce((total, item) => {
+    const savingsInfo = calculateItemSavings(item)
+    return total + savingsInfo.savings * item.quantity
+  }, 0)
+
+  return (
+    <Transition show={isOpen} as={Fragment}>
+      <Dialog onClose={onClose} className="relative z-50">
+        {/* Backdrop */}
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />
+        </Transition.Child>
+
+        {/* Side panel */}
+        <div className="fixed inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+              <Transition.Child
+                as={Fragment}
+                enter="transform transition ease-in-out duration-300"
+                enterFrom="translate-x-full"
+                enterTo="translate-x-0"
+                leave="transform transition ease-in-out duration-300"
+                leaveFrom="translate-x-0"
+                leaveTo="translate-x-full"
+              >
+                <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
+                  <div className="flex h-full flex-col bg-white shadow-xl">
+                    {/* Header */}
+                    <div className="flex items-center justify-between px-4 py-6 border-b border-gray-200">
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        Shopping Cart ({totalItems})
+                      </h2>
+                      <button
+                        type="button"
+                        className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        onClick={onClose}
+                      >
+                        <span className="sr-only">Close panel</span>
+                        <XMark className="h-6 w-6" />
+                      </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 overflow-y-auto">
+                      {cartState && cartState.items?.length ? (
+                        <>
+                          {/* Cart Items using existing Item component */}
+                          <div className="px-2 py-4">
+                            {/* Custom Table wrapper for sidebar layout */}
+                            <Table>
+                              <Table.Body>
+                                {cartState.items
+                                  .sort((a, b) => {
+                                    return (a.created_at ?? "") >
+                                      (b.created_at ?? "")
+                                      ? -1
+                                      : 1
+                                  })
+                                  .map((item) => (
+                                    /* Reuse the existing Item component with all its logic */
+                                    <Item
+                                      key={item.id}
+                                      item={item}
+                                      type="full" // Use full type to get quantity controls
+                                      currencyCode={cartState.currency_code}
+                                      cartId={cartState.id}
+                                      countryCode="my"
+                                      allCartItems={cartState.items || []}
+                                    />
+                                  ))}
+                              </Table.Body>
+                            </Table>
+                          </div>
+                        </>
+                      ) : (
+                        // Empty cart state
+                        <div className="flex flex-col items-center justify-center h-full px-4">
+                          <div className="bg-[#99b2dd] text-white flex items-center justify-center w-12 h-12 rounded-full mb-4">
+                            <span className="text-lg">0</span>
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">
+                            Your cart is empty
+                          </h3>
+                          <p className="text-gray-500 text-center mb-6">
+                            Add some items to your cart to get started.
+                          </p>
+                          <LocalizedClientLink href="/bundles">
+                            <Button
+                              onClick={onClose}
+                              className="w-full bg-[#99b2dd] border-[#99b2dd] text-white hover:bg-[#7a9cd9] hover:border-[#7a9cd9]"
+                              variant="transparent"
+                            >
+                              Explore products
+                            </Button>
+                          </LocalizedClientLink>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer - only show if cart has items */}
+                    {cartState && (cartState.items ?? []).length > 0 && (
+                      <div className="border-t border-gray-200 px-4 py-6 space-y-4">
+                        {/* Bundle savings summary */}
+                        {totalBundleSavings > 0 && (
+                          <div className="flex items-center justify-between text-[#99b2dd] border-t pt-4">
+                            <span className="text-sm font-medium">
+                              Bundle Discount :
+                            </span>
+                            <span className="text-sm font-semibold">
+                              -
+                              {convertToLocale({
+                                amount: totalBundleSavings,
+                                currency_code: cartState.currency_code,
+                              })}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Subtotal */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-base font-medium text-gray-900">
+                            Subtotal
+                          </span>
+                          <span
+                            className="text-lg font-semibold text-gray-900"
+                            data-testid="cart-subtotal"
+                            data-value={subtotal}
+                          >
+                            {convertToLocale({
+                              amount: subtotal,
+                              currency_code: cartState.currency_code,
+                            })}
+                          </span>
+                        </div>
+
+                        <p className="text-sm text-gray-500">
+                          Shipping and taxes calculated at checkout.
+                        </p>
+
+                        {/* Action buttons */}
+                        <div className="space-y-3">
+                          <LocalizedClientLink href="/cart" className="block">
+                            <Button
+                              className="w-full"
+                              size="large"
+                              variant="secondary"
+                              onClick={onClose}
+                              data-testid="go-to-cart-button"
+                            >
+                              View Cart
+                            </Button>
+                          </LocalizedClientLink>
+                          <LocalizedClientLink
+                            href="/checkout"
+                            className="block"
+                          >
+                            <Button
+                              className="w-full"
+                              size="large"
+                              onClick={onClose}
+                              data-testid="checkout-button"
+                            >
+                              Checkout
+                            </Button>
+                          </LocalizedClientLink>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  )
+}
+
+export default CartSidePanel

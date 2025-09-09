@@ -11,6 +11,7 @@ import {
   applyCustomPromoCode,
   removeCustomPromoCode,
 } from "@lib/data/custom-promo"
+import { Check } from "lucide-react"
 
 type CustomPromoCodeProps = {
   cart: HttpTypes.StoreCart & {
@@ -45,13 +46,6 @@ const CustomPromoCode = ({ cart }: CustomPromoCodeProps) => {
       discountValue
     )
   }
-
-  // Debug logging only in development and only when values change
-  useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("🛒 Full cart object:", cart)
-    }
-  }, [cart, discountType, discountValue, discountAmount])
 
   const handleApplyCode = () => {
     if (!code.trim()) {
@@ -91,87 +85,104 @@ const CustomPromoCode = ({ cart }: CustomPromoCodeProps) => {
   }
 
   return (
-    <div className="bg-white p-4 border border-gray-200 rounded-lg">
-      <Text className="text-lg font-semibold mb-3">Promo Code</Text>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+        <h3 className="text-base font-medium text-gray-900">Promo Code</h3>
+      </div>
 
       {appliedCode ? (
-        // Show applied promo code
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <Text className="font-mono font-bold text-green-800">
-                  {appliedCode}
-                </Text>
-                <span className="text-green-600 text-sm">✓ Applied</span>
+        /* Applied State */
+        <div className="space-y-3 animate-in fade-in duration-200">
+          {/* Applied Code Card */}
+          <div className="group relative bg-gray-50 hover:bg-gray-100 transition-colors duration-200 rounded-lg p-4 border border-gray-200">
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <code className="text-sm font-mono font-semibold text-gray-900 tracking-wide">
+                      {appliedCode}
+                    </code>
+                  </div>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-green-700 bg-green-100 rounded-full">
+                    <Check size={10} />
+                    Applied
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {discountType === "percentage"
+                    ? `${discountValue}% discount`
+                    : `${convertToLocale({
+                        amount: discountValue * 100,
+                        currency_code: cart.currency_code || "MYR",
+                      })} off`}
+                </p>
               </div>
-              <Text className="text-sm text-green-700">
-                {discountType === "percentage"
-                  ? `${discountValue}% off`
-                  : `${convertToLocale({
-                      amount: discountValue * 100,
-                      currency_code: cart.currency_code || "MYR",
-                    })} off`}
-              </Text>
+              <button
+                onClick={handleRemoveCode}
+                disabled={isPending}
+                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md disabled:opacity-50"
+              >
+                <Trash size={14} />
+              </button>
             </div>
-            <Button
-              color="ghost"
-              size="small"
-              onClick={handleRemoveCode}
-              disabled={isPending}
-              className="text-red-600 hover:text-red-800"
-            >
-              <Trash size={16} />
-            </Button>
           </div>
 
+          {/* Discount Amount */}
           {discountAmount > 0 && (
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-green-600">
-                <Text>Additional Promo Discount:</Text>
-                <Text className="font-semibold">
-                  -
+            <div className="px-4 py-3 bg-green-50 rounded-lg border border-green-100">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm text-gray-700">Promo savings</span>
+                <span className="text-sm font-semibold text-green-700">
+                  −
                   {convertToLocale({
                     amount: discountAmount,
                     currency_code: cart.currency_code || "MYR",
                   })}
-                </Text>
+                </span>
               </div>
-              <Text className="text-xs text-green-700">
-                Applied to your current cart total (stacks with bundle
-                discounts)
-              </Text>
+              <p className="text-xs text-gray-500">
+                Stacks with other discounts
+              </p>
             </div>
           )}
         </div>
       ) : (
-        // Show promo code input
+        /* Input State */
         <div className="space-y-3">
           <div className="flex gap-2">
-            <Input
-              placeholder="Enter promo code"
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              onKeyDown={handleKeyPress}
-              className="flex-1"
-              disabled={isPending}
-            />
-            <Button
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Enter code"
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                onKeyDown={handleKeyPress}
+                disabled={isPending}
+                className="w-full px-3 py-2.5 text-sm bg-white border border-gray-300 rounded-lg placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:text-gray-500"
+              />
+              {isPending && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                </div>
+              )}
+            </div>
+            <button
               onClick={handleApplyCode}
               disabled={isPending || !code.trim()}
-              className="whitespace-nowrap"
+              className="px-4 py-2.5 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors duration-200"
             >
-              {isPending ? "Applying..." : "Apply"}
-            </Button>
+              Apply
+            </button>
           </div>
 
-          {error ? (
-            <Text className="text-xs text-red-500">{error}</Text>
-          ) : (
-            <Text className="text-xs text-gray-500">
-              Have a first-time buyer code? Enter it above for an additional 10%
-              off your total!
-            </Text>
+          {error && (
+            <div className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
+              <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+              {error}
+            </div>
           )}
         </div>
       )}

@@ -567,7 +567,56 @@ export async function addFlexibleBundleToCart({
   console.log("Bundle ID:", bundleId)
   console.log("Selected items:", selectedItems)
 
-  // Add bundle items to cart
+  // CHECK FOR EXISTING BUNDLE ITEMS FIRST
+  const existingCart = await retrieveCart(cart.id)
+  const existingBundleItems =
+    existingCart?.items?.filter(
+      (item) => item.metadata?.bundle_id === bundleId
+    ) || []
+
+  console.log(`🔍 Checking for existing bundle items...`)
+  console.log(
+    `📊 Found ${existingBundleItems.length} existing items in bundle ${bundleId}`
+  )
+
+  if (existingBundleItems.length > 0) {
+    console.log("🔄 EXISTING BUNDLE DETECTED - UPGRADING DISCOUNT")
+    console.log(
+      "Existing items:",
+      existingBundleItems.map((item) => ({
+        item_id: item.metadata?.bundle_item_id,
+        variant_id: item.variant_id,
+        quantity: item.quantity,
+      }))
+    )
+
+    // Merge existing items with new items
+    const allBundleItems = [
+      // Existing items
+      ...existingBundleItems.map((item) => ({
+        item_id: item.metadata?.bundle_item_id as string,
+        variant_id: item.variant_id as string,
+        quantity: item.quantity,
+      })),
+      // New items
+      ...selectedItems,
+    ]
+
+    console.log(`📦 Total items after merge: ${allBundleItems.length}`)
+    console.log("All items:", allBundleItems)
+
+    // Use update workflow to replace the entire bundle
+    console.log("🚀 Calling updateFlexibleBundleInCart...")
+    return await updateFlexibleBundleInCart({
+      bundleId,
+      countryCode,
+      selectedItems: allBundleItems,
+    })
+  }
+
+  console.log("➕ NO EXISTING BUNDLE - PROCEEDING WITH NORMAL ADD")
+
+  // NO EXISTING BUNDLE - PROCEED WITH NORMAL ADD
   await sdk.client
     .fetch<HttpTypes.StoreCartResponse>(
       `/store/carts/${cart.id}/flexible-bundle-items`,
@@ -637,4 +686,69 @@ export async function removeFlexibleBundleFromCart(bundleId: string) {
       revalidateTag(fulfillmentCacheTag)
     })
     .catch(medusaError)
+}
+
+/**
+ * Update bundle in cart - handles three scenarios:
+ * 1. Delete bundle: Pass empty selectedItems array
+ * 2. Update quantities: Pass same items with different quantities
+ * 3. Change items: Pass different items within the bundle
+ */
+export async function updateFlexibleBundleInCart({
+  bundleId,
+  countryCode,
+  selectedItems = [], // Default to empty array (delete bundle)
+}: {
+  bundleId: string
+  countryCode: string
+  selectedItems?: {
+    item_id: string
+    variant_id: string
+    quantity?: number
+  }[]
+}) {
+  if (!bundleId) {
+    throw new Error("Missing bundle ID when updating bundle in cart")
+  }
+
+  const cart = await getOrSetCart(countryCode)
+
+  if (!cart) {
+    throw new Error("Error retrieving cart for bundle update")
+  }
+
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  try {
+    const response = await sdk.client.fetch<{
+      cart: HttpTypes.StoreCart
+      bundle_id: string
+      action: string
+      items_count: number
+      message: string
+    }>(`/store/carts/${cart.id}/flexible-bundle-items/${bundleId}`, {
+      method: "PATCH",
+      body: {
+        selectedItems,
+      },
+      headers,
+    })
+
+    // Clear cart cache to ensure fresh data
+    const cartCacheTag = await getCacheTag("carts")
+    revalidateTag(cartCacheTag)
+    // window.location.reload() // Force page refresh
+
+    const fulfillmentCacheTag = await getCacheTag("fulfillment")
+    revalidateTag(fulfillmentCacheTag)
+
+    await retrieveCart(cart.id) // Refetch to get updated cart state
+
+    return response.cart
+  } catch (error) {
+    console.error("Bundle update API error:", error)
+    throw error
+  }
 }

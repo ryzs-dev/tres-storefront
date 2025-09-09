@@ -36,17 +36,16 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
       </div>
 
       <Table>
-        <Table.Header className="border-t-0">
+        <Table.Header className="border-t-0 w-full">
           <Table.Row className="text-ui-fg-subtle txt-medium-plus">
             <Table.HeaderCell className="!pl-0">Item</Table.HeaderCell>
             <Table.HeaderCell></Table.HeaderCell>
-            <Table.HeaderCell>Quantity</Table.HeaderCell>
-            <Table.HeaderCell className="hidden small:table-cell">
-              Price
-            </Table.HeaderCell>
-            <Table.HeaderCell className="!pr-0 text-right">
+            <Table.HeaderCell></Table.HeaderCell>
+            <Table.HeaderCell className="text-right">Quantity</Table.HeaderCell>
+            <Table.HeaderCell className="text-right">Price</Table.HeaderCell>
+            {/* <Table.HeaderCell className="!pr-0 text-right">
               Total
-            </Table.HeaderCell>
+            </Table.HeaderCell> */}
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -61,6 +60,9 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
                       key={item.id}
                       item={item}
                       currencyCode={cart?.currency_code}
+                      cartId={cart.id}
+                      countryCode={"my"}
+                      allCartItems={cart.items || []}
                     />
                   )
                 })

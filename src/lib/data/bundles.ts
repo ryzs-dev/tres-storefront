@@ -3,7 +3,7 @@ import { HttpTypes } from "@medusajs/types"
 import { sdk } from "../config"
 import { getAuthHeaders, getCacheTag } from "./cookies"
 import { revalidateTag } from "next/cache"
-import { getOrSetCart, retrieveCart } from "./cart"
+import { getOrSetCart, retrieveCart, updateFlexibleBundleInCart } from "./cart"
 
 export type FlexibleBundle = {
   id: string
@@ -202,7 +202,56 @@ export async function addFlexibleBundleToCart({
   console.log("Bundle ID:", bundleId)
   console.log("Selected items:", selectedItems)
 
-  // Add bundle items to cart
+  // CHECK FOR EXISTING BUNDLE ITEMS FIRST
+  const existingCart = await retrieveCart(cart.id)
+  const existingBundleItems =
+    existingCart?.items?.filter(
+      (item) => item.metadata?.bundle_id === bundleId
+    ) || []
+
+  console.log(`🔍 Checking for existing bundle items...`)
+  console.log(
+    `📊 Found ${existingBundleItems.length} existing items in bundle ${bundleId}`
+  )
+
+  if (existingBundleItems.length > 0) {
+    console.log("🔄 EXISTING BUNDLE DETECTED - UPGRADING DISCOUNT")
+    console.log(
+      "Existing items:",
+      existingBundleItems.map((item) => ({
+        item_id: item.metadata?.bundle_item_id,
+        variant_id: item.variant_id,
+        quantity: item.quantity,
+      }))
+    )
+
+    // Merge existing items with new items
+    const allBundleItems = [
+      // Existing items
+      ...existingBundleItems.map((item) => ({
+        item_id: item.metadata?.bundle_item_id as string,
+        variant_id: item.variant_id as string,
+        quantity: item.quantity,
+      })),
+      // New items
+      ...selectedItems,
+    ]
+
+    console.log(`📦 Total items after merge: ${allBundleItems.length}`)
+    console.log("All items:", allBundleItems)
+
+    // Use update workflow to replace the entire bundle
+    console.log("🚀 Calling updateFlexibleBundleInCart...")
+    return await updateFlexibleBundleInCart({
+      bundleId,
+      countryCode,
+      selectedItems: allBundleItems,
+    })
+  }
+
+  console.log("➕ NO EXISTING BUNDLE - PROCEEDING WITH NORMAL ADD")
+
+  // NO EXISTING BUNDLE - PROCEED WITH NORMAL ADD
   await sdk.client
     .fetch<HttpTypes.StoreCartResponse>(
       `/store/carts/${cart.id}/flexible-bundle-items`,
@@ -229,12 +278,12 @@ export async function addFlexibleBundleToCart({
 
   console.log("✅ Bundle items added, waiting for discount processing...")
 
-  // Wait for the subscriber to process discounts
+  // Wait for the subscriber to process discounts (it runs async)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
   console.log("🔄 Refreshing cart to get applied discounts...")
 
-  // Force refresh the cart cache
+  // Force refresh the cart to get the updated prices with discounts
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
 
@@ -242,28 +291,6 @@ export async function addFlexibleBundleToCart({
   const updatedCart = await retrieveCart(cart.id)
 
   console.log("✅ Cart refreshed with discounts applied")
-
-  // IMPORTANT: If there's an active payment session, refresh it with the new total
-  if ((updatedCart?.payment_collection?.payment_sessions ?? []).length > 0) {
-    console.log("🔄 Refreshing payment session with new cart total...")
-
-    try {
-      // Delete existing payment sessions and recreate them with new amount
-      if (updatedCart && updatedCart.payment_collection?.payment_sessions) {
-        for (const session of updatedCart.payment_collection.payment_sessions) {
-          console.warn(
-            "deletePaymentSession method is not available on sdk.store.payment. Skipping deletion of payment session."
-          )
-        }
-      }
-
-      // The payment session will be recreated automatically when needed with the correct amount
-      console.log("✅ Payment sessions refreshed")
-    } catch (paymentError) {
-      console.error("⚠️ Failed to refresh payment session:", paymentError)
-      // Don't throw - cart update was successful, payment can be handled later
-    }
-  }
 
   return updatedCart
 }

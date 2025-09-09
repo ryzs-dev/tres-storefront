@@ -52,7 +52,7 @@ const LineItemPrice = ({
           data-testid="product-price"
         >
           {convertToLocale({
-            amount: currentPrice,
+            amount: originalPrice,
             currency_code: currencyCode,
           })}
         </span>
