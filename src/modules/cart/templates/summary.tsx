@@ -22,15 +22,15 @@ const Summary = ({ cart }: SummaryProps) => {
   // Calculate bundle savings
   const bundleSavings =
     cart.items?.reduce((total, item) => {
+      // Only calculate for bundle items that have discounts applied
       if (
-        item.metadata?.discounted_price_cents &&
-        item.metadata?.original_price_cents
+        item.metadata?.is_from_bundle &&
+        item.metadata?.actual_discount_amount
       ) {
-        const originalPrice = item.metadata.original_price_cents
-        const currentPrice = item.metadata.discounted_price_cents
-        const savings =
-          ((Number(originalPrice) - Number(currentPrice)) * item.quantity) / 100
-        return total + savings
+        // Use the actual_discount_amount which is already the total discount for this item
+        const itemSavings = Number(item.metadata.actual_discount_amount) / 100
+        console.log(`Item ${item.id}: ${itemSavings} RM savings`)
+        return total + itemSavings
       }
       return total
     }, 0) || 0
@@ -49,6 +49,8 @@ const Summary = ({ cart }: SummaryProps) => {
     }, 0) || 0
 
   const otherDiscount = cart.discount_total
+
+  console.log("Cart in Summary:", cart)
 
   return (
     <div className="flex flex-col gap-y-6">

@@ -17,7 +17,7 @@ const LineItemUnitPrice = ({
   const hasReducedPrice =
     originalPriceCents > 0 && originalPriceCents > item.unit_price * 100
 
-  const amount = item.original_total
+  const amount = Number(item?.metadata?.original_price_cents) / 100
 
   return (
     <div className="flex flex-col text-ui-fg-muted justify-start h-full">

@@ -38,8 +38,6 @@ const Item = ({
   const bundleId = item.metadata?.bundle_id as string
   const bundleItemId = item.metadata?.bundle_item_id as string
 
-  console.log("Rendering Item:", item)
-
   const changeQuantity = async (quantity: number) => {
     setError(null)
     setUpdating(true)
