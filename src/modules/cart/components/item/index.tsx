@@ -55,7 +55,7 @@ const Item = ({
         window.dispatchEvent(new Event("cart-updated"))
       }
     } catch (err) {
-      setError("Insufficient Inventory")
+      setError("Limited Availability")
     } finally {
       setUpdating(false)
     }

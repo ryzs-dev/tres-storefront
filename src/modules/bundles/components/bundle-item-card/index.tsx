@@ -4,7 +4,7 @@ import { useMemo, useCallback, useRef, useState, useEffect } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { FlexibleBundle } from "@lib/data/bundles"
 import { useBundleSelection } from "../../context/bundle-selection-context"
-import { Heading, Text } from "@medusajs/ui"
+import { clx, Heading } from "@medusajs/ui"
 import clsx from "clsx"
 import ProductPrice from "@modules/products/components/product-price"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
@@ -25,25 +25,26 @@ const getOptionMap = (
     return acc
   }, {})
 
-const fetchVariantAvailability = async (variantId: string) => {
-  try {
-    const response = await sdk.client.fetch(
-      `/store/variant-availability?variant_id=${variantId}`
-    )
+// const fetchVariantAvailability = async (variantId: string) => {
+//   try {
+//     const response = await sdk.client.fetch(
+//       `/store/variant-availability?variant_id=${variantId}`
+//     )
 
-    console.log(response)
-    return response
-  } catch (error) {
-    console.error("Failed to fetch variant availability:", error)
-    return null
-  }
-}
+//     console.log(response)
+//     return response
+//   } catch (error) {
+//     console.error("Failed to fetch variant availability:", error)
+//     return null
+//   }
+// }
 
-const BundleItemCard = ({ item, region }: Props) => {
+const BundleItemCard = ({ item }: Props) => {
   const { toggleItem, isItemSelected, updateItemQuantity, selectedItems } =
     useBundleSelection()
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [error, setError] = useState<string | null>(null)
 
   const isSelected = isItemSelected(item.id)
   const images = item.product.images || []
@@ -138,12 +139,25 @@ const BundleItemCard = ({ item, region }: Props) => {
 
   const handleQuantityChange = useCallback(
     (value: number) => {
-      const newQuantity = value > 0 ? value : 1
+      if (!availability) return
+
+      let newQuantity = value > 0 ? value : 1
+
+      if (newQuantity > availability.stock) {
+        newQuantity = availability.stock
+        setError("Limited availability")
+
+        // auto-clear error after 2.5s
+        setTimeout(() => setError(null), 1000)
+      } else {
+        setError(null)
+      }
+
       if (isSelected && matchedVariant) {
         updateItemQuantity(item.id, newQuantity, matchedVariant.id)
       }
     },
-    [isSelected, item.id, matchedVariant, updateItemQuantity]
+    [availability, isSelected, item.id, matchedVariant, updateItemQuantity]
   )
 
   const handleSelectionChange = useCallback(
@@ -174,9 +188,7 @@ const BundleItemCard = ({ item, region }: Props) => {
     }
   }
 
-  const isOutOfStock = availability && !availability.in_stock
-
-  console.log({ matchedVariant })
+  const isOutOfStock = availability?.stock === 0
 
   return (
     <div
@@ -346,13 +358,19 @@ const BundleItemCard = ({ item, region }: Props) => {
           {/* Stock & Quantity */}
           <div className="flex flex-col gap-2">
             <>
-              <p className="text-xs text-gray-500 mt-0.5">
-                {availability ? (
-                  <>
-                    <span className="text-green-500 font-medium">In Stock</span>
-                  </>
-                ) : (
+              <p className="text-xs mt-0.5">
+                {isOutOfStock ? (
                   <span className="text-red-500 font-medium">Out of stock</span>
+                ) : (
+                  <>
+                    {error ? (
+                      <span className="text-red-500 font-medium">{error}</span>
+                    ) : (
+                      <span className="text-green-500 font-medium">
+                        In Stock
+                      </span>
+                    )}
+                  </>
                 )}
               </p>
 
@@ -378,24 +396,23 @@ const BundleItemCard = ({ item, region }: Props) => {
                       id={`quantity-${item.id}`}
                       type="number"
                       min={1}
-                      max={availability?.stock} // limit to stock
+                      max={availability?.stock}
                       value={selectedQuantity}
                       onChange={(e) => {
                         const value = parseInt(e.target.value) || 1
-                        handleQuantityChange(
-                          Math.min(value, availability?.stock)
-                        )
+                        handleQuantityChange(value)
                       }}
-                      className="w-12 h-8 text-center text-sm border-0 focus:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      className={clx(
+                        "w-12 h-8 text-center text-sm border-0 focus:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+                        error && "border border-red-500"
+                      )}
                     />
+
                     <button
                       type="button"
-                      onClick={() =>
-                        handleQuantityChange(
-                          Math.min(selectedQuantity + 1, availability?.stock)
-                        )
-                      }
-                      disabled={selectedQuantity >= availability?.stock}
+                      onClick={() => {
+                        handleQuantityChange(selectedQuantity + 1)
+                      }}
                       className="px-2 py-1 bg-white hover:bg-gray-100 transition-colors"
                     >
                       +

@@ -136,8 +136,6 @@ export default async function BundleDetailPage(props: Props) {
       )
     )
 
-    console.log("✅ Stock availability:", stockData)
-
     return (
       <BundleTemplate
         bundle={bundle}

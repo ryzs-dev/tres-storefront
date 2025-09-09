@@ -86,20 +86,10 @@ const CartSidePanel = ({
       (item) => item.metadata?.is_from_bundle === true
     ) || []
 
-  const totalBundleSavings =
-    bundleItems.reduce((total, item) => {
-      // Only calculate for bundle items that have discounts applied
-      if (
-        item.metadata?.is_from_bundle &&
-        item.metadata?.actual_discount_amount
-      ) {
-        // Use the actual_discount_amount which is already the total discount for this item
-        const itemSavings = Number(item.metadata.actual_discount_amount) / 100
-        console.log(`Item ${item.id}: ${itemSavings} RM savings`)
-        return total + itemSavings
-      }
-      return total
-    }, 0) || 0
+  const totalBundleSavings = bundleItems.reduce((total, item) => {
+    const savingsInfo = calculateItemSavings(item)
+    return total + savingsInfo.savings * item.quantity
+  }, 0)
 
   return (
     <Transition show={isOpen} as={Fragment}>
