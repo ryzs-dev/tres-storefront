@@ -118,15 +118,24 @@ const Item = ({
     <Table.Row className="w-full items-start" data-testid="product-row">
       {/* Product Image */}
       <Table.Cell className="!pl-0 p-2 small:p-4 w-16 small:w-24 align-top">
-        <Thumbnail
-          thumbnail={item.thumbnail}
-          images={item.variant?.product?.images}
-          size="square"
-          className={clx("rounded-md", {
-            "w-12 h-12": type === "preview",
-            "w-14 h-14 small:w-20 small:h-20": type === "full",
-          })}
-        />
+        <div className="relative inline-block">
+          <Thumbnail
+            thumbnail={item.thumbnail}
+            images={item.variant?.product?.images}
+            size="square"
+            className={clx("rounded-md", {
+              "w-20 h-20": type === "preview",
+              "w-14 h-14 small:w-20 small:h-20": type === "full",
+            })}
+          />
+
+          {/* Quantity badge */}
+          {type === "preview" && item.quantity > 0 && (
+            <span className="absolute -top-2 -right-2 bg-black text-xs font-medium px-2 py-1.5 w-6 h-6 rounded-full shadow text-white">
+              {item.quantity}
+            </span>
+          )}
+        </div>
       </Table.Cell>
 
       {/* Product Details */}
@@ -144,25 +153,29 @@ const Item = ({
             data-testid="product-variant"
           />
 
-          <DeleteButton
-            id={item.id}
-            bundle_id={item.metadata?.bundle_id as string}
-            bundle_item_id={item.metadata?.bundle_item_id as string} // Add this
-            allCartItems={allCartItems} // Add this
-            countryCode={countryCode} // Add this
-            remove_entire_bundle={false} // Set to false for single item removal
-            className="text-xs text-gray-400 hover:text-black hover:underline mt-1"
-          >
-            {/* {item.metadata?.bundle_id !== undefined ? (
+          {type === "full" && (
+            <DeleteButton
+              id={item.id}
+              bundle_id={item.metadata?.bundle_id as string}
+              bundle_item_id={item.metadata?.bundle_item_id as string} // Add this
+              allCartItems={allCartItems} // Add this
+              countryCode={countryCode} // Add this
+              remove_entire_bundle={false} // Set to false for single item removal
+              className="text-xs text-gray-400 hover:text-black hover:underline mt-1"
+            >
+              {/* {item.metadata?.bundle_id !== undefined ? (
               <>
-                Remove
-                <span className="hidden small:inline"> from Bundle</span>
+              Remove
+              <span className="hidden small:inline"> from Bundle</span>
               </>
-            ) : (
-              "Remove"
-            )} */}
-            Remove
-          </DeleteButton>
+              ) : (
+                "Remove"
+                )} */}
+              Remove
+            </DeleteButton>
+          )}
+
+          {type === "preview" && <>Quantity: {item.quantity}</>}
 
           {error && (
             <ErrorMessage error={error} data-testid="product-error-message" />

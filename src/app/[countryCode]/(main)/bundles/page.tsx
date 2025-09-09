@@ -68,8 +68,6 @@ export default async function BundlesPage(props: Props) {
     },
   })
 
-  console.log("Fetched bundles:", response.bundles)
-
   const bundles = response.bundles
 
   // IDs of bundles you want at the top

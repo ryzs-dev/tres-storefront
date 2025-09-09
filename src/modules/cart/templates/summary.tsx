@@ -5,7 +5,6 @@ import { Button, Heading, Text } from "@medusajs/ui"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import CustomPromoCode from "@modules/checkout/components/custom-promo-code"
 import { useParams } from "next/navigation"
 
 type SummaryProps = {
@@ -29,11 +28,12 @@ const Summary = ({ cart }: SummaryProps) => {
       ) {
         // Use the actual_discount_amount which is already the total discount for this item
         const itemSavings = Number(item.metadata.actual_discount_amount) / 100
-        console.log(`Item ${item.id}: ${itemSavings} RM savings`)
         return total + itemSavings
       }
       return total
     }, 0) || 0
+
+  console.log("Bundle Savings:", bundleSavings)
 
   // Calculate original and discounted totals
   const originalCartTotal =

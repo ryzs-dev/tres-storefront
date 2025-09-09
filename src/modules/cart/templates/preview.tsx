@@ -31,11 +31,20 @@ const ItemsPreviewTemplate = ({ cart }: ItemsTemplateProps) => {
                 })
                 .map((item) => {
                   return (
+                    // <Item
+                    //   key={item.id}
+                    //   item={item}
+                    //   type="preview"
+                    //   currencyCode={cart.currency_code}
+                    // />
                     <Item
                       key={item.id}
                       item={item}
                       type="preview"
-                      currencyCode={cart.currency_code}
+                      currencyCode={cart?.currency_code}
+                      cartId={cart.id}
+                      countryCode={"my"}
+                      allCartItems={cart.items || []}
                     />
                   )
                 })

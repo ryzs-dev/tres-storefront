@@ -25,8 +25,6 @@ export default async function SmashAndSwingCollectionPage({
     },
   })
 
-  console.log(response.bundles)
-
   // ✅ Hardcode filter by name
   const targetNames = [
     "lara",
@@ -41,8 +39,6 @@ export default async function SmashAndSwingCollectionPage({
   const unbuckleBundles = response.bundles.filter((bundle) =>
     targetNames.includes(bundle.title.toLowerCase())
   )
-
-  console.log(unbuckleBundles)
 
   return (
     <BundlesTemplate

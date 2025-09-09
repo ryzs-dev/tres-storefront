@@ -25,8 +25,6 @@ export default async function UnbuckleCollectionPage({
     },
   })
 
-  console.log(response.bundles)
-
   // ✅ Hardcode filter by name
   const targetNames = ["celine", "daz", "raven", "medusa set"]
 
