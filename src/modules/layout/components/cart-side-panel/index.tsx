@@ -1,3 +1,5 @@
+// Updated CartSidePanel to match Summary's calculation logic
+
 "use client"
 
 import { Transition, Dialog } from "@headlessui/react"
@@ -8,59 +10,6 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import Item from "@modules/cart/components/item" // Import the existing Item component
 import { Fragment } from "react"
 import { XMark } from "@medusajs/icons"
-
-// Function to calculate item savings - same as other components for bundle savings
-const calculateItemSavings = (item: any) => {
-  const originalPriceCents = item.metadata?.original_price_cents as number
-  const discountedPriceCents = item.metadata?.discounted_price_cents as number
-  const bundleDiscountPercentage = item.metadata
-    ?.bundle_discount_percentage as number
-  const bundleDiscountType = item.metadata?.bundle_discount_type as string
-  const fixedDiscountAmount = item.metadata?.fixed_discount_amount as number
-  const actualDiscountAmount = item.metadata?.actual_discount_amount as number
-  const discountApplied = item.metadata?.discount_applied as boolean
-
-  let originalPrice = 0
-  let discountedPrice = 0
-  let savings = 0
-  let finalDiscountType: "fixed" | "percentage" | "none" = "none"
-
-  if (discountApplied && originalPriceCents && discountedPriceCents) {
-    originalPrice = originalPriceCents / 100
-    discountedPrice = discountedPriceCents / 100
-    savings = originalPrice - discountedPrice
-
-    if (
-      bundleDiscountType === "fixed" &&
-      (fixedDiscountAmount > 0 || actualDiscountAmount > 0)
-    ) {
-      finalDiscountType = "fixed"
-    } else if (bundleDiscountPercentage > 0) {
-      finalDiscountType = "percentage"
-    }
-  } else if (bundleDiscountType === "fixed" && fixedDiscountAmount > 0) {
-    originalPrice = item.unit_price
-    discountedPrice = Math.max(0, originalPrice - fixedDiscountAmount / 100)
-    savings = originalPrice - discountedPrice
-    finalDiscountType = "fixed"
-  } else if (
-    bundleDiscountType === "percentage" &&
-    bundleDiscountPercentage > 0
-  ) {
-    originalPrice = item.unit_price
-    discountedPrice = originalPrice * (1 - bundleDiscountPercentage / 100)
-    savings = originalPrice - discountedPrice
-    finalDiscountType = "percentage"
-  }
-
-  return {
-    originalPrice,
-    discountedPrice,
-    savings,
-    discountType: finalDiscountType,
-    discountApplied: !!discountApplied,
-  }
-}
 
 interface CartSidePanelProps {
   cart?: HttpTypes.StoreCart | null
@@ -80,16 +29,22 @@ const CartSidePanel = ({
 
   const subtotal = cartState?.subtotal ?? 0
 
-  // Enhanced bundle savings calculation with fixed discount support
-  const bundleItems =
-    cartState?.items?.filter(
-      (item) => item.metadata?.is_from_bundle === true
-    ) || []
+  // Use the SAME calculation logic as Summary component
+  const totalBundleSavings =
+    cartState?.items?.reduce((total, item) => {
+      // Only calculate for bundle items that have discounts applied
+      if (
+        item.metadata?.is_from_bundle &&
+        item.metadata?.actual_discount_amount
+      ) {
+        // Use the actual_discount_amount which is already the total discount for this item
+        const itemSavings = Number(item.metadata.actual_discount_amount) / 100
+        return total + itemSavings
+      }
+      return total
+    }, 0) || 0
 
-  const totalBundleSavings = bundleItems.reduce((total, item) => {
-    const savingsInfo = calculateItemSavings(item)
-    return total + savingsInfo.savings * item.quantity
-  }, 0)
+  console.log("CartSidePanel Bundle Savings:", totalBundleSavings)
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -197,7 +152,7 @@ const CartSidePanel = ({
                     {/* Footer - only show if cart has items */}
                     {cartState && (cartState.items ?? []).length > 0 && (
                       <div className="border-t border-gray-200 px-4 py-6 space-y-4">
-                        {/* Bundle savings summary */}
+                        {/* Bundle savings summary - now matches Summary component exactly */}
                         {totalBundleSavings > 0 && (
                           <div className="flex items-center justify-between text-[#99b2dd] border-t pt-4">
                             <span className="text-sm font-medium">
