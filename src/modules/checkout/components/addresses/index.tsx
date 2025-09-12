@@ -16,9 +16,7 @@ import Spinner from "@modules/common/icons/spinner"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useActionState } from "react"
 import BillingAddress from "../billing_address"
-import ErrorMessage from "../error-message"
 import ShippingAddress from "../shipping-address"
-import { SubmitButton } from "../submit-button"
 import { Edit2, Mail } from "lucide-react"
 
 const Addresses = ({
@@ -32,7 +30,7 @@ const Addresses = ({
   const router = useRouter()
   const pathname = usePathname()
 
-  const isOpen = searchParams.get("step") === "address"
+  const isOpen = (searchParams.get("step") === "address") === true
 
   const { state: sameAsBilling, toggle: toggleSameAsBilling } = useToggleState(
     cart?.shipping_address && cart?.billing_address
@@ -56,7 +54,7 @@ const Addresses = ({
           </h2>
         </div>
 
-        {!isOpen && cart?.shipping_address && (
+        {/* {!isOpen && cart?.shipping_address && (
           <button
             onClick={handleEdit}
             className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200 self-start sm:self-center"
@@ -65,7 +63,7 @@ const Addresses = ({
             <Edit2 size={14} />
             Edit
           </button>
-        )}
+        )} */}
       </div>
 
       {isOpen ? (
@@ -88,7 +86,7 @@ const Addresses = ({
               </div>
             )}
 
-            <div className="pt-6 border-t border-gray-100">
+            {/* <div className="pt-6 border-t border-gray-100">
               <SubmitButton
                 className="w-full sm:w-auto px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-colors duration-200"
                 data-testid="submit-address-button"
@@ -99,7 +97,7 @@ const Addresses = ({
                 error={message}
                 data-testid="address-error-message"
               />
-            </div>
+            </div> */}
           </div>
         </form>
       ) : (

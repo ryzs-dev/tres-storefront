@@ -8,7 +8,7 @@ import PaymentButton from "../payment-button"
 const Review = ({ cart }: { cart: any }) => {
   const searchParams = useSearchParams()
 
-  const isOpen = searchParams.get("step") === "review"
+  const isOpen = (searchParams.get("step") === "review") === true
 
   const paidByGiftcard =
     cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0
