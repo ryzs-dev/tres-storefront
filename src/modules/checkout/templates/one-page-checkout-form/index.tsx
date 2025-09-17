@@ -112,9 +112,6 @@ export default function OnePageCheckout({
         },
       })
 
-      console.log("✅ Payment session initiated")
-      console.log("Cart", cart)
-
       // ✅ Navigate to review step after successful preparation
       setPaymentReady(true)
       router.push(pathname + "?" + createQueryString("step", "review"), {

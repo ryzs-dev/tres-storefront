@@ -23,7 +23,7 @@ export default function Footer() {
     { name: "TRES Sizing Guide", href: "/services/size-guide" },
     { name: "TRES Order & Shipping", href: "/services/order-and-shipping" },
     // { name: "Privacy Policy", href: "/services/privacy-policy" },
-    // { name: "Return Policy", href: "/services/refund-policy" },
+    { name: "TRES Return Policy", href: "/services/refund-policy" },
     // { name: "Terms & Conditions", href: "/services/terms" },
   ]
 
@@ -126,12 +126,12 @@ export default function Footer() {
               >
                 Privacy Policy
               </LocalizedClientLink>
-              <LocalizedClientLink
+              {/* <LocalizedClientLink
                 href="/services/refund-policy"
                 className="hover:text-gray-900 transition-colors duration-200"
               >
                 Return Policy
-              </LocalizedClientLink>
+              </LocalizedClientLink> */}
               <LocalizedClientLink
                 href="/services/terms"
                 className="hover:text-gray-900 transition-colors duration-200"
