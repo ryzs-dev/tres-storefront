@@ -8,12 +8,57 @@ const TresRefund = () => {
       {/* Header */}
       <div className="max-w-3xl mx-auto px-6 pt-16 pb-12 text-center">
         <h1 className="font-urw text-2xl font-bold text-gray-900">
-          REFUND POLICY
+          RETURN & REFUND POLICY
         </h1>
       </div>
 
       {/* Content */}
       <div className="max-w-3xl mx-auto px-6 pb-20">
+        {/* Return Policy Intro */}
+        <div className="mb-16">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            Return Policy
+          </h2>
+          <div className="space-y-4 text-gray-700">
+            <p>
+              At <strong>TRES</strong>, customer satisfaction is our top
+              priority. Please review our return policy below:
+            </p>
+
+            <p className="font-semibold">
+              ✅ Eligible for Full or Partial Refunds
+            </p>
+            <ul className="list-disc list-inside ml-4">
+              <li>You received the wrong item</li>
+              <li>You received a faulty or damaged item</li>
+              <li>Your order was not received within 60 days of purchase</li>
+            </ul>
+            <p className="text-gray-600 text-sm">
+              To qualify, the issue must be reported to the TRES team within
+              <strong> 7 days</strong> of receiving your order.
+            </p>
+
+            <p className="font-semibold">❌ Not Eligible for Refunds</p>
+            <ul className="list-disc list-inside ml-4">
+              <li>Incorrect sizing</li>
+              <li>Wrongly placed orders</li>
+              <li>Gifts</li>
+              <li>Change of mind</li>
+            </ul>
+            <p className="text-gray-600 text-sm">
+              All goods are considered <strong>final sale</strong> upon
+              confirmation of purchase.
+            </p>
+
+            <p className="font-semibold">💳 How Refunds Are Issued</p>
+            <p>
+              Refunds will be processed back to the{" "}
+              <strong>original payment method</strong>
+              used during checkout.
+            </p>
+          </div>
+        </div>
+
         {/* How Do I Organise a Return? */}
         <div className="mb-16">
           <h2 className="text-lg font-semibold text-gray-900 mb-6">
@@ -84,13 +129,6 @@ const TresRefund = () => {
               <span className="text-gray-700">
                 <strong>5 working days</strong> (for orders within{" "}
                 <strong>Malaysia</strong>)
-              </span>
-            </div>
-            <div className="flex gap-3">
-              <span className="text-blue-600 font-bold">•</span>
-              <span className="text-gray-700">
-                <strong>10 working days</strong> (for orders{" "}
-                <strong>outside Malaysia</strong>)
               </span>
             </div>
           </div>
@@ -245,8 +283,6 @@ const TresRefund = () => {
             </ul>
           </div>
         </div>
-
-        {/* ... keep all the rest of your existing sections (Declined Returns, Shipping Responsibility, Additional Terms, etc.) ... */}
 
         {/* Return Address */}
         <div className="mb-16">
