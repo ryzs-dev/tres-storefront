@@ -23,7 +23,7 @@ const FeaturedSection = ({ items }: { items: FeaturedItem[] }) => {
         {items.map((item) => (
           <div
             key={item.name}
-            className="group relative overflow-hidden rounded-md sm:w-52 sm:h-40 lg:w-full lg:h-full"
+            className="relative overflow-hidden rounded-md sm:w-52 sm:h-40 lg:w-full lg:h-full"
           >
             <LocalizedClientLink href={item.href}>
               <Image
@@ -31,9 +31,9 @@ const FeaturedSection = ({ items }: { items: FeaturedItem[] }) => {
                 alt={`Shop ${item.name}`}
                 width={200}
                 height={300}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-300 hover-zoom"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black bg-opacity-30 overlay-fade flex items-center justify-center">
                 <span className="text-white text-m lg:text-xl font-urwSemiCond">{`SHOP ${item.name}`}</span>
               </div>
             </LocalizedClientLink>

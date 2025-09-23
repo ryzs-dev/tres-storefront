@@ -44,7 +44,7 @@ export async function retrieveCart(cartId?: string) {
       },
       headers,
       next,
-      // cache: "",
+      cache: "force-cache",
     })
     .then(({ cart }) => cart)
     .catch(() => null)
@@ -105,16 +105,6 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
     currentCart?.items?.filter(
       (item) => item.metadata?.is_from_bundle && item.metadata?.discount_applied
     ) || []
-
-  console.log(
-    "📦 Bundle items before update:",
-    bundleItems.map((item) => ({
-      id: item.id,
-      unit_price: item.unit_price,
-      original_price: item.metadata?.original_price_cents,
-      discounted_price: item.metadata?.discounted_price_cents,
-    }))
-  )
 
   // STEP 2: Update cart (this resets prices)
   const updatedCart = await sdk.store.cart
@@ -613,8 +603,6 @@ export async function addFlexibleBundleToCart({
       selectedItems: allBundleItems,
     })
   }
-
-  console.log("➕ NO EXISTING BUNDLE - PROCEEDING WITH NORMAL ADD")
 
   // NO EXISTING BUNDLE - PROCEED WITH NORMAL ADD
   await sdk.client

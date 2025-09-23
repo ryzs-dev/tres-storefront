@@ -710,3 +710,26 @@
 * {
   font-family: "URW DIN", sans-serif !important;
 }
+
+@media (hover: hover) {
+  .hover-zoom:hover {
+    transform: scale(1.05);
+  }
+
+  .overlay-fade {
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .overlay-fade:hover {
+    opacity: 1;
+  }
+}
+
+/* Mobile: add tap/press feedback */
+@media (hover: none) {
+  .hover-zoom:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+}

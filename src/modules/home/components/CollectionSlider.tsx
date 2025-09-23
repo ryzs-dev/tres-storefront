@@ -89,7 +89,7 @@ export default function CollectionSlider({
                   alt={collection.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="rounded-xl  duration-300 object-[30%_30%] group-hover:scale-105"
+                  className="rounded-xl duration-300 object-[30%_30%] hover-zoom"
                   objectFit="cover"
                 />
                 {/* {collection.hoverImage && (
