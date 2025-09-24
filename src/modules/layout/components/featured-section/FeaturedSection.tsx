@@ -34,7 +34,7 @@ const FeaturedSection = ({ items }: { items: FeaturedItem[] }) => {
                 className="w-full h-full object-cover transition-transform duration-300 hover-zoom"
               />
               <div className="absolute inset-0 bg-black bg-opacity-30 overlay-fade flex items-center justify-center">
-                <span className="text-white text-m lg:text-xl font-urwSemiCond">{`SHOP ${item.name}`}</span>
+                <span className="text-white text-m lg:text-xl font-urw">{`SHOP ${item.name}`}</span>
               </div>
             </LocalizedClientLink>
           </div>

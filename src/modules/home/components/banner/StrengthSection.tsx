@@ -8,10 +8,7 @@ const StrengthSection = () => {
         {/* Strong */}
         <div className="flex flex-col items-center">
           <BicepsFlexed strokeWidth={1.5} size={48} className="text-black" />
-          <Heading
-            level="h3"
-            className="text-lg font-semibold mt-4 font-urwSemiCond"
-          >
+          <Heading level="h3" className="text-lg font-semibold mt-4 font-urw">
             STRONG
           </Heading>
           <Text className="text-gray-600 font-urwCond">
@@ -22,10 +19,7 @@ const StrengthSection = () => {
         {/* Sassy */}
         <div className="flex flex-col items-center">
           <Sparkles strokeWidth={1.5} size={48} className="text-black" />
-          <Heading
-            level="h3"
-            className="text-lg font-semibold mt-4 font-urwSemiCond"
-          >
+          <Heading level="h3" className="text-lg font-semibold mt-4 font-urw">
             SASSY
           </Heading>
           <Text className="text-gray-600 font-urwCond">
@@ -36,10 +30,7 @@ const StrengthSection = () => {
         {/* Solid */}
         <div className="flex flex-col items-center">
           <Dumbbell strokeWidth={1.5} size={48} className="text-black" />
-          <Heading
-            level="h3"
-            className="text-lg font-semibold mt-4 font-urwSemiCond"
-          >
+          <Heading level="h3" className="text-lg font-semibold mt-4 font-urw">
             SOLID
           </Heading>
           <Text className="text-gray-600 font-urwCond">

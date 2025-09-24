@@ -9,6 +9,7 @@ type BundleCardProps = {
   region: HttpTypes.StoreRegion
   size?: "small" | "medium" | "large"
 }
+
 const BundleCard = ({ bundle, region }: BundleCardProps) => {
   const defaultThumbnail =
     bundle.items[0]?.product?.thumbnail || "/placeholder-image.jpg"
@@ -18,12 +19,12 @@ const BundleCard = ({ bundle, region }: BundleCardProps) => {
     <LocalizedClientLink href={`/bundles/${bundle.id}`} className="group block">
       <div
         data-testid="bundle-wrapper"
-        className="relative overflow-hidden p-2 sm:p-3 md:p-4 bg-ui-bg-subtle shadow-elevation-card-rest rounded-large group-hover:shadow-elevation-card-hover transition-shadow ease-in-out duration-150 aspect-[9/16]"
+        className="relative overflow-hidden p-2 sm:p-3 md:p-4 bg-ui-bg-subtle shadow-elevation-card-rest rounded-large hover:shadow-elevation-card-hover transition-shadow ease-in-out duration-150 aspect-[9/16]"
       >
         <Image
           src={defaultThumbnail}
           alt={bundle.title}
-          className="absolute inset-0 object-cover object-center w-full h-full transition-opacity duration-300 group-hover:opacity-0"
+          className="absolute inset-0 object-cover object-center w-full h-full md:transition-opacity md:duration-300 md:group-hover:opacity-0"
           fill
           quality={40}
           draggable={false}
@@ -32,7 +33,7 @@ const BundleCard = ({ bundle, region }: BundleCardProps) => {
         <Image
           src={hoverThumbnail}
           alt={`${bundle.title} (hover)`}
-          className="absolute inset-0 object-cover object-center w-full h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="absolute inset-0 object-cover object-center w-full h-full opacity-0 md:group-hover:opacity-100 md:transition-opacity md:duration-300"
           fill
           quality={40}
           draggable={false}
