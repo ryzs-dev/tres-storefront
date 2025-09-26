@@ -100,7 +100,7 @@ export const listBundles = async ({
         region_id: regionId,
         ...queryParams,
       },
-      // cache: "force-cache", // Use force-cache to allow revalidation
+      cache: "force-cache", // Use force-cache to allow revalidation
     })
 
   const nextPage = offset + limit < count ? pageParam + 1 : null
@@ -139,7 +139,7 @@ export const getFlexibleBundle = async (
       currency_code,
       region_id,
     },
-    // cache: "force-cache", // Use force-cache to allow revalidation
+    cache: "force-cache", // Use force-cache to allow revalidation
   })
 }
 

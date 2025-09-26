@@ -47,13 +47,15 @@ const BundlesTemplate: React.FC<BundlesTemplateProps> = ({
 
           {/* Pagination */}
 
-          {totalPages > 1 && (
-            <Pagination
-              page={currentPage}
-              totalPages={totalPages}
-              data-testid="pagination"
-            />
-          )}
+          <div className="min-h-[56px] flex justify-center w-full mt-12">
+            {totalPages > 1 && (
+              <Pagination
+                page={currentPage}
+                totalPages={totalPages}
+                data-testid="pagination"
+              />
+            )}
+          </div>
         </>
       ) : (
         <div className="text-center py-12 sm:py-16">

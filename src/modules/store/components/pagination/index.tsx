@@ -36,7 +36,7 @@ export function Pagination({
     <button
       key={p}
       className={clx(
-        "txt-xlarge-plus text-ui-fg-muted rounded-lg px-3 py-2 transition-colors",
+        "txt-xlarge-plus text-ui-fg-muted rounded-lg px-3 py-2 min-w-[44px] text-center transition-colors",
         {
           "bg-ui-bg-base text-ui-fg-base cursor-default": isCurrent,
           "hover:bg-ui-bg-subtle hover:text-ui-fg-base": !isCurrent,
