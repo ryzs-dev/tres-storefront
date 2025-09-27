@@ -190,7 +190,7 @@ const BundleItemCard = ({ item }: Props) => {
     }
   }
 
-  const isOutOfStock = availability?.stock === 0
+  const isOutOfStock = !availability || availability.stock === 0
 
   return (
     <div
@@ -286,7 +286,7 @@ const BundleItemCard = ({ item }: Props) => {
         <div className="flex-1 min-w-0 flex flex-col">
           <div
             className="flex-1 cursor-pointer py-1"
-            onClick={() => !isOutOfStock && handleSelectionChange(!isSelected)}
+            onClick={() => handleSelectionChange(!isSelected)}
           >
             <div className="flex items-start justify-between gap-2 mb-2">
               <Heading
