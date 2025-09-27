@@ -134,11 +134,6 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
               <Button
                 variant="secondary"
                 onClick={() => {
-                  console.log(`📏 Size option changed:`, {
-                    optionId: option.id,
-                    value: v,
-                    wasSelected: isSelected,
-                  })
                   // If already selected, deselect it (clear selection)
                   if (isSelected) {
                     updateOption(option.id, "")

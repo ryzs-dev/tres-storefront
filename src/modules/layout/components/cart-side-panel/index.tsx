@@ -44,8 +44,6 @@ const CartSidePanel = ({
       return total
     }, 0) || 0
 
-  console.log("CartSidePanel Bundle Savings:", totalBundleSavings)
-
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog onClose={onClose} className="relative z-50">
