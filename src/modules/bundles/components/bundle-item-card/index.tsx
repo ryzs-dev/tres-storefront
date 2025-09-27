@@ -8,10 +8,9 @@ import { clx, Heading } from "@medusajs/ui"
 import clsx from "clsx"
 import ProductPrice from "@modules/products/components/product-price"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
-import { sdk } from "@lib/config"
 
 type Props = {
-  item: FlexibleBundle["items"][0]
+  item: FlexibleBundle["items"][0] & { stock?: number | null }
   region: HttpTypes.StoreRegion
 }
 
