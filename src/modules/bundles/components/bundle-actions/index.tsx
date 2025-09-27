@@ -146,8 +146,34 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
   const summary = getSelectionSummary()
   const pricingInfo = useBundlePricing(bundle, selectedItems, region)
 
-  const actionsRef = useRef<HTMLDivElement>(null)
-  const inView = useIntersection(actionsRef, "0px")
+  const buttonRef = useRef<HTMLDivElement | null>(null)
+  const inView = useIntersection(buttonRef, "0px")
+
+  const [footerInView, setFooterInView] = useState(false)
+
+  useEffect(() => {
+    const footer = document.getElementById("page-footer")
+    const relatedBundles = document.getElementById("related-bundles")
+
+    if (!footer && !relatedBundles) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Check if ANY of the observed elements are visible
+        const isAnyVisible = entries.some((entry) => entry.isIntersecting)
+        setFooterInView(isAnyVisible)
+      },
+      { threshold: 0.2 }
+    )
+
+    if (footer) observer.observe(footer)
+    if (relatedBundles) observer.observe(relatedBundles)
+
+    return () => {
+      if (footer) observer.unobserve(footer)
+      if (relatedBundles) observer.unobserve(relatedBundles)
+    }
+  }, [])
 
   useEffect(() => {
     window.dispatchEvent(
@@ -219,10 +245,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
   }
 
   return (
-    <div
-      className="border border-ui-border-base rounded-lg p-6 bg-white"
-      ref={actionsRef}
-    >
+    <div className="border border-ui-border-base rounded-lg p-6 bg-white">
       <Heading level="h3" className="text-lg font-semibold mb-4">
         Your Selection
       </Heading>
@@ -260,63 +283,68 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
       </div>
 
       {/* FIXED: Discount Tiers Info - Updated text to clarify quantity */}
-      <div className="mb-4 p-3 bg-ui-bg-subtle rounded-lg">
-        <Text className="text-sm font-medium mb-2">Bundle Discounts:</Text>
-        <div className="space-y-1 text-xs text-ui-fg-subtle">
-          <div className="flex justify-between">
-            <span>• 1 item total:</span>
-            <span>Regular price</span>
+      {bundle.discount_2_items_amount && (
+        <div className="mb-4 p-3 bg-ui-bg-subtle rounded-lg">
+          <Text className="text-sm font-medium mb-2">Bundle Discounts:</Text>
+          <div className="space-y-1 text-xs text-ui-fg-subtle">
+            <div className="flex justify-between">
+              <span>• 1 item total:</span>
+              <span>Regular price</span>
+            </div>
+            {(bundle.discount_2_items_amount || bundle.discount_2_items) && (
+              <div className="flex justify-between">
+                <span>• 2 items total:</span>
+                <span className="text-[#99b2dd] font-medium">
+                  {bundle.discount_type === "fixed" ||
+                  bundle.discount_2_items_amount
+                    ? `${formatCurrency(
+                        (bundle.discount_2_items_amount || 0) / 100
+                      )} off`
+                    : `${bundle.discount_2_items}% off`}
+                </span>
+              </div>
+            )}
+            {(bundle.discount_3_items_amount || bundle.discount_3_items) && (
+              <div className="flex justify-between">
+                <span>• 3+ items total:</span>
+                <span className="text-[#99b2dd] font-medium">
+                  {bundle.discount_type === "fixed" ||
+                  bundle.discount_3_items_amount
+                    ? `${formatCurrency(
+                        (bundle.discount_3_items_amount || 0) / 100
+                      )} off`
+                    : `${bundle.discount_3_items}% off`}
+                </span>
+              </div>
+            )}
           </div>
-          {(bundle.discount_2_items_amount || bundle.discount_2_items) && (
-            <div className="flex justify-between">
-              <span>• 2 items total:</span>
-              <span className="text-[#99b2dd] font-medium">
-                {bundle.discount_type === "fixed" ||
-                bundle.discount_2_items_amount
-                  ? `${formatCurrency(
-                      (bundle.discount_2_items_amount || 0) / 100
-                    )} off`
-                  : `${bundle.discount_2_items}% off`}
-              </span>
-            </div>
-          )}
-          {(bundle.discount_3_items_amount || bundle.discount_3_items) && (
-            <div className="flex justify-between">
-              <span>• 3+ items total:</span>
-              <span className="text-[#99b2dd] font-medium">
-                {bundle.discount_type === "fixed" ||
-                bundle.discount_3_items_amount
-                  ? `${formatCurrency(
-                      (bundle.discount_3_items_amount || 0) / 100
-                    )} off`
-                  : `${bundle.discount_3_items}% off`}
-              </span>
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
       {error && <Text className="text-red-500 text-sm mb-4">{error}</Text>}
 
-      <Button
-        onClick={handleAddToCart}
-        disabled={!canAddToCart() || isAdding}
-        className="w-full"
-        size="large"
-      >
-        {isAdding ? (
-          <div className="flex items-center gap-2">
-            <Spinner />
-            Adding to Cart...
-          </div>
-        ) : (
-          `Add to Cart`
-        )}
-      </Button>
+      <div ref={buttonRef}>
+        <Button
+          id="add-to-cart-button"
+          onClick={handleAddToCart}
+          disabled={!canAddToCart() || isAdding}
+          className="w-full"
+          size="large"
+        >
+          {isAdding ? (
+            <div className="flex items-center gap-2">
+              <Spinner />
+              Adding to Cart...
+            </div>
+          ) : (
+            `Add to Cart`
+          )}
+        </Button>
+      </div>
 
       {/* Sticky behavior for mobile */}
-      {!inView && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-ui-border-base p-4 z-50 md:hidden">
+      {/* {!inView && !footerInView && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-ui-border-base p-4 shadow-lg z-50 md:hidden">
           <div className="flex items-center justify-between mb-3">
             <div>
               <Text className="font-semibold">
@@ -349,7 +377,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             )}
           </Button>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

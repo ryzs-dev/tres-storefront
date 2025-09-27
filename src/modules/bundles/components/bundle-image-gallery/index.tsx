@@ -151,7 +151,7 @@ const BundleImageGallery = ({
   const displayImages = filteredImages.length > 0 ? filteredImages : []
 
   return (
-    <div className="flex flex-1 items-start relative w-full">
+    <div className="flex flex-1 items-start relative w-full z-0">
       <div className="w-full mx-auto overflow-hidden px-4 max-w-full sm:max-w-[90%] lg:max-w-[800px] relative">
         <Swiper
           onSwiper={setSwiper}

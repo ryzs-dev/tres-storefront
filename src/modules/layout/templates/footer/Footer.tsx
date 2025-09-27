@@ -1,4 +1,3 @@
-import { Text } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 
@@ -28,7 +27,7 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="bg-gradient-to-b from-gray-50 to-white border-t border-gray-200 w-full">
+    <footer id="page-footer" className="bg-white border-gray-200 w-full z-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row justify-between py-16 gap-12">
           {/* Logo and Brand Section */}

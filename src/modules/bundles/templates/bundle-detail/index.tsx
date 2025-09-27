@@ -24,23 +24,6 @@ const BundleDetailTemplate = ({
   countryCode,
   stockData = [],
 }: BundleDetailTemplateProps) => {
-  const getSelectionRulesText = () => {
-    if (bundle.selection_type === "required_all") {
-      return "You must select all items from this bundle."
-    }
-
-    const min = bundle.min_items
-    const max = bundle.max_items
-
-    if (max) {
-      return `You can select between ${min} and ${max} items from this bundle.`
-    }
-
-    return min === 1
-      ? "You can select any items you want from this bundle."
-      : `You must select at least ${min} items from this bundle.`
-  }
-
   return (
     <BundleSelectionProvider bundle={bundle}>
       <div className="content-container py-6">

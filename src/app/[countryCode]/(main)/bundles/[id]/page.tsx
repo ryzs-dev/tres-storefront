@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { listBundles, getFlexibleBundle } from "@lib/data/bundles"
 import { getRegion, listRegions } from "@lib/data/regions"
 import BundleTemplate from "@modules/bundles/templates/bundle-detail"
+import BundleDetailTemplate from "@modules/bundles/templates/bundle-detail"
 
 type Props = {
   params: Promise<{ countryCode: string; id: string }>
@@ -137,7 +138,7 @@ export default async function BundleDetailPage(props: Props) {
     )
 
     return (
-      <BundleTemplate
+      <BundleDetailTemplate
         bundle={bundle}
         region={region}
         countryCode={params.countryCode}
