@@ -64,21 +64,24 @@ const BundleItemCard = ({ item }: Props) => {
   }, [item.product.variants, selectedVariantId])
 
   const availability = useMemo(() => {
-    if (
-      !matchedVariant?.inventory_items?.[0]?.inventory?.location_levels?.[0]
-    ) {
+    const locationLevels =
+      matchedVariant?.inventory_items?.[0]?.inventory?.location_levels ?? []
+
+    // No locations assigned → location not enabled
+    if (locationLevels.length === 0) {
       return null
     }
 
-    const locationLevel =
-      matchedVariant.inventory_items[0].inventory.location_levels[0]
-    const availableStock = locationLevel.available_quantity || 0
+    const locationLevel = locationLevels[0]
+
+    const availableStock = locationLevel.available_quantity ?? 0
 
     return {
       stock: availableStock,
       in_stock: availableStock > 0,
-      stocked_quantity: locationLevel.stocked_quantity || 0,
-      reserved_quantity: locationLevel.reserved_quantity || 0,
+      stocked_quantity: locationLevel.stocked_quantity ?? 0,
+      reserved_quantity: locationLevel.reserved_quantity ?? 0,
+      incoming_quantity: locationLevel.incoming_quantity ?? 0,
     }
   }, [matchedVariant])
 
@@ -187,7 +190,7 @@ const BundleItemCard = ({ item }: Props) => {
     }
   }
 
-  const isOutOfStock = availability?.stock === 0 || null
+  const isOutOfStock = availability?.stock === 0
 
   return (
     <div
