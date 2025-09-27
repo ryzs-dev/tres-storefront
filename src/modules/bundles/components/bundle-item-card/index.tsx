@@ -187,10 +187,7 @@ const BundleItemCard = ({ item }: Props) => {
     }
   }
 
-  const isOutOfStock = availability?.stock === 0
-
-  console.log("availability", item.product.title, availability)
-  console.log("Item", item)
+  const isOutOfStock = availability?.stock === 0 || null
 
   return (
     <div
