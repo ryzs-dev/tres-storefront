@@ -118,10 +118,10 @@ const TresShipping = () => {
             If you have an <strong>urgent request</strong>, please email us
             immediately at: <br />
             <a
-              href="mailto:support@tres.my"
+              href="mailto:admin@tres.my"
               className="text-blue-600 font-semibold hover:underline"
             >
-              support@tres.my
+              admin@tres.my
             </a>
           </p>
           <p className="text-gray-600 text-sm mt-2">
@@ -135,10 +135,10 @@ const TresShipping = () => {
           <p className="text-gray-600">
             Questions? Contact us at{" "}
             <a
-              href="mailto:support@tres.my"
+              href="mailto:admin@tres.my"
               className="text-blue-600 font-semibold hover:underline"
             >
-              support@tres.my
+              admin@tres.my
             </a>
           </p>
         </div>

@@ -39,10 +39,10 @@ const TresSizing = () => {
             If you're unsure about your size or need further assistance, our
             team is here to help! Reach out to us at{" "}
             <a
-              href="mailto:support@tres.my"
+              href="mailto:admin@tres.my"
               className="text-blue-600 font-semibold hover:underline"
             >
-              support@tres.my
+              admin@tres.my
             </a>{" "}
             and we'll be happy to guide you through the process.
           </p>
@@ -270,10 +270,10 @@ const TresSizing = () => {
           <p className="text-gray-600">
             Need help with sizing? Contact us at{" "}
             <a
-              href="mailto:support@tres.my"
+              href="mailto:admin@tres.my"
               className="text-blue-600 font-semibold hover:underline"
             >
-              support@tres.my
+              admin@tres.my
             </a>
           </p>
         </div>

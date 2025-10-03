@@ -303,7 +303,7 @@ const TresRefund = () => {
           <p className="text-gray-600">
             Questions about returns? Contact us at{" "}
             <a
-              href="mailto:support@tres.my"
+              href="mailto:admin@tres.my"
               className="text-blue-600 font-semibold hover:underline"
             >
               admin@tres.my

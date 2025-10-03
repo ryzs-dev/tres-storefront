@@ -390,18 +390,18 @@ const TresPrivacy = () => {
               <br />
               <strong>Email:</strong>{" "}
               <a
-                href="mailto:privacy@tres.my"
+                href="mailto:admin@tres.my"
                 className="text-blue-600 hover:underline"
               >
-                privacy@tres.my
+                admin@tres.my
               </a>
               <br />
               <strong>General Support:</strong>{" "}
               <a
-                href="mailto:support@tres.my"
+                href="mailto:admin@tres.my"
                 className="text-blue-600 hover:underline"
               >
-                support@tres.my
+                admin@tres.my
               </a>
               <br />
               <strong>Website:</strong>{" "}
@@ -412,7 +412,8 @@ const TresPrivacy = () => {
                 tres.my
               </a>
               <br />
-              <strong>Address:</strong> [Your Business Address]
+              <strong>Address:</strong> 24 Lorong Batu Jelutong Barat 11600
+              Jelutong Penang
             </p>
           </div>
         </div>

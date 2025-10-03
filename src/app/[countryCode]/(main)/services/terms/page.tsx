@@ -326,10 +326,10 @@ const TresTerms = () => {
             <p className="text-gray-700">
               <strong>Email:</strong>{" "}
               <a
-                href="mailto:support@tres.my"
+                href="mailto:admin@tres.my"
                 className="text-blue-600 hover:underline"
               >
-                support@tres.my
+                admin@tres.my
               </a>
               <br />
               <strong>Website:</strong>{" "}
@@ -340,7 +340,8 @@ const TresTerms = () => {
                 tres.my
               </a>
               <br />
-              <strong>Address:</strong> [Your Business Address]
+              <strong>Address:</strong> 24 Lorong Batu Jelutong Barat 11600
+              Jelutong Penang
             </p>
           </div>
         </div>
