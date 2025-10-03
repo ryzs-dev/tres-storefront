@@ -23,7 +23,7 @@ const TresPrivacy = () => {
         {/* Last Updated */}
         <div className="mb-12 p-4 bg-gray-50 rounded-lg">
           <p className="text-gray-600 text-sm">
-            <strong>Last Updated:</strong> [Date]
+            <strong>Last Updated:</strong> 4/10/2025
           </p>
         </div>
 

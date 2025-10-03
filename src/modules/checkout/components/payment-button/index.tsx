@@ -5,10 +5,9 @@ import { isManual, isStripe, isCustom, isRazorpay } from "@lib/constants"
 import { placeOrder } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
-import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
+import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
-import { sdk } from "@lib/config"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -140,6 +139,8 @@ const RazorpayPaymentButton = ({
         handler: async (response: any) => {
           try {
             console.log("Payment successful:", response)
+
+            await onPaymentCompleted()
 
             const completionResponse = await fetch(
               `/api/razorpay-complete/${cart.id}`,

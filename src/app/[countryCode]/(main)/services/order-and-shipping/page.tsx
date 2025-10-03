@@ -65,15 +65,6 @@ const TresShipping = () => {
                     <strong>1–2 working days</strong>
                   </td>
                 </tr>
-                <tr>
-                  <td className="py-3 text-gray-700">
-                    <strong>International</strong>
-                  </td>
-                  <td className="py-3 text-gray-700">Various</td>
-                  <td className="py-3 text-gray-700">
-                    <strong>3–8 working days</strong>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
@@ -89,12 +80,10 @@ const TresShipping = () => {
           </p>
           <div className="space-y-2">
             <p className="text-gray-700">
-              1. Click <strong>"Account"</strong> at the top right corner of the
-              page.
+              1. Click <strong>"Account"</strong> at the left side of the page.
             </p>
             <p className="text-gray-700">
-              2. Select your <strong>Order Number</strong> to view its current
-              status.
+              2. Click <strong>"Orders"</strong> at the left side of the page.
             </p>
           </div>
         </div>
@@ -127,6 +116,29 @@ const TresShipping = () => {
           <p className="text-gray-600 text-sm mt-2">
             We will <strong>try our best</strong> to assist, but amendments are{" "}
             <strong>not guaranteed</strong>.
+          </p>
+        </div>
+
+        {/* Warehouse Pickup */}
+        <div className="mb-16">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            Warehouse Pickup Orders
+          </h2>
+          <p className="text-gray-700 leading-relaxed mb-4">
+            For self-collection, please visit our warehouse at:
+          </p>
+          <p className="text-gray-700 font-semibold">
+            24 Lorong Batu Jelutong Barat <br />
+            11600 Jelutong, Penang
+          </p>
+          <p className="text-gray-700 leading-relaxed mt-4">
+            Kindly coordinate with us before pickup at:{" "}
+            <a
+              href="tel:+60135385308"
+              className="text-blue-600 font-semibold hover:underline"
+            >
+              +60 13 538 5308
+            </a>
           </p>
         </div>
 
