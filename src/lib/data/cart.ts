@@ -40,7 +40,7 @@ export async function retrieveCart(cartId?: string) {
       method: "GET",
       query: {
         fields:
-          "*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.variant.*",
+          "*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.variant.*, completed_at",
       },
       headers,
       next,
@@ -63,7 +63,8 @@ export async function getOrSetCart(countryCode: string) {
     ...(await getAuthHeaders()),
   }
 
-  if (!cart) {
+  // If no cart or cart is completed, create a new cart
+  if (!cart || cart.completed_at) {
     const cartResp = await sdk.store.cart.create(
       { region_id: region.id },
       {},
@@ -77,7 +78,8 @@ export async function getOrSetCart(countryCode: string) {
     revalidateTag(cartCacheTag)
   }
 
-  if (cart && cart?.region_id !== region.id) {
+  // If cart exists and region does not match, update region
+  if (cart && cart.region_id !== region.id && !cart.completed_at) {
     await sdk.store.cart.update(cart.id, { region_id: region.id }, {}, headers)
     const cartCacheTag = await getCacheTag("carts")
     revalidateTag(cartCacheTag)
