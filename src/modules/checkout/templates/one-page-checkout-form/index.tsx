@@ -189,33 +189,28 @@ export default function OnePageCheckout({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!cart) return
-    setLoading(true)
+    // if (!cart) return
+    // setLoading(true)
 
-    try {
-      // 1. Update cart with addresses
-      await sdk.store.cart.update(cart.id, {
-        email,
-        shipping_address: shipping,
-        billing_address: sameAsShipping ? shipping : billing,
-      })
+    // try {
+    //   // 2. Init payment session
+    //   if (selectedPaymentMethod) {
+    //     await initiatePaymentSession(cart, {
+    //       provider_id: selectedPaymentMethod,
+    //       data: {
+    //         amount: Math.round(cart.total * 100), // Use current cart total with discounts
+    //         currency: cart.currency_code,
+    //       },
+    //     })
+    //   }
+    // } catch (err: any) {
+    //   console.error("❌ Checkout error", err)
+    //   setError(err.message)
+    // } finally {
+    //   setLoading(false)
+    // }
 
-      // 2. Init payment session
-      if (selectedPaymentMethod) {
-        await initiatePaymentSession(cart, {
-          provider_id: selectedPaymentMethod,
-          data: {
-            amount: Math.round(cart.total * 100), // Use current cart total with discounts
-            currency: cart.currency_code,
-          },
-        })
-      }
-    } catch (err: any) {
-      console.error("❌ Checkout error", err)
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    console.log("Form Submitted, Customer proceed to checkout...")
   }
 
   const renderInput = (
