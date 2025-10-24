@@ -1,12 +1,9 @@
 "use client"
 
-import {
-  deleteLineItem,
-  removeFlexibleBundleFromCart,
-  updateFlexibleBundleInCart,
-} from "@lib/data/cart"
+import { deleteLineItem, removeFlexibleBundleFromCart } from "@lib/data/cart"
 import { Spinner, Trash } from "@medusajs/icons"
-import { clx } from "@medusajs/ui"
+import { clx, toast } from "@medusajs/ui"
+import { useCart } from "context/CartContext"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -18,7 +15,7 @@ const DeleteButton = ({
   bundle_item_id, // Add this prop
   allCartItems, // Add this prop
   countryCode, // Add this prop
-  remove_entire_bundle = false, // Changed default to false
+  remove_entire_bundle = true, // Changed default to false
 }: {
   id: string
   children?: React.ReactNode
@@ -30,72 +27,32 @@ const DeleteButton = ({
   remove_entire_bundle?: boolean
 }) => {
   const [isDeleting, setIsDeleting] = useState(false)
-  const router = useRouter()
+  const { setCart, removeFromCart, refreshCart } = useCart()
 
   const handleDelete = async (id: string) => {
     setIsDeleting(true)
 
     try {
-      if (bundle_id && remove_entire_bundle) {
-        await removeFlexibleBundleFromCart(bundle_id)
+      let updatedCart: any
 
-        window.dispatchEvent(
-          new CustomEvent("cart-updated", {
-            detail: {
-              action: "bundle-removed",
-              bundleId: bundle_id,
-            },
-          })
-        )
-      } else if (bundle_id && bundle_item_id && allCartItems && countryCode) {
-        // Find all other bundle items (excluding the one being removed)
-        const otherBundleItems = allCartItems
-          .filter(
-            (item) =>
-              item.metadata?.bundle_id === bundle_id &&
-              item.metadata?.bundle_item_id !== bundle_item_id
-          )
-          .map((item) => ({
-            item_id: item.metadata?.bundle_item_id as string,
-            variant_id: item.variant_id as string,
-            quantity: item.quantity,
-          }))
-
-        // Update bundle with remaining items (this will recalculate discounts)
-        await updateFlexibleBundleInCart({
-          bundleId: bundle_id,
-          countryCode,
-          selectedItems: otherBundleItems,
-        })
-
-        window.dispatchEvent(
-          new CustomEvent("cart-updated", {
-            detail: {
-              action: "bundle-item-removed",
-              itemId: id,
-              bundleId: bundle_id,
-              remainingItems: otherBundleItems.length,
-            },
-          })
-        )
+      if (bundle_id) {
+        await removeFromCart(bundle_id, bundle_item_id)
+        toast.success("Bundle removed from cart successfully!")
       } else {
-        await deleteLineItem(id)
-
-        window.dispatchEvent(
-          new CustomEvent("cart-updated", {
-            detail: {
-              action: "item-removed",
-              itemId: id,
-            },
-          })
-        )
+        updatedCart = await deleteLineItem(id)
+        toast.success("Item removed from cart successfully!")
       }
 
-      // Small delay for processing then refresh
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      router.refresh()
+      if (updatedCart) {
+        setCart(updatedCart)
+      }
+
+      refreshCart()
+      console.log("Updated Cart after deletion:", updatedCart)
     } catch (err) {
       console.error("Failed to delete item:", err)
+      toast.error("Failed to remove item from cart.")
+    } finally {
       setIsDeleting(false)
     }
   }

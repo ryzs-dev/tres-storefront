@@ -95,8 +95,6 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
     throw new Error("No existing cart found, please create one before updating")
   }
 
-  console.log("🔍 updateCart called with:", data)
-
   const headers = {
     ...(await getAuthHeaders()),
   }
@@ -112,14 +110,6 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
   const updatedCart = await sdk.store.cart
     .update(cartId, data, {}, headers)
     .then(({ cart }) => cart)
-
-  console.log("💰 Cart after Medusa update (prices reset):", {
-    total: updatedCart.total,
-    items: updatedCart.items?.map((item) => ({
-      id: item.id,
-      unit_price: item.unit_price,
-    })),
-  })
 
   // STEP 3: Restore bundle discounts using custom endpoint
   if (bundleItems.length > 0) {
@@ -470,12 +460,15 @@ export async function placeOrder(cartId?: string) {
     })
     .catch(medusaError)
 
+  const countryCode =
+    cartRes.order.shipping_address?.country_code?.toLowerCase()
+
   if (cartRes?.type === "order") {
-    const countryCode =
-      cartRes.order.shipping_address?.country_code?.toLowerCase()
     removeCartId()
     redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`)
   }
+
+  const newCart = await getOrSetCart("my") // Default to 'us' if country code is unavailable
 
   return cartRes.cart
 }
@@ -528,10 +521,12 @@ export async function listCartOptions() {
 }
 
 export async function addFlexibleBundleToCart({
+  cartId,
   bundleId,
   countryCode,
   selectedItems,
 }: {
+  cartId: string
   bundleId: string
   countryCode: string
   selectedItems: {
@@ -544,9 +539,11 @@ export async function addFlexibleBundleToCart({
     throw new Error("Missing bundle ID when adding to cart")
   }
 
-  const cart = await getOrSetCart(countryCode)
+  if (!cartId) {
+    throw new Error("Missing cart ID when adding bundle to cart")
+  }
 
-  if (!cart) {
+  if (!cartId) {
     throw new Error("Error retrieving or creating cart")
   }
 
@@ -554,103 +551,30 @@ export async function addFlexibleBundleToCart({
     ...(await getAuthHeaders()),
   }
 
-  console.log("=== ADDING BUNDLE TO CART ===")
-  console.log("Cart ID:", cart.id)
-  console.log("Bundle ID:", bundleId)
-  console.log("Selected items:", selectedItems)
-
-  // CHECK FOR EXISTING BUNDLE ITEMS FIRST
-  const existingCart = await retrieveCart(cart.id)
-  const existingBundleItems =
-    existingCart?.items?.filter(
-      (item) => item.metadata?.bundle_id === bundleId
-    ) || []
-
-  console.log(`🔍 Checking for existing bundle items...`)
-  console.log(
-    `📊 Found ${existingBundleItems.length} existing items in bundle ${bundleId}`
+  await sdk.client.fetch<HttpTypes.StoreCartResponse>(
+    `/store/carts/${cartId}/flexible-bundle-items`,
+    {
+      method: "POST",
+      body: {
+        bundle_id: bundleId,
+        selectedItems,
+      },
+      headers,
+    }
   )
 
-  if (existingBundleItems.length > 0) {
-    console.log("🔄 EXISTING BUNDLE DETECTED - UPGRADING DISCOUNT")
-    console.log(
-      "Existing items:",
-      existingBundleItems.map((item) => ({
-        item_id: item.metadata?.bundle_item_id,
-        variant_id: item.variant_id,
-        quantity: item.quantity,
-      }))
-    )
-
-    // Merge existing items with new items
-    const allBundleItems = [
-      // Existing items
-      ...existingBundleItems.map((item) => ({
-        item_id: item.metadata?.bundle_item_id as string,
-        variant_id: item.variant_id as string,
-        quantity: item.quantity,
-      })),
-      // New items
-      ...selectedItems,
-    ]
-
-    console.log(`📦 Total items after merge: ${allBundleItems.length}`)
-    console.log("All items:", allBundleItems)
-
-    // Use update workflow to replace the entire bundle
-    console.log("🚀 Calling updateFlexibleBundleInCart...")
-    return await updateFlexibleBundleInCart({
-      bundleId,
-      countryCode,
-      selectedItems: allBundleItems,
-    })
-  }
-
-  // NO EXISTING BUNDLE - PROCEED WITH NORMAL ADD
-  await sdk.client
-    .fetch<HttpTypes.StoreCartResponse>(
-      `/store/carts/${cart.id}/flexible-bundle-items`,
-      {
-        method: "POST",
-        body: {
-          bundle_id: bundleId,
-          selectedItems,
-        },
-        headers,
-      }
-    )
-    .then(async () => {
-      const cartCacheTag = await getCacheTag("carts")
-      revalidateTag(cartCacheTag)
-
-      const fulfillmentCacheTag = await getCacheTag("fulfillment")
-      revalidateTag(fulfillmentCacheTag)
-    })
-    .catch((error) => {
-      console.error("Cart API error:", error)
-      throw error
-    })
-
-  console.log("✅ Bundle items added, waiting for discount processing...")
-
-  // Wait for the subscriber to process discounts (it runs async)
-  await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  console.log("🔄 Refreshing cart to get applied discounts...")
-
-  // Force refresh the cart to get the updated prices with discounts
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
 
-  // Refetch the cart with applied discounts
-  const updatedCart = await retrieveCart(cart.id)
+  const updatedCart = await retrieveCart(cartId)
 
-  console.log("✅ Cart refreshed with discounts applied")
-
-  return updatedCart
+  return { cart: updatedCart }
 }
 
-export async function removeFlexibleBundleFromCart(bundleId: string) {
+export async function removeFlexibleBundleFromCart(
+  bundleId: string,
+  bundleItemId?: string
+) {
   const cartId = await getCartId()
 
   if (!cartId) {
@@ -663,9 +587,13 @@ export async function removeFlexibleBundleFromCart(bundleId: string) {
 
   await sdk.client
     .fetch<HttpTypes.StoreCartResponse>(
-      `/store/carts/${cartId}/flexible-bundle-items/${bundleId}`,
+      `/store/carts/${cartId}/flexible-bundle-items`,
       {
         method: "DELETE",
+        body: {
+          bundle_id: bundleId,
+          item_id: bundleItemId,
+        },
         headers,
       }
     )
@@ -676,19 +604,19 @@ export async function removeFlexibleBundleFromCart(bundleId: string) {
       revalidateTag(fulfillmentCacheTag)
     })
     .catch(medusaError)
+
+  const updatedCart = await retrieveCart(cartId)
+
+  return { cart: updatedCart }
 }
 
-/**
- * Update bundle in cart - handles three scenarios:
- * 1. Delete bundle: Pass empty selectedItems array
- * 2. Update quantities: Pass same items with different quantities
- * 3. Change items: Pass different items within the bundle
- */
 export async function updateFlexibleBundleInCart({
+  cartId,
   bundleId,
   countryCode,
   selectedItems = [], // Default to empty array (delete bundle)
 }: {
+  cartId: string
   bundleId: string
   countryCode: string
   selectedItems?: {
@@ -701,10 +629,8 @@ export async function updateFlexibleBundleInCart({
     throw new Error("Missing bundle ID when updating bundle in cart")
   }
 
-  const cart = await getOrSetCart(countryCode)
-
-  if (!cart) {
-    throw new Error("Error retrieving cart for bundle update")
+  if (!cartId) {
+    throw new Error("Missing cart ID when updating bundle in cart")
   }
 
   const headers = {
@@ -712,15 +638,16 @@ export async function updateFlexibleBundleInCart({
   }
 
   try {
-    const response = await sdk.client.fetch<{
+    await sdk.client.fetch<{
       cart: HttpTypes.StoreCart
       bundle_id: string
       action: string
       items_count: number
       message: string
-    }>(`/store/carts/${cart.id}/flexible-bundle-items/${bundleId}`, {
+    }>(`/store/carts/${cartId}/flexible-bundle-items`, {
       method: "PATCH",
       body: {
+        bundle_id: bundleId,
         selectedItems,
       },
       headers,
@@ -729,16 +656,47 @@ export async function updateFlexibleBundleInCart({
     // Clear cart cache to ensure fresh data
     const cartCacheTag = await getCacheTag("carts")
     revalidateTag(cartCacheTag)
-    // window.location.reload() // Force page refresh
 
     const fulfillmentCacheTag = await getCacheTag("fulfillment")
     revalidateTag(fulfillmentCacheTag)
 
-    await retrieveCart(cart.id) // Refetch to get updated cart state
+    const updatedCart = await retrieveCart(cartId)
 
-    return response.cart
+    return { cart: updatedCart }
   } catch (error) {
     console.error("Bundle update API error:", error)
     throw error
   }
+}
+
+export async function removeBundleItemFromCart(
+  cartId: string,
+  bundleItemId: string
+) {
+  if (!cartId) {
+    throw new Error("No cart found when removing bundle")
+  }
+
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  await sdk.client
+    .fetch<HttpTypes.StoreCartResponse>(
+      `/store/carts/${cartId}/flexible-bundle-items`,
+      {
+        method: "DELETE",
+        body: {
+          bundle_item_id: bundleItemId,
+        },
+        headers,
+      }
+    )
+    .then(async () => {
+      const cartCacheTag = await getCacheTag("carts")
+      revalidateTag(cartCacheTag)
+      const fulfillmentCacheTag = await getCacheTag("fulfillment")
+      revalidateTag(fulfillmentCacheTag)
+    })
+    .catch(medusaError)
 }

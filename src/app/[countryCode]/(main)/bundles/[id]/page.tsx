@@ -113,7 +113,6 @@ export default async function BundleDetailPage(props: Props) {
     const { bundle } = response
 
     if (!bundle) {
-      console.log("❌ No bundle found in response")
       notFound()
     }
 

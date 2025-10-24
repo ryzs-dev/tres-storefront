@@ -23,7 +23,7 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
 
     if (originalPriceCents && discountedPriceCents) {
       const itemSavings =
-        ((originalPriceCents - discountedPriceCents) / 100) * item.quantity
+        (originalPriceCents - discountedPriceCents) * item.quantity
       return total + itemSavings
     }
     return total

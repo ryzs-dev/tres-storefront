@@ -237,9 +237,6 @@ export async function addFlexibleBundleToCart({
       ...selectedItems,
     ]
 
-    console.log(`📦 Total items after merge: ${allBundleItems.length}`)
-    console.log("All items:", allBundleItems)
-
     // Use update workflow to replace the entire bundle
     console.log("🚀 Calling updateFlexibleBundleInCart...")
     return await updateFlexibleBundleInCart({
@@ -248,8 +245,6 @@ export async function addFlexibleBundleToCart({
       selectedItems: allBundleItems,
     })
   }
-
-  console.log("➕ NO EXISTING BUNDLE - PROCEEDING WITH NORMAL ADD")
 
   // NO EXISTING BUNDLE - PROCEED WITH NORMAL ADD
   await sdk.client
@@ -276,12 +271,8 @@ export async function addFlexibleBundleToCart({
       throw error
     })
 
-  console.log("✅ Bundle items added, waiting for discount processing...")
-
   // Wait for the subscriber to process discounts (it runs async)
   await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  console.log("🔄 Refreshing cart to get applied discounts...")
 
   // Force refresh the cart to get the updated prices with discounts
   const cartCacheTag = await getCacheTag("carts")
@@ -307,14 +298,14 @@ export const getBundleDiscountInfo = (
       return {
         type: "fixed",
         amount: bundle.discount_2_items_amount,
-        amountRM: bundle.discount_2_items_amount / 100,
+        amountRM: bundle.discount_2_items_amount,
         hasDiscount: true,
       }
     } else if (itemCount >= 3 && bundle.discount_3_items_amount) {
       return {
         type: "fixed",
         amount: bundle.discount_3_items_amount,
-        amountRM: bundle.discount_3_items_amount / 100,
+        amountRM: bundle.discount_3_items_amount,
         hasDiscount: true,
       }
     }

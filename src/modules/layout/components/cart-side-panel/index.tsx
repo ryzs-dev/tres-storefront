@@ -1,5 +1,3 @@
-// Updated CartSidePanel to match Summary's calculation logic
-
 "use client"
 
 import { Transition, Dialog } from "@headlessui/react"
@@ -7,7 +5,8 @@ import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { Button, Table } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import Item from "@modules/cart/components/item" // Import the existing Item component
+import Item from "@modules/cart/components/item"
+import BundleItem from "@modules/cart/components/bundle-item"
 import { Fragment } from "react"
 import { XMark } from "@medusajs/icons"
 
@@ -27,22 +26,63 @@ const CartSidePanel = ({
       return acc + item.quantity
     }, 0) || 0
 
-  const subtotal = cartState?.subtotal ?? 0
+  const subtotal = (cartState?.subtotal ?? 0) / 100
 
-  // Use the SAME calculation logic as Summary component
+  // Get total discount per bundle for display
+  const bundleDiscounts = cartState?.items?.reduce((acc, item) => {
+    const bundleId = item.metadata?.bundle_id as string | undefined
+    if (!bundleId) return acc
+
+    // Only set once per bundle (first item found)
+    if (!(bundleId in acc)) {
+      acc[bundleId] =
+        typeof item.metadata?.discount_applied === "number"
+          ? item.metadata.discount_applied
+          : 0
+    }
+
+    return acc
+  }, {} as Record<string, number>)
+
   const totalBundleSavings =
     cartState?.items?.reduce((total, item) => {
-      // Only calculate for bundle items that have discounts applied
-      if (
-        item.metadata?.is_from_bundle &&
-        item.metadata?.actual_discount_amount
-      ) {
-        // Use the actual_discount_amount which is already the total discount for this item
-        const itemSavings = Number(item.metadata.actual_discount_amount) / 100
-        return total + itemSavings
+      if (item.metadata?.bundle_id) {
+        const originalUnitPrice = item.raw_unit_price?.amount || item.unit_price
+        const discountedUnitPrice = item.unit_price
+        const itemSavings =
+          (originalUnitPrice - discountedUnitPrice) * item.quantity
+        return total + (itemSavings > 0 ? itemSavings / 100 : 0)
       }
       return total
     }, 0) || 0
+
+  // Group items by bundle
+  const groupedItems = cartState?.items?.reduce(
+    (acc, item) => {
+      if (item.metadata?.bundle_id) {
+        const bundleId = item.metadata.bundle_id as string
+        const bundleTitle = (item.metadata.bundle_title as string) || "Bundle"
+
+        if (!acc.bundles[bundleId]) {
+          acc.bundles[bundleId] = {
+            title: bundleTitle,
+            items: [],
+          }
+        }
+        acc.bundles[bundleId].items.push(item)
+      } else {
+        acc.regularItems.push(item)
+      }
+      return acc
+    },
+    {
+      bundles: {} as Record<
+        string,
+        { title: string; items: HttpTypes.StoreCartLineItem[] }
+      >,
+      regularItems: [] as HttpTypes.StoreCartLineItem[],
+    }
+  ) || { bundles: {}, regularItems: [] }
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -93,13 +133,26 @@ const CartSidePanel = ({
                     {/* Content */}
                     <div className="flex-1 overflow-y-auto">
                       {cartState && cartState.items?.length ? (
-                        <>
-                          {/* Cart Items using existing Item component */}
-                          <div className="px-2 py-4">
-                            {/* Custom Table wrapper for sidebar layout */}
+                        <div className="px-4 py-4 space-y-4">
+                          {/* Render Bundles */}
+                          {Object.entries(groupedItems.bundles).map(
+                            ([bundleId, bundle]) => (
+                              <BundleItem
+                                key={bundleId}
+                                bundleId={bundleId}
+                                bundleTitle={bundle.title}
+                                items={bundle.items}
+                                countryCode="my"
+                                currencyCode={cartState.currency_code}
+                              />
+                            )
+                          )}
+
+                          {/* Render Regular Items */}
+                          {groupedItems.regularItems.length > 0 && (
                             <Table>
                               <Table.Body>
-                                {cartState.items
+                                {groupedItems.regularItems
                                   .sort((a, b) => {
                                     return (a.created_at ?? "") >
                                       (b.created_at ?? "")
@@ -107,11 +160,10 @@ const CartSidePanel = ({
                                       : 1
                                   })
                                   .map((item) => (
-                                    /* Reuse the existing Item component with all its logic */
                                     <Item
                                       key={item.id}
                                       item={item}
-                                      type="full" // Use full type to get quantity controls
+                                      type="full"
                                       currencyCode={cartState.currency_code}
                                       cartId={cartState.id}
                                       countryCode="my"
@@ -120,8 +172,8 @@ const CartSidePanel = ({
                                   ))}
                               </Table.Body>
                             </Table>
-                          </div>
-                        </>
+                          )}
+                        </div>
                       ) : (
                         // Empty cart state
                         <div className="flex flex-col items-center justify-center h-full px-4">
@@ -150,21 +202,38 @@ const CartSidePanel = ({
                     {/* Footer - only show if cart has items */}
                     {cartState && (cartState.items ?? []).length > 0 && (
                       <div className="border-t border-gray-200 px-4 py-6 space-y-4">
-                        {/* Bundle savings summary - now matches Summary component exactly */}
-                        {totalBundleSavings > 0 && (
-                          <div className="flex items-center justify-between text-[#99b2dd] border-t pt-4">
-                            <span className="text-sm font-medium">
-                              Bundle Discount :
-                            </span>
-                            <span className="text-sm font-semibold">
-                              -
-                              {convertToLocale({
-                                amount: totalBundleSavings,
-                                currency_code: cartState.currency_code,
-                              })}
-                            </span>
-                          </div>
-                        )}
+                        {bundleDiscounts &&
+                          Object.entries(bundleDiscounts).map(
+                            ([bundleId, discount]) => {
+                              if (discount <= 0) return null
+
+                              const bundleItem = cartState?.items?.find(
+                                (item) => item.metadata?.bundle_id === bundleId
+                              )
+
+                              const bundleTitle =
+                                bundleItem?.metadata?.bundle_title ||
+                                ("Bundle" as string)
+
+                              return (
+                                <div
+                                  key={bundleId}
+                                  className="flex items-center justify-between text-[#99b2dd] border-t pt-4"
+                                >
+                                  <span className="text-sm font-medium">
+                                    {String(bundleTitle).toUpperCase()} :
+                                  </span>
+                                  <span className="text-sm font-semibold">
+                                    -
+                                    {convertToLocale({
+                                      amount: discount / 100,
+                                      currency_code: cartState.currency_code,
+                                    })}
+                                  </span>
+                                </div>
+                              )
+                            }
+                          )}
 
                         {/* Subtotal */}
                         <div className="flex items-center justify-between">
@@ -177,7 +246,7 @@ const CartSidePanel = ({
                             data-value={subtotal}
                           >
                             {convertToLocale({
-                              amount: subtotal,
+                              amount: subtotal * 100,
                               currency_code: cartState.currency_code,
                             })}
                           </span>
@@ -188,31 +257,37 @@ const CartSidePanel = ({
                         </p>
 
                         {/* Action buttons */}
-                        <div className="space-y-3">
-                          <LocalizedClientLink href="/cart" className="block">
-                            <Button
-                              className="w-full"
-                              size="large"
-                              variant="secondary"
-                              onClick={onClose}
-                              data-testid="go-to-cart-button"
+                        <div className=" flex w-full items-center gap-2 justify-center">
+                          <Button
+                            asChild
+                            className="w-full flex items-center justify-center  "
+                            size="large"
+                            variant="secondary"
+                            onClick={onClose}
+                            data-testid="go-to-cart-button"
+                          >
+                            <LocalizedClientLink
+                              href="/cart"
+                              className="w-full flex h-full"
                             >
                               View Cart
-                            </Button>
-                          </LocalizedClientLink>
-                          <LocalizedClientLink
-                            href="/checkout"
-                            className="block"
+                            </LocalizedClientLink>
+                          </Button>
+                          <Button
+                            asChild
+                            className="w-full flex items-center justify-center  "
+                            size="large"
+                            variant="primary"
+                            onClick={onClose}
+                            data-testid="checkout-button"
                           >
-                            <Button
-                              className="w-full"
-                              size="large"
-                              onClick={onClose}
-                              data-testid="checkout-button"
+                            <LocalizedClientLink
+                              href="/checkout"
+                              className="w-full flex h-full"
                             >
                               Checkout
-                            </Button>
-                          </LocalizedClientLink>
+                            </LocalizedClientLink>
+                          </Button>
                         </div>
                       </div>
                     )}

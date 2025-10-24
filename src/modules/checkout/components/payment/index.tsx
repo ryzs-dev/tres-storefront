@@ -69,7 +69,7 @@ const refreshPaymentSession = async (cartId: string) => {
                 body: JSON.stringify({
                   provider_id: session.provider_id,
                   data: {
-                    amount: Math.round(cart.total * 100), // Use current cart total
+                    amount: Math.round(cart.total), // Use current cart total
                     currency: cart.currency_code,
                   },
                 }),
@@ -191,14 +191,14 @@ const Payment = ({
         await initiatePaymentSession(cart, {
           provider_id: method,
           data: {
-            amount: Math.round(cartTotal * 100), // Use current cart total with discounts
+            amount: Math.round(cartTotal), // Use current cart total with discounts
             currency: cart.currency_code,
           },
         })
 
         console.log(
           `✅ Payment session initiated for ${method} with amount: ${cartTotal} (${Math.round(
-            cartTotal * 100
+            cartTotal
           )} cents)`
         )
       } catch (err: any) {
@@ -304,7 +304,7 @@ const Payment = ({
       if (!checkActiveSession) {
         console.log(
           `💳 Initiating payment session with amount: ${cartTotal} (${Math.round(
-            cartTotal * 100
+            cartTotal
           )} cents)`
         )
 

@@ -32,8 +32,6 @@ export default async function UnbuckleCollectionPage({
     targetNames.includes(bundle.title.toLowerCase())
   )
 
-  console.log(unbuckleBundles)
-
   return (
     <BundlesTemplate
       bundles={unbuckleBundles}

@@ -1,4 +1,3 @@
-// src/modules/cart/templates/summary.tsx - Enhanced version with Custom Promo
 "use client"
 
 import { Button, Heading, Text } from "@medusajs/ui"
@@ -6,11 +5,11 @@ import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useParams } from "next/navigation"
+import { getBundleDiscounts } from "@lib/util/get-bundle-discount"
 
 type SummaryProps = {
   cart: HttpTypes.StoreCart & {
     shipping_total: number
-    tax_total: number
     metadata?: Record<string, any>
   }
 }
@@ -18,36 +17,19 @@ type SummaryProps = {
 const Summary = ({ cart }: SummaryProps) => {
   const { countryCode } = useParams() as { countryCode: string }
 
-  // Calculate bundle savings
-  const bundleSavings =
-    cart.items?.reduce((total, item) => {
-      // Only calculate for bundle items that have discounts applied
-      if (
-        item.metadata?.is_from_bundle &&
-        item.metadata?.actual_discount_amount
-      ) {
-        // Use the actual_discount_amount which is already the total discount for this item
-        const itemSavings = Number(item.metadata.actual_discount_amount) / 100
-        return total + itemSavings
-      }
-      return total
-    }, 0) || 0
-
-  console.log("Bundle Savings:", bundleSavings)
-
-  // Calculate original and discounted totals
+  // --- 1️⃣ Calculate Subtotal (before discounts)
   const originalCartTotal =
     cart.items?.reduce((total, item) => {
-      if (item.metadata?.original_price_cents) {
-        return (
-          total +
-          (Number(item.metadata.original_price_cents) * item.quantity) / 100
-        )
-      }
-      // Fallback to current price if no original price is set
-      return total + item.unit_price * item.quantity
+      const basePrice = item.metadata?.unit_price
+        ? Number(item.metadata.unit_price)
+        : item.unit_price
+      return total + basePrice * item.quantity
     }, 0) || 0
 
+  // --- 2️⃣ Group bundle discounts per unique bundle_id (avoid double-counting)
+  const bundleDiscounts = getBundleDiscounts(cart)
+
+  // --- 3️⃣ Other discounts (non-bundle)
   const otherDiscount = cart.discount_total
 
   return (
@@ -56,11 +38,12 @@ const Summary = ({ cart }: SummaryProps) => {
         Summary
       </Heading>
 
-      {/* Price Breakdown */}
-      <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle">
+      {/* --- Price Breakdown --- */}
+      <div className="flex flex-col gap-y-3 txt-medium text-ui-fg-subtle">
+        {/* Subtotal */}
         <div className="flex items-center justify-between">
-          <Text>Original Total</Text>
-          <Text className=" text-gray-600">
+          <Text>Subtotal</Text>
+          <Text className="text-gray-700 font-medium">
             {convertToLocale({
               amount: originalCartTotal,
               currency_code: cart.currency_code,
@@ -68,23 +51,27 @@ const Summary = ({ cart }: SummaryProps) => {
           </Text>
         </div>
 
-        {bundleSavings > 0 && (
-          <div className="flex items-center justify-between">
-            <Text>Bundle Discount</Text>
-            <Text data-testid="cart-bundle-saving" className="text-[#99b2dd]">
+        {Object.values(bundleDiscounts).map((bundle) => (
+          <div
+            key={bundle.title}
+            className="flex items-center justify-between border-b border-gray-100 pb-1"
+          >
+            <Text className="text-gray-500">Bundle: {bundle.title}</Text>
+            <Text className="text-[#99b2dd] font-medium">
               -{" "}
               {convertToLocale({
-                amount: bundleSavings,
+                amount: bundle.discount / 100,
                 currency_code: cart.currency_code,
               })}
             </Text>
           </div>
-        )}
+        ))}
 
+        {/* Other Discounts */}
         {otherDiscount > 0 && (
           <div className="flex items-center justify-between">
             <Text>Other Discount</Text>
-            <Text data-testid="cart-bundle-saving" className="text-[#99b2dd]">
+            <Text className="text-[#99b2dd] font-medium">
               -{" "}
               {convertToLocale({
                 amount: otherDiscount,
@@ -94,56 +81,40 @@ const Summary = ({ cart }: SummaryProps) => {
           </div>
         )}
 
-        <div className="flex items-center justify-between">
-          <Text className="flex items-center gap-x-1">Subtotal</Text>
-          <Text data-testid="cart-subtotal">
-            {convertToLocale({
-              amount: cart.total ?? 0,
-              currency_code: cart.currency_code,
-            })}
-          </Text>
-        </div>
-
+        {/* Shipping */}
         <div className="flex items-center justify-between">
           <Text>Shipping</Text>
-          <Text data-testid="cart-shipping">
+          <Text className="text-gray-700 font-medium">
             {convertToLocale({
               amount: cart.shipping_total ?? 0,
               currency_code: cart.currency_code,
             })}
           </Text>
         </div>
-
-        <div className="flex justify-between">
-          <Text className="flex items-center gap-x-1">Taxes</Text>
-          <Text data-testid="cart-taxes">
-            {convertToLocale({
-              amount: cart.tax_total ?? 0,
-              currency_code: cart.currency_code,
-            })}
-          </Text>
-        </div>
       </div>
-
-      {/* Custom Promo Code Component */}
 
       <div className="h-px w-full border-b border-gray-200" />
 
+      {/* --- Total --- */}
       <div className="flex items-center justify-between text-ui-fg-base txt-medium-plus">
         <Text>Total</Text>
-        <Text className="txt-xlarge-plus" data-testid="cart-total">
+        <Text
+          className="txt-xlarge-plus font-semibold"
+          data-testid="cart-total"
+        >
           {convertToLocale({
-            amount: cart.total, // Now cart.total should already include all discounts
+            amount: cart.total,
             currency_code: cart.currency_code,
           })}
         </Text>
       </div>
 
+      {/* --- Checkout Button --- */}
       <LocalizedClientLink href={`/checkout`} data-testid="checkout-button">
         <Button className="w-full h-10">
           Checkout{" "}
           {convertToLocale({
-            amount: cart.total, // Use native cart total
+            amount: cart.total,
             currency_code: cart.currency_code,
           })}
         </Button>

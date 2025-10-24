@@ -64,17 +64,39 @@ export const removeAuthToken = async () => {
 
 export const getCartId = async () => {
   const cookies = await nextCookies()
-  return cookies.get("_medusa_cart_id")?.value
+  const cartId = cookies.get("_medusa_cart_id")?.value
+
+  // ✅ Use the cookie in production
+  if (cartId) return cartId
+
+  // 🧩 Dev fallback — localStorage
+  if (typeof window !== "undefined") {
+    const storedCartId = localStorage.getItem("cart_id")
+    if (storedCartId) {
+      console.warn(
+        "⚠️ No server cookie found, using localStorage cart:",
+        storedCartId
+      )
+      return storedCartId
+    }
+  }
+
+  return null
 }
 
 export const setCartId = async (cartId: string) => {
   const cookies = await nextCookies()
+
   cookies.set("_medusa_cart_id", cartId, {
-    maxAge: 60 * 60 * 24 * 7,
-    httpOnly: true,
-    sameSite: "strict",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    httpOnly: process.env.NODE_ENV === "production",
     secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
   })
+
+  if (typeof window !== "undefined") {
+    localStorage.setItem("cart_id", cartId)
+  }
 }
 
 export const removeCartId = async () => {
@@ -82,4 +104,8 @@ export const removeCartId = async () => {
   cookies.set("_medusa_cart_id", "", {
     maxAge: -1,
   })
+
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("cart_id")
+  }
 }

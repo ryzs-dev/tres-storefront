@@ -1,22 +1,21 @@
 "use client"
 
-import { HttpTypes } from "@medusajs/types"
 import { useState, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
-import { retrieveCart } from "@lib/data/cart"
 import CartSidePanel from "../cart-side-panel"
+import { useCart } from "context/CartContext"
 
 const CartButton = () => {
+  const pathname = usePathname()
+  const { cart } = useCart()
+
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false)
-  const [cartState, setCartState] = useState<HttpTypes.StoreCart | null>(null)
   const [isLoadingCart, setIsLoadingCart] = useState(true)
 
   const totalItems =
-    cartState?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0
-
+    cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0
   const itemRef = useRef<number>(totalItems)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pathname = usePathname()
 
   const openSidePanel = () => setIsSidePanelOpen(true)
   const closeSidePanel = () => setIsSidePanelOpen(false)
@@ -32,39 +31,9 @@ const CartButton = () => {
     openSidePanel()
   }
 
-  const getCartData = async () => {
-    try {
-      const cart = await retrieveCart()
-      setCartState(cart)
-    } catch (error) {
-      console.error("Error fetching cart:", error)
-      setCartState(null)
-    } finally {
-      setIsLoadingCart(false)
-    }
-  }
-
   useEffect(() => {
-    getCartData()
-  }, [])
-
-  useEffect(() => {
-    const handleCartUpdate = () => getCartData()
-
-    window.addEventListener("cart-updated", handleCartUpdate)
-    window.addEventListener("storage", handleCartUpdate)
-
-    return () => {
-      window.removeEventListener("cart-updated", handleCartUpdate)
-      window.removeEventListener("storage", handleCartUpdate)
-    }
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [])
+    setIsLoadingCart(false)
+  }, [cart])
 
   useEffect(() => {
     const cartChanged = itemRef.current !== totalItems
@@ -79,6 +48,10 @@ const CartButton = () => {
     itemRef.current = totalItems
   }, [totalItems, pathname, isLoadingCart, isSidePanelOpen])
 
+  if (!cart) {
+    return <span className="text-lg font-urw font-semibold">Cart (…)</span>
+  }
+
   return (
     <>
       <button
@@ -90,7 +63,7 @@ const CartButton = () => {
       </button>
 
       <CartSidePanel
-        cart={cartState}
+        cart={cart}
         isOpen={isSidePanelOpen}
         onClose={closeSidePanel}
       />

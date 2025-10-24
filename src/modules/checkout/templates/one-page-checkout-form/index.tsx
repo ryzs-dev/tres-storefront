@@ -4,21 +4,22 @@ import { useCallback, useEffect, useState } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { sdk } from "@lib/config"
 import { isStripe as isStripeFunc, paymentInfoMap } from "@lib/constants"
-import { initiatePaymentSession, setShippingMethod } from "@lib/data/cart"
+import {
+  initiatePaymentSession,
+  placeOrder,
+  setShippingMethod,
+} from "@lib/data/cart"
 import { calculatePriceForShippingOption } from "@lib/data/fulfillment"
 import { convertToLocale } from "@lib/util/money"
 import PaymentContainer, {
   StripeCardContainer,
 } from "@modules/checkout/components/payment-container"
 import { RadioGroup, Radio } from "@headlessui/react"
-import { Button, Heading, Text, clx } from "@medusajs/ui"
-import { CheckCircleSolid, Loader } from "@medusajs/icons"
-import ErrorMessage from "@modules/checkout/components/error-message"
-import Divider from "@modules/common/components/divider"
-import MedusaRadio from "@modules/common/components/radio"
-import PaymentButton from "@modules/checkout/components/payment-button"
+import { Loader } from "@medusajs/icons"
 import Review from "@modules/checkout/components/review"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import formatAddress from "@lib/util/format-address"
+import { clx, Heading, toast } from "@medusajs/ui"
 
 const PICKUP_OPTION_ON = "__PICKUP_ON"
 const PICKUP_OPTION_OFF = "__PICKUP_OFF"
@@ -30,23 +31,12 @@ type Props = {
   availableShippingMethods: HttpTypes.StoreCartShippingOption[]
 }
 
-function formatAddress(address: any) {
-  if (!address) return ""
-  let ret = ""
-  if (address.address_1) ret += ` ${address.address_1}`
-  if (address.address_2) ret += `, ${address.address_2}`
-  if (address.postal_code) ret += `, ${address.postal_code} ${address.city}`
-  if (address.country_code) ret += `, ${address.country_code.toUpperCase()}`
-  return ret
-}
-
 export default function OnePageCheckout({
   cart,
   customer,
   availablePaymentMethods,
   availableShippingMethods,
 }: Props) {
-  // Contact + address state
   const [email, setEmail] = useState(customer?.email ?? cart.email ?? "")
   const [shipping, setShipping] = useState({
     first_name: cart.shipping_address?.first_name ?? "",
@@ -62,7 +52,6 @@ export default function OnePageCheckout({
   const [sameAsShipping, setSameAsShipping] = useState(true)
   const [paymentReady, setPaymentReady] = useState(false)
 
-  // Shipping state
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingPrices, setIsLoadingPrices] = useState(true)
   const [showPickupOptions, setShowPickupOptions] =
@@ -82,44 +71,20 @@ export default function OnePageCheckout({
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams)
       params.set(name, value)
-
       return params.toString()
     },
     [searchParams]
   )
 
-  const handlePreparePayment = async () => {
-    if (!cart) return
-    setError(null)
-
-    try {
-      // Update cart addresses
-      await sdk.store.cart.update(cart.id, {
-        email,
-        shipping_address: shipping,
-        billing_address: sameAsShipping ? shipping : billing,
-      })
-
-      // Ensure shipping method is set
-      if (!shippingMethodId) throw new Error("Please select a shipping method.")
-      await setShippingMethod({ cartId: cart.id, shippingMethodId })
-
-      await initiatePaymentSession(cart, {
-        provider_id: selectedPaymentMethod,
-        data: {
-          amount: Math.round(cart.total * 100), // Use current cart total with discounts
-          currency: cart.currency_code,
-        },
-      })
-
-      // ✅ Navigate to review step after successful preparation
-      setPaymentReady(true)
-      router.push(pathname + "?" + createQueryString("step", "review"), {
-        scroll: false,
-      })
-    } catch (err: any) {
-      setError(err.message)
-    }
+  if (!(window as any).Razorpay) {
+    new Promise<void>((resolve, reject) => {
+      const script = document.createElement("script")
+      script.src = "https://checkout.razorpay.com/v1/checkout.js"
+      script.async = true
+      script.onload = () => resolve()
+      script.onerror = () => reject(new Error("Failed to load Razorpay SDK"))
+      document.body.appendChild(script)
+    })
   }
 
   const _shippingMethods = availableShippingMethods?.filter(
@@ -181,40 +146,120 @@ export default function OnePageCheckout({
       .finally(() => setIsLoading(false))
   }
 
-  // Payment state
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("")
   const [cardBrand, setCardBrand] = useState<string | null>(null)
   const [cardComplete, setCardComplete] = useState(false)
-  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!cart) return
-    setLoading(true)
-
+  async function handleSubmit() {
     try {
-      // 1. Update cart with addresses
+      setIsLoading(true)
+      setError(null)
+
       await sdk.store.cart.update(cart.id, {
         email,
         shipping_address: shipping,
         billing_address: sameAsShipping ? shipping : billing,
       })
 
-      // 2. Init payment session
-      if (selectedPaymentMethod) {
-        await initiatePaymentSession(cart, {
+      console.log("✅ Cart info updated.")
+
+      if (!shippingMethodId) throw new Error("Please select a shipping method.")
+      await setShippingMethod({ cartId: cart.id, shippingMethodId })
+
+      console.log("✅ Shipping method set.")
+
+      console.log(Math.round(cart.total))
+
+      if (selectedPaymentMethod === "pp_razorpay_razorpay") {
+        const { payment_collection } = await initiatePaymentSession(cart, {
           provider_id: selectedPaymentMethod,
           data: {
-            amount: Math.round(cart.total * 100), // Use current cart total with discounts
+            amount: Math.round(cart.total),
             currency: cart.currency_code,
+            metadata: { cart_id: cart.id },
           },
         })
+
+        console.log("✅ Razorpay payment session initiated.")
+        console.log("payment_collection", payment_collection)
+
+        const session = payment_collection.payment_sessions?.[0]
+        if (!session) {
+          throw new Error("Failed to initiate Razorpay payment session.")
+        }
+
+        const payment_collection_id = payment_collection.id
+        const payment_collection_payment_session_id = session.id
+
+        const razorpay = new (window as any).Razorpay({
+          key: session.data.key_id,
+          amount: session.data.amount,
+          currency: session.data.currency,
+          name: "Tres Store",
+          description: "Order payment",
+          order_id: session.data.order_id,
+          handler: async function (response: any) {
+            console.log("response", response)
+            try {
+              const verificationData = {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                payment_collection_id,
+                payment_collection_payment_session_id,
+              }
+
+              console.log(
+                "✅ Razorpay payment verification data:",
+                verificationData
+              )
+
+              const verifyRes = await fetch(
+                `/api/razorpay/update-payment-collection`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(verificationData),
+                }
+              )
+
+              const data = await verifyRes.json()
+
+              if (verifyRes.ok) {
+                console.log("✅ Verification success:", data)
+                toast.loading("Payment verified, placing order...", {
+                  duration: 3000,
+                })
+
+                // Cart before placing order
+                console.log("Cart before placing order:", cart)
+                await placeOrder(cart.id)
+              } else {
+                toast.error("Payment verification failed.")
+                console.error("❌ Verification failed:", data)
+              }
+              // // ✅ Step 2: Store verification data in Medusa (so authorizePayment can read it)
+              // await sdk.store.paymentCollections.update(cart.id, {
+              //   data: verificationData,
+              // })
+              // await placeOrder(cart.id)
+            } catch (err) {
+              console.error("❌ SDK error:", err)
+              setError("Something went wrong while completing the order.")
+            }
+          },
+          theme: { color: "#99B2DD" },
+        })
+
+        razorpay.open()
+      } else {
+        throw new Error("Unsupported payment method selected.")
       }
     } catch (err: any) {
-      console.error("❌ Checkout error", err)
+      console.error("Checkout failed:", err)
       setError(err.message)
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
@@ -225,325 +270,405 @@ export default function OnePageCheckout({
     required = true,
     type = "text"
   ) => (
-    <div className="space-y-1">
-      <label className="text-xs font-medium text-gray-700 uppercase tracking-wide">
-        {label}
-      </label>
+    <div className="relative">
       <input
         type={type}
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-gray-50 border-0 rounded-lg px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all"
-        placeholder={`Enter ${label.toLowerCase()}`}
+        placeholder=" "
+        className="
+      peer
+      w-full
+      rounded-xl
+      border border-gray-300
+      px-4 pt-3 pb-3
+      text-sm text-gray-900
+      bg-white
+      focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10
+      outline-none
+      transition-all
+      duration-200
+    "
       />
+      <label
+        className="
+      absolute
+      left-3
+      top-3.5
+      text-sm text-gray-500
+      bg-white px-1
+      transition-all
+      duration-200
+      pointer-events-none
+      peer-focus:-top-0
+      peer-focus:text-xs
+      peer-focus:left-3
+      peer-focus:text-gray-900
+      peer-[:not(:placeholder-shown)]:-top-0
+      peer-[:not(:placeholder-shown)]:text-xs
+      peer-[:not(:placeholder-shown)]:text-gray-600
+    "
+      >
+        {label}
+      </label>
     </div>
   )
 
   return (
-    <div className="max-w-full mx-auto bg-white">
-      <form onSubmit={handleSubmit} className="space-y-10">
-        {/* Contact */}
-        <section className="space-y-4">
-          <h2 className="text-3xl font-medium text-gray-900">Contact</h2>
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-700 uppercase tracking-wide">
-              Email Address
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-gray-50 border-0 rounded-lg px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-gray-900 focus:outline-none transition-all"
-              placeholder="your@email.com"
-            />
-          </div>
-        </section>
-
-        {/* Shipping Address */}
-        <section className="space-y-4">
-          <h2 className="text-3xl font-medium text-gray-900">
-            Shipping Address
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            {renderInput("First Name", shipping.first_name, (v) =>
-              setShipping({ ...shipping, first_name: v })
-            )}
-            {renderInput("Last Name", shipping.last_name, (v) =>
-              setShipping({ ...shipping, last_name: v })
-            )}
-          </div>
-
-          <div className="space-y-4">
-            {renderInput("Street Address", shipping.address_1, (v) =>
-              setShipping({ ...shipping, address_1: v })
-            )}
-
-            <div className="grid grid-cols-3 gap-4">
-              {renderInput("City", shipping.city, (v) =>
-                setShipping({ ...shipping, city: v })
-              )}
-              {renderInput("Postal Code", shipping.postal_code, (v) =>
-                setShipping({ ...shipping, postal_code: v })
-              )}
-              {renderInput("Country", shipping.country_code, (v) =>
-                setShipping({ ...shipping, country_code: v })
-              )}
+    <div className="w-full mx-auto px-4">
+      <Heading
+        level="h2"
+        className="flex flex-row text-3xl-regular items-baseline pb-4"
+      >
+        Customer Details{" "}
+      </Heading>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+        <div className="space-y-8">
+          {/* Contact */}
+          <section className="space-y-4">
+            <h2 className="text-base font-medium text-gray-900">Contact</h2>
+            <div className="relative">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder=" "
+                className="
+      peer
+      w-full
+      rounded-xl
+      border border-gray-300
+      px-4 pt-3 pb-3
+      text-sm text-gray-900
+      bg-white
+      focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10
+      outline-none
+      transition-all
+      duration-200
+    "
+              />
+              <label
+                className="
+      absolute
+      left-3
+      top-3.5
+      text-sm text-gray-500
+      bg-white px-1
+      transition-all
+      duration-200
+      pointer-events-none
+      peer-focus:-top-0
+      peer-focus:text-xs
+      peer-focus:left-3
+      peer-focus:text-gray-900
+      peer-[:not(:placeholder-shown)]:-top-0
+      peer-[:not(:placeholder-shown)]:text-xs
+      peer-[:not(:placeholder-shown)]:text-gray-600
+    "
+              >
+                Email
+              </label>
             </div>
+          </section>
 
-            {renderInput("Phone Number", shipping.phone, (v) =>
-              setShipping({ ...shipping, phone: v })
-            )}
-          </div>
-        </section>
-
-        {/* Billing Address */}
-        <section className="space-y-4">
-          <h2 className="text-3xl font-medium text-gray-900">
-            Billing Address
-          </h2>
-
-          <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-            <input
-              type="checkbox"
-              checked={sameAsShipping}
-              onChange={() => setSameAsShipping(!sameAsShipping)}
-              className="w-4 h-4 text-gray-900 bg-gray-100 border-gray-300 rounded focus:ring-gray-900 focus:ring-2"
-            />
-            <span className="text-sm font-medium text-gray-700">
-              Same as shipping address
-            </span>
-          </label>
-
-          {!sameAsShipping && (
-            <div className="space-y-4 pt-4">
-              <div className="grid grid-cols-2 gap-4">
-                {renderInput("First Name", billing.first_name, (v) =>
-                  setBilling({ ...billing, first_name: v })
+          {/* Delivery */}
+          <section className="space-y-4">
+            <h2 className="text-base font-medium text-gray-900">Delivery</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                {renderInput("First name", shipping.first_name, (v) =>
+                  setShipping({ ...shipping, first_name: v })
                 )}
-                {renderInput("Last Name", billing.last_name, (v) =>
-                  setBilling({ ...billing, last_name: v })
+                {renderInput("Last name", shipping.last_name, (v) =>
+                  setShipping({ ...shipping, last_name: v })
                 )}
               </div>
-              {renderInput("Street Address", billing.address_1, (v) =>
-                setBilling({ ...billing, address_1: v })
+              {renderInput("Address", shipping.address_1, (v) =>
+                setShipping({ ...shipping, address_1: v })
+              )}
+              <div className="grid grid-cols-3 gap-3">
+                {renderInput("City", shipping.city, (v) =>
+                  setShipping({ ...shipping, city: v })
+                )}
+                {renderInput("Postal code", shipping.postal_code, (v) =>
+                  setShipping({ ...shipping, postal_code: v })
+                )}
+                {renderInput(
+                  "Country",
+                  shipping.country_code.toUpperCase(),
+                  (v) => setShipping({ ...shipping, country_code: v })
+                )}
+              </div>
+              {renderInput("Phone", shipping.phone, (v) =>
+                setShipping({ ...shipping, phone: v })
               )}
             </div>
-          )}
-        </section>
+          </section>
 
-        {/* Delivery Options */}
-        <section className="space-y-6">
-          <h2 className="text-3xl font-medium text-gray-900">Delivery</h2>
-
-          {/* Pickup Option Toggle */}
-          {hasPickupOptions && (
-            <RadioGroup
-              value={showPickupOptions}
-              onChange={(value) => {
-                const id = _pickupMethods.find(
-                  (option) => !option.insufficient_inventory
-                )?.id
-                if (id) handleSetShippingMethod(id, "pickup")
-              }}
-              className="space-y-3"
-            >
-              <Radio value={PICKUP_OPTION_ON} className="outline-none">
-                {({ checked }) => (
-                  <div
-                    className={clx(
-                      "flex justify-between items-center p-4 rounded-lg border transition-all cursor-pointer",
-                      {
-                        "border-gray-900": checked,
-                        "border-gray-200 hover:border-gray-400": !checked,
-                      }
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <MedusaRadio checked={checked} />
-                      <span className="font-medium">Pick up your order</span>
-                    </div>
-                    <span className="text-sm font-medium">Free</span>
-                  </div>
-                )}
-              </Radio>
-            </RadioGroup>
-          )}
-
-          {/* Shipping Methods */}
-          <RadioGroup
-            value={shippingMethodId}
-            onChange={(v) => handleSetShippingMethod(v, "shipping")}
-            className="space-y-3"
-          >
-            {_shippingMethods?.map((option) => {
-              const isDisabled =
-                option.price_type === "calculated" &&
-                !isLoadingPrices &&
-                typeof calculatedPricesMap[option.id] !== "number"
-
-              return (
-                <Radio
-                  key={option.id}
-                  value={option.id}
-                  disabled={isDisabled}
-                  className="outline-none"
-                >
-                  {({ checked }) => (
-                    <div
-                      className={clx(
-                        "flex justify-between items-center p-4 rounded-lg border transition-all cursor-pointer",
-                        {
-                          "border-gray-900": checked,
-                          "border-gray-200 hover:border-gray-400":
-                            !checked && !isDisabled,
-                          "opacity-50 cursor-not-allowed": isDisabled,
-                        }
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <MedusaRadio checked={checked} />
-                        <span className="font-medium">{option.name}</span>
-                      </div>
-                      <span className="text-sm font-medium">
-                        {option.price_type === "flat" ? (
-                          convertToLocale({
-                            amount: option.amount!,
-                            currency_code: cart?.currency_code,
-                          })
-                        ) : calculatedPricesMap[option.id] ? (
-                          convertToLocale({
-                            amount: calculatedPricesMap[option.id],
-                            currency_code: cart?.currency_code,
-                          })
-                        ) : isLoadingPrices ? (
-                          <Loader />
-                        ) : (
-                          "—"
-                        )}
-                      </span>
-                    </div>
-                  )}
-                </Radio>
-              )
-            })}
-          </RadioGroup>
-
-          {/* Pickup Locations */}
-          {showPickupOptions === PICKUP_OPTION_ON && (
-            <div className="space-y-3">
-              <h3 className="text-xl font-medium text-gray-900">
-                Pickup Locations
-              </h3>
+          {/* Shipping Method */}
+          <section className="space-y-4">
+            <h2 className="text-base font-medium text-gray-900">
+              Shipping method
+            </h2>
+            <div className="border border-gray-300 rounded-lg divide-y divide-gray-200">
               <RadioGroup
                 value={shippingMethodId}
-                onChange={(v) => handleSetShippingMethod(v, "pickup")}
-                className="space-y-3"
+                onChange={(v) => v && handleSetShippingMethod(v, "shipping")}
               >
-                {_pickupMethods?.map((option) => (
-                  <Radio
-                    key={option.id}
-                    value={option.id}
-                    disabled={option.insufficient_inventory}
-                    className="outline-none"
-                  >
-                    {({ checked }) => (
-                      <div
-                        className={clx(
-                          "flex justify-between items-start p-4 rounded-lg border transition-all cursor-pointer",
-                          {
-                            "border-gray-900": checked,
-                            "border-gray-200 hover:border-gray-400":
-                              !checked && !option.insufficient_inventory,
-                            "opacity-50 cursor-not-allowed":
-                              option.insufficient_inventory,
-                          }
-                        )}
-                      >
-                        <div className="flex flex-col gap-1">
+                {_shippingMethods?.map((option) => {
+                  const isDisabled =
+                    option.price_type === "calculated" &&
+                    !isLoadingPrices &&
+                    typeof calculatedPricesMap[option.id] !== "number"
+
+                  return (
+                    <Radio
+                      key={option.id}
+                      value={option.id}
+                      disabled={isDisabled}
+                      className="outline-none"
+                    >
+                      {({ checked }) => (
+                        <div
+                          className={clx(
+                            "flex justify-between items-center px-4 py-3.5 cursor-pointer transition-colors",
+                            {
+                              "opacity-50 cursor-not-allowed": isDisabled,
+                            }
+                          )}
+                        >
                           <div className="flex items-center gap-3">
-                            <MedusaRadio checked={checked} />
-                            <span className="font-medium">{option.name}</span>
+                            <div
+                              className={clx(
+                                "w-4 h-4 rounded-full border-2 flex items-center justify-center",
+                                {
+                                  "border-gray-900": checked,
+                                  "border-gray-300": !checked,
+                                }
+                              )}
+                            >
+                              {checked && (
+                                <div className="w-2 h-2 rounded-full bg-gray-900"></div>
+                              )}
+                            </div>
+                            <span className="text-sm text-gray-900">
+                              {option.name}
+                            </span>
                           </div>
-                          <span className="text-xs opacity-70">
-                            {formatAddress(
-                              option.service_zone?.fulfillment_set?.location
-                                ?.address
+                          <span className="text-sm text-gray-900">
+                            {option.price_type === "flat" ? (
+                              convertToLocale({
+                                amount: option.amount!,
+                                currency_code: cart?.currency_code,
+                              })
+                            ) : calculatedPricesMap[option.id] ? (
+                              convertToLocale({
+                                amount: calculatedPricesMap[option.id],
+                                currency_code: cart?.currency_code,
+                              })
+                            ) : isLoadingPrices ? (
+                              <Loader className="w-4 h-4" />
+                            ) : (
+                              "—"
                             )}
                           </span>
                         </div>
-                        <span className="text-sm font-medium">
-                          {convertToLocale({
-                            amount: option.amount!,
-                            currency_code: cart?.currency_code,
-                          })}
-                        </span>
+                      )}
+                    </Radio>
+                  )
+                })}
+              </RadioGroup>
+            </div>
+
+            {hasPickupOptions && (
+              <div className="border border-gray-300 rounded-lg">
+                <RadioGroup
+                  value={showPickupOptions}
+                  onChange={(value) => {
+                    const id = _pickupMethods.find(
+                      (option) => !option.insufficient_inventory
+                    )?.id
+                    if (id) handleSetShippingMethod(id, "pickup")
+                  }}
+                >
+                  <Radio value={PICKUP_OPTION_ON} className="outline-none">
+                    {({ checked }) => (
+                      <div className="flex justify-between items-center px-4 py-3.5 cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={clx(
+                              "w-4 h-4 rounded-full border-2 flex items-center justify-center",
+                              {
+                                "border-gray-900": checked,
+                                "border-gray-300": !checked,
+                              }
+                            )}
+                          >
+                            {checked && (
+                              <div className="w-2 h-2 rounded-full bg-gray-900"></div>
+                            )}
+                          </div>
+                          <span className="text-sm text-gray-900">Pick up</span>
+                        </div>
+                        <span className="text-sm text-gray-900">Free</span>
                       </div>
                     )}
                   </Radio>
-                ))}
-              </RadioGroup>
-            </div>
-          )}
+                </RadioGroup>
+              </div>
+            )}
 
-          <ErrorMessage error={error} />
-        </section>
+            {showPickupOptions === PICKUP_OPTION_ON && (
+              <div className="border border-gray-300 rounded-lg divide-y divide-gray-200">
+                <RadioGroup
+                  value={shippingMethodId}
+                  onChange={(v) => v && handleSetShippingMethod(v, "pickup")}
+                >
+                  {_pickupMethods?.map((option) => (
+                    <Radio
+                      key={option.id}
+                      value={option.id}
+                      disabled={option.insufficient_inventory}
+                      className="outline-none"
+                    >
+                      {({ checked }) => (
+                        <div
+                          className={clx(
+                            "flex justify-between items-start px-4 py-3.5 cursor-pointer",
+                            {
+                              "opacity-50 cursor-not-allowed":
+                                option.insufficient_inventory,
+                            }
+                          )}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={clx(
+                                "w-4 h-4 rounded-full border-2 flex items-center justify-center mt-0.5",
+                                {
+                                  "border-gray-900": checked,
+                                  "border-gray-300": !checked,
+                                }
+                              )}
+                            >
+                              {checked && (
+                                <div className="w-2 h-2 rounded-full bg-gray-900"></div>
+                              )}
+                            </div>
+                            <div>
+                              <div className="text-sm text-gray-900">
+                                {option.name}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {formatAddress(
+                                  option.service_zone?.fulfillment_set?.location
+                                    ?.address
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-sm text-gray-900">
+                            {convertToLocale({
+                              amount: option.amount!,
+                              currency_code: cart?.currency_code,
+                            })}
+                          </span>
+                        </div>
+                      )}
+                    </Radio>
+                  ))}
+                </RadioGroup>
+              </div>
+            )}
 
-        {/* Payment Method */}
-        <section className="space-y-4">
-          <h2 className="text-3xl font-medium text-gray-900">Payment</h2>
-          <RadioGroup
-            value={selectedPaymentMethod}
-            onChange={(value: string) => setSelectedPaymentMethod(value)}
-            className="space-y-3"
-          >
-            {availablePaymentMethods.map((method) => (
-              <div key={method.id} className="space-y-2">
-                {isStripeFunc(method.id) ? (
-                  <StripeCardContainer
-                    paymentProviderId={method.id}
-                    selectedPaymentOptionId={selectedPaymentMethod}
-                    paymentInfoMap={paymentInfoMap}
-                    setCardBrand={setCardBrand}
-                    setError={setError}
-                    setCardComplete={setCardComplete}
-                  />
-                ) : (
-                  <PaymentContainer
-                    paymentProviderId={method.id}
-                    selectedPaymentOptionId={selectedPaymentMethod}
-                    paymentInfoMap={paymentInfoMap}
-                  />
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-xs text-red-700">{error}</p>
+              </div>
+            )}
+          </section>
+
+          {/* Payment */}
+          <section className="space-y-4">
+            <h2 className="text-base font-medium text-gray-900">Payment</h2>
+            <p className="text-xs text-gray-500">
+              All transactions are secure and encrypted.
+            </p>
+
+            <RadioGroup
+              value={selectedPaymentMethod}
+              onChange={(value: string) => setSelectedPaymentMethod(value)}
+            >
+              {availablePaymentMethods.map((method) => (
+                <div key={method.id}>
+                  {isStripeFunc(method.id) ? (
+                    <StripeCardContainer
+                      paymentProviderId={method.id}
+                      selectedPaymentOptionId={selectedPaymentMethod}
+                      paymentInfoMap={paymentInfoMap}
+                      setCardBrand={setCardBrand}
+                      setError={setError}
+                      setCardComplete={setCardComplete}
+                    />
+                  ) : (
+                    <PaymentContainer
+                      paymentProviderId={method.id}
+                      selectedPaymentOptionId={selectedPaymentMethod}
+                      paymentInfoMap={paymentInfoMap}
+                    />
+                  )}
+                </div>
+              ))}
+            </RadioGroup>
+          </section>
+
+          {/* Billing Address */}
+          <section className="space-y-4">
+            <h2 className="text-base font-medium text-gray-900">
+              Billing address
+            </h2>
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={sameAsShipping}
+                onChange={() => setSameAsShipping(!sameAsShipping)}
+                className="w-4 h-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900 focus:ring-1"
+              />
+              <span className="text-sm text-gray-700">
+                Same as shipping address
+              </span>
+            </label>
+
+            {!sameAsShipping && (
+              <div className="space-y-3 pt-2">
+                <div className="grid grid-cols-2 gap-3">
+                  {renderInput("First name", billing.first_name, (v) =>
+                    setBilling({ ...billing, first_name: v })
+                  )}
+                  {renderInput("Last name", billing.last_name, (v) =>
+                    setBilling({ ...billing, last_name: v })
+                  )}
+                </div>
+                {renderInput("Address", billing.address_1, (v) =>
+                  setBilling({ ...billing, address_1: v })
                 )}
               </div>
-            ))}
-          </RadioGroup>
+            )}
+          </section>
 
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
-        </section>
-
-        {/* Review + PaymentButton */}
-        <section className="space-y-4">
-          {!paymentReady && (
-            <Button
-              onClick={handlePreparePayment}
-              disabled={loading || !selectedPaymentMethod}
-              className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-4 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
-            >
-              Proceed To Review
-            </Button>
-          )}
-        </section>
-
-        <section className="space-y-4">
-          <Review cart={cart} />
-        </section>
-      </form>
+          {/* Submit Button */}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isLoading || !selectedPaymentMethod}
+            className="w-full bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white py-4 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed"
+          >
+            {isLoading ? "Processing..." : "Complete order"}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

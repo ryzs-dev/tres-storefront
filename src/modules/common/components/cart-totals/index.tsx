@@ -1,6 +1,8 @@
 "use client"
 
+import { getBundleDiscounts } from "@lib/util/get-bundle-discount"
 import { convertToLocale } from "@lib/util/money"
+import { useCart } from "context/CartContext"
 import React from "react"
 
 type CartTotalsProps = {
@@ -47,7 +49,10 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
               data-value={discount_total || 0}
             >
               -{" "}
-              {convertToLocale({ amount: discount_total ?? 0, currency_code })}
+              {convertToLocale({
+                amount: discount_total ?? 0,
+                currency_code,
+              })}
             </span>
           </div>
         )}

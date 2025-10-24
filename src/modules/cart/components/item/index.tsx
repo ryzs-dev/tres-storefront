@@ -25,7 +25,6 @@ const Item = ({
   item,
   type = "full",
   currencyCode,
-  cartId,
   countryCode,
   allCartItems,
 }: ItemProps) => {
