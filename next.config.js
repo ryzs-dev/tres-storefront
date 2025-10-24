@@ -12,6 +12,12 @@ const nextConfig = {
       fullUrl: true,
     },
   },
+  compiler: {
+    reactRemoveProperties: false,
+  },
+  experimental: {
+    reactCompilerHydrationWarnings: true,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -49,3 +55,11 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+
+// const withBundleAnalyzer = require("@next/bundle-analyzer")({
+//   enabled: process.env.ANALYZE === "true",
+// })
+
+// module.exports = withBundleAnalyzer({
+//   reactStrictMode: true,
+// })
