@@ -473,6 +473,35 @@ export async function placeOrder(cartId?: string) {
   return cartRes.cart
 }
 
+export async function completeOrder(cartId: string) {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  const cartRes = await sdk.store.cart
+    .complete(cartId, {}, headers)
+    .then(async (cartRes) => {
+      const cartCacheTag = await getCacheTag("carts")
+      revalidateTag(cartCacheTag)
+      return cartRes
+    })
+    .catch(medusaError)
+
+  const countryCode =
+    cartRes.order?.shipping_address?.country_code?.toLowerCase() || "my"
+
+  if (cartRes?.type === "order") {
+    removeCartId()
+    return {
+      success: true,
+      order: cartRes.order,
+      countryCode,
+    }
+  }
+
+  throw new Error("Failed to complete order")
+}
+
 /**
  * Updates the countrycode param and revalidates the regions cache
  * @param regionId

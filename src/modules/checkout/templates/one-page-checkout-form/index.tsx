@@ -120,6 +120,42 @@ export default function OnePageCheckout({
     }
   }, [availableShippingMethods])
 
+  useEffect(() => {
+    const status = searchParams.get("status")
+    const cartId = searchParams.get("cart_id")
+    const paymentId = searchParams.get("razorpay_payment_id")
+
+    console.log("🔍 Checking URL params:", { status, cartId, paymentId })
+
+    if (status === "authorized" && cartId && paymentId) {
+      console.log("✅ Payment authorized, placing order…")
+
+      const placeOrderAsync = async () => {
+        try {
+          toast.loading("Payment authorized, placing order...", {
+            id: "place-order-toast",
+          })
+
+          await placeOrder(cartId)
+
+          toast.success("Order placed successfully!", {
+            id: "place-order-toast",
+          })
+
+          // Redirect to order confirmation page
+          router.push(`/order/confirmed/${cartId}`)
+        } catch (err) {
+          console.error("❌ Error placing order:", err)
+          toast.error("Failed to place order. Please contact support.", {
+            id: "place-order-toast",
+          })
+        }
+      }
+
+      placeOrderAsync()
+    }
+  }, [searchParams, router])
+
   const handleSetShippingMethod = async (
     id: string,
     variant: "shipping" | "pickup"
@@ -190,6 +226,8 @@ export default function OnePageCheckout({
         const payment_collection_id = payment_collection.id
         const payment_collection_payment_session_id = session.id
 
+        console.log("Session data:", session.data)
+
         const razorpay = new (window as any).Razorpay({
           key: session.data.key_id,
           amount: session.data.amount,
@@ -197,6 +235,8 @@ export default function OnePageCheckout({
           name: "Tres Store",
           description: "Order payment",
           order_id: session.data.order_id,
+          callback_url: `${window.location.origin}/api/razorpay/callback?cart_id=${cart.id}`,
+          redirect: true,
           handler: async function (response: any) {
             console.log("response", response)
             try {
