@@ -51,23 +51,29 @@ export async function applyCustomPromoCode(
     }
 
     // Mark the promo code as used
-    await fetch(`${process.env.MEDUSA_BACKEND_URL}/store/promo-codes/apply`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-publishable-api-key":
-          process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ||
-          "pk_1aa740894225626c43d7cb6e73d777df8968aa220052961d3c298405c1549e95",
-      },
-      body: JSON.stringify({ code, cart_id: cartId }),
-    })
+    const response = await fetch(
+      `${process.env.MEDUSA_BACKEND_URL}/store/promo-codes/apply`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-publishable-api-key":
+            process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ||
+            "pk_1aa740894225626c43d7cb6e73d777df8968aa220052961d3c298405c1549e95",
+        },
+        body: JSON.stringify({ code, cart_id: cartId, customer_email }),
+      }
+    )
 
     const cartCacheTag = await getCacheTag("carts")
     revalidateTag(cartCacheTag)
 
+    console.log("Response of applying promo code:", response)
+
     return {
       success: true,
       discount: validation.promo_code,
+      cart: validation.cart,
     }
   } catch (error: any) {
     console.error("Error applying promo code:", error)

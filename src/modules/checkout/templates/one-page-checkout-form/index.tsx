@@ -167,14 +167,13 @@ export default function OnePageCheckout({
       await setShippingMethod({ cartId: cart.id, shippingMethodId })
 
       console.log("✅ Shipping method set.")
-
-      console.log(Math.round(cart.total))
+      console.log(cart.total)
 
       if (selectedPaymentMethod === "pp_razorpay_razorpay") {
         const { payment_collection } = await initiatePaymentSession(cart, {
           provider_id: selectedPaymentMethod,
           data: {
-            amount: Math.round(cart.total),
+            amount: cart.total,
             currency: cart.currency_code,
             metadata: { cart_id: cart.id },
           },
