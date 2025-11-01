@@ -183,33 +183,58 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
   const pricingInfo = useBundlePricing(bundle, selectedItems, region)
 
   const handleAddToCart = async () => {
-    if (!canAddToCart()) return
+    if (!canAddToCart()) {
+      console.warn("🟡 Add to Cart blocked: Validation failed")
+      toast.warning?.("Please select all required items before adding to cart.")
+      return
+    }
 
     setIsAdding(true)
     setError(null)
 
+    console.group("🛒 handleAddToCart() start")
+    console.info("Bundle:", bundle)
+    console.info("Country code:", countryCode)
+    console.info("Selected items:", selectedItems)
+
     try {
       const currentCart = cart
-      console.log("Current Cart ID in Bundle Actions:", currentCart?.id)
+      console.info("Current cart:", currentCart)
+
       const existingCart = await retrieveCart(currentCart?.id)
+      console.info("Existing cart retrieved:", existingCart?.id)
+
       const existingBundle = existingCart?.items?.find(
         (item) => item.metadata?.bundle_id === bundle.id
       )
+      console.info("Existing bundle found:", !!existingBundle)
 
       if (existingBundle) {
+        console.info("Merging bundle items for bundle ID:", bundle.id)
+
         const mergedItems = await mergeBundleItems(
           bundle.id,
           countryCode,
           selectedItems
         )
+        console.info("Merged items result:", mergedItems)
 
-        await updateToCart({
-          bundleId: bundle.id,
-          countryCode,
-          selectedItems: mergedItems,
-        })
+        try {
+          await updateToCart({
+            bundleId: bundle.id,
+            countryCode,
+            selectedItems: mergedItems,
+          })
+
+          console.info("✅ Bundle updated successfully")
+        } catch (error) {
+          console.error("❌ Bundle update failed:", error)
+          throw error
+        }
       } else {
-        await addToCart({
+        console.info("Adding new bundle to cart:", bundle.id)
+
+        const res = await addToCart({
           bundleId: bundle.id,
           countryCode,
           selectedItems: selectedItems.map((item) => ({
@@ -218,18 +243,36 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             quantity: item.quantity,
           })),
         })
+
+        console.log("Add to cart response:", res)
+
+        if (res?.status >= 400)
+          throw new Error(`Add failed: ${res?.statusText || "Unknown error"}`)
+
+        toast.success("Bundle added to cart successfully!")
+        console.info("✅ New bundle added successfully")
       }
 
-      toast.success("Bundle added to cart successfully!")
-
-      refreshCart()
+      await refreshCart()
       clearSelection()
-    } catch (error) {
-      console.error("Failed to add bundle to cart:", error)
-      toast.error("Failed to add bundle to cart")
-      setError("Failed to add items to cart")
+    } catch (err: any) {
+      console.groupCollapsed("🔴 handleAddToCart() Error Details")
+      console.error("Error message:", err.message)
+      console.error("Stack trace:", err.stack)
+      console.error("Full error object:", err)
+      console.groupEnd()
+
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Something went wrong while adding the bundle."
+
+      toast.error(`Insufficient_inventory`)
+      setError(`Insufficient inventory`)
     } finally {
+      console.groupEnd()
       setIsAdding(false)
+      console.info("🟢 handleAddToCart() finished")
     }
   }
 
@@ -309,9 +352,6 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
           </div>
         </div>
       )}
-
-      {/* Error Message */}
-      {error && <Text className="text-red-500 text-sm mb-4">{error}</Text>}
 
       {/* Add to Cart Button */}
       <Button

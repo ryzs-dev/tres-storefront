@@ -202,39 +202,6 @@ const CartSidePanel = ({
                     {/* Footer - only show if cart has items */}
                     {cartState && (cartState.items ?? []).length > 0 && (
                       <div className="border-t border-gray-200 px-4 py-6 space-y-4">
-                        {bundleDiscounts &&
-                          Object.entries(bundleDiscounts).map(
-                            ([bundleId, discount]) => {
-                              if (discount <= 0) return null
-
-                              const bundleItem = cartState?.items?.find(
-                                (item) => item.metadata?.bundle_id === bundleId
-                              )
-
-                              const bundleTitle =
-                                bundleItem?.metadata?.bundle_title ||
-                                ("Bundle" as string)
-
-                              return (
-                                <div
-                                  key={bundleId}
-                                  className="flex items-center justify-between text-[#99b2dd] border-t pt-4"
-                                >
-                                  <span className="text-sm font-medium">
-                                    {String(bundleTitle).toUpperCase()} :
-                                  </span>
-                                  <span className="text-sm font-semibold">
-                                    -
-                                    {convertToLocale({
-                                      amount: discount / 100,
-                                      currency_code: cartState.currency_code,
-                                    })}
-                                  </span>
-                                </div>
-                              )
-                            }
-                          )}
-
                         {/* Subtotal */}
                         <div className="flex items-center justify-between">
                           <span className="text-base font-medium text-gray-900">

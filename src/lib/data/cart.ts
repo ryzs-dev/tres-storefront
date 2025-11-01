@@ -602,7 +602,8 @@ export async function addFlexibleBundleToCart({
 
 export async function removeFlexibleBundleFromCart(
   bundleId: string,
-  bundleItemId?: string
+  bundleItemId?: string,
+  variant_id?: string
 ) {
   const cartId = await getCartId()
 
@@ -622,6 +623,7 @@ export async function removeFlexibleBundleFromCart(
         body: {
           bundle_id: bundleId,
           item_id: bundleItemId,
+          variant_id: variant_id,
         },
         headers,
       }

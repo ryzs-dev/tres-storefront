@@ -13,18 +13,14 @@ const DeleteButton = ({
   className,
   bundle_id,
   bundle_item_id, // Add this prop
-  allCartItems, // Add this prop
-  countryCode, // Add this prop
-  remove_entire_bundle = true, // Changed default to false
+  variant_id,
 }: {
   id: string
   children?: React.ReactNode
   className?: string
   bundle_id?: string
   bundle_item_id?: string // Bundle item ID for removing specific item
-  allCartItems?: any[] // All cart items to find other bundle items
-  countryCode?: string
-  remove_entire_bundle?: boolean
+  variant_id?: string
 }) => {
   const [isDeleting, setIsDeleting] = useState(false)
   const { setCart, removeFromCart, refreshCart } = useCart()
@@ -36,7 +32,7 @@ const DeleteButton = ({
       let updatedCart: any
 
       if (bundle_id) {
-        await removeFromCart(bundle_id, bundle_item_id)
+        await removeFromCart(bundle_id, bundle_item_id, variant_id)
         toast.success("Bundle removed from cart successfully!")
       } else {
         updatedCart = await deleteLineItem(id)

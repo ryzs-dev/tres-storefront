@@ -74,7 +74,7 @@ const BundleItemCard = ({ item }: Props) => {
 
     const locationLevel = locationLevels[0]
 
-    const availableStock = locationLevel.available_quantity ?? 0
+    const availableStock = Math.max(locationLevel.available_quantity ?? 0, 0)
 
     return {
       stock: availableStock,

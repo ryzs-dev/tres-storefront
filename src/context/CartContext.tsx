@@ -32,10 +32,11 @@ type CartContextType = {
       quantity?: number
     }[]
     countryCode: string
-  }) => Promise<void>
+  }) => Promise<HttpTypes.StoreCart>
   removeFromCart: (
     bundleId: string,
-    bundleItemId?: string
+    bundleItemId?: string,
+    variant_id?: string
   ) => Promise<HttpTypes.StoreCart | undefined>
 }
 
@@ -127,7 +128,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }[]
     countryCode: string
   }) => {
-    if (!cart?.id) return console.warn("Cart not initialized yet")
+    if (!cart?.id) {
+      console.warn("⚠️ Cart not initialized yet")
+      throw new Error("Cart not initialized") // <-- important
+    }
 
     try {
       const { cart: updatedCart } = await updateFlexibleBundleInCart({
@@ -136,15 +140,36 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         countryCode,
         selectedItems,
       })
-      if (updatedCart) {
-        mutate(updatedCart, false)
+
+      if (!updatedCart) {
+        console.error(
+          "❌ updateFlexibleBundleInCart() returned no updated cart"
+        )
+        throw new Error("No cart returned from updateFlexibleBundleInCart")
       }
-    } catch (error) {
+
+      // Update your local cart state
+      mutate(updatedCart, false)
+
+      console.info("✅ Bundle updated in cart:", updatedCart.id)
+      return updatedCart // <-- ✅ return the updated cart for chaining
+    } catch (error: any) {
       console.error("❌ Failed to update bundle in cart:", error)
+
+      // Re-throw so that handleAddToCart can catch it
+      throw new Error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Unknown error updating cart"
+      )
     }
   }
 
-  const removeFromCart = async (bundleId: string, bundleItemId?: string) => {
+  const removeFromCart = async (
+    bundleId: string,
+    bundleItemId?: string,
+    variant_id?: string
+  ) => {
     if (!bundleId) {
       console.warn("Missing bundleId for removal")
       return undefined
@@ -153,7 +178,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { cart: updatedCart } = await removeFlexibleBundleFromCart(
         bundleId,
-        bundleItemId
+        bundleItemId,
+        variant_id
       )
       if (updatedCart) {
         mutate(updatedCart, false)

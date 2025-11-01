@@ -6,6 +6,7 @@ import { HttpTypes } from "@medusajs/types"
 import { useState } from "react"
 import DeleteButton from "@modules/common/components/delete-button"
 import { useCart } from "context/CartContext"
+import item from "../item"
 
 type BundleItemProps = {
   bundleId: string
@@ -24,47 +25,54 @@ const BundleItem = ({
 }: BundleItemProps) => {
   const [updating, setUpdating] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const { updateToCart } = useCart()
+  const { updateToCart, refreshCart } = useCart()
+
+  console.log("Bundle Items:", items)
 
   // Calculate bundle discount
   const bundleDiscount = (items[0]?.metadata?.discount_applied as number) || 0
 
   const updateBundleItemQuantity = async (
     bundleItemId: string,
+    variantId: string,
     newQuantity: number
   ) => {
-    // Prepare the updated selection with the correct structure
     const updatedSelection = items
       .map((bundleItem) => {
         const itemBundleItemId = bundleItem.metadata?.bundle_item_id as string
+        const itemVariantId = bundleItem.variant_id as string
+
+        console.log("Updating item:", {
+          itemBundleItemId,
+          bundleItemId,
+          itemVariantId,
+          variantId,
+          newQuantity,
+        })
 
         return {
           item_id: itemBundleItemId,
-          variant_id: bundleItem.variant_id as string,
+          variant_id: itemVariantId,
           quantity:
-            itemBundleItemId === bundleItemId
+            itemBundleItemId === bundleItemId && itemVariantId === variantId
               ? newQuantity
               : bundleItem.quantity,
         }
       })
-      .filter((item) => item.quantity > 0) // Remove zero-quantity items
+      .filter((item) => item.quantity > 0)
 
-    console.log("🧩 Sending payload:", {
-      bundle_id: bundleId,
-      selected_items: updatedSelection, // ✅ must be snake_case
-    })
+    console.log("Updated selection for bundle update:", updatedSelection)
 
     try {
       await updateToCart({
         bundleId,
-        selectedItems: updatedSelection, // CartContext handles renaming internally
+        selectedItems: updatedSelection,
         countryCode,
       })
-
       toast.success("Item quantity updated successfully")
     } catch (err) {
       console.error("❌ Update failed:", err)
-      toast.error("Failed to update item quantity. Please try again.")
+      toast.error("Insufficient inventory or server error")
     }
   }
 
@@ -77,11 +85,11 @@ const BundleItem = ({
 
     try {
       const bundleItemId = item.metadata?.bundle_item_id as string
-      await updateBundleItemQuantity(bundleItemId, quantity)
-      toast.success("Item quantity updated successfully")
+      const variantId = item.variant_id as string // ✅ Add this
+      await updateBundleItemQuantity(bundleItemId, variantId, quantity)
+      await refreshCart()
     } catch (err) {
       setError("Limited Availability")
-      toast.error("Failed to update item quantity. Please try again.")
     } finally {
       setUpdating(null)
     }
@@ -238,8 +246,7 @@ const BundleItem = ({
                     id={item.id}
                     bundle_id={item.metadata?.bundle_id as string}
                     bundle_item_id={item.metadata?.bundle_item_id as string} // Add this
-                    countryCode={countryCode} // Add this
-                    remove_entire_bundle={true} // Set to false for single item removal
+                    variant_id={item.variant_id} // Add this
                     className="text-sm font-medium text-gray-900 underline hover:text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Remove
