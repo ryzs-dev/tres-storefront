@@ -4,7 +4,6 @@ import { Button, Heading, Text } from "@medusajs/ui"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { useParams } from "next/navigation"
 import { getBundleDiscounts } from "@lib/util/get-bundle-discount"
 
 type SummaryProps = {
@@ -15,9 +14,6 @@ type SummaryProps = {
 }
 
 const Summary = ({ cart }: SummaryProps) => {
-  const { countryCode } = useParams() as { countryCode: string }
-
-  // --- 1️⃣ Calculate Subtotal (before discounts)
   const originalCartTotal =
     cart.items?.reduce((total, item) => {
       const basePrice = item.metadata?.unit_price
@@ -26,10 +22,8 @@ const Summary = ({ cart }: SummaryProps) => {
       return total + basePrice * item.quantity
     }, 0) || 0
 
-  // --- 2️⃣ Group bundle discounts per unique bundle_id (avoid double-counting)
   const bundleDiscounts = getBundleDiscounts(cart)
 
-  // --- 3️⃣ Other discounts (non-bundle)
   const otherDiscount = cart.discount_total
 
   return (
@@ -38,9 +32,7 @@ const Summary = ({ cart }: SummaryProps) => {
         Summary
       </Heading>
 
-      {/* --- Price Breakdown --- */}
       <div className="flex flex-col gap-y-3 txt-medium text-ui-fg-subtle">
-        {/* Subtotal */}
         <div className="flex items-center justify-between">
           <Text>Subtotal</Text>
           <Text className="text-gray-700 font-medium">
@@ -51,21 +43,23 @@ const Summary = ({ cart }: SummaryProps) => {
           </Text>
         </div>
 
-        {Object.values(bundleDiscounts).map((bundle) => (
-          <div
-            key={bundle.title}
-            className="flex items-center justify-between border-b border-gray-100 pb-1"
-          >
-            <Text className="text-gray-500">Bundle: {bundle.title}</Text>
-            <Text className="text-[#99b2dd] font-medium">
-              -{" "}
-              {convertToLocale({
-                amount: bundle.discount / 100,
-                currency_code: cart.currency_code,
-              })}
-            </Text>
-          </div>
-        ))}
+        {Object.values(bundleDiscounts)
+          .filter((bundle) => bundle.discount > 0) // ✅ only show bundles with discount
+          .map((bundle) => (
+            <div
+              key={bundle.title}
+              className="flex items-center justify-between border-b border-gray-100 pb-1"
+            >
+              <Text className="text-gray-500">Bundle: {bundle.title}</Text>
+              <Text className="text-[#99b2dd] font-medium">
+                -{" "}
+                {convertToLocale({
+                  amount: bundle.discount / 100,
+                  currency_code: cart.currency_code,
+                })}
+              </Text>
+            </div>
+          ))}
 
         {/* Other Discounts */}
         {otherDiscount > 0 && (

@@ -11,6 +11,7 @@ import Spinner from "@modules/common/icons/spinner"
 import Thumbnail from "@modules/products/components/thumbnail"
 import { useState } from "react"
 import LineItemPrice from "@modules/common/components/line-item-price"
+import { useCart } from "context/CartContext"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem
@@ -30,6 +31,7 @@ const Item = ({
 }: ItemProps) => {
   const [updating, setUpdating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { updateToCart, refreshCart } = useCart()
 
   // Bundle information
   const isBundleItem = item.metadata?.is_from_bundle === true
@@ -91,26 +93,12 @@ const Item = ({
       })
       .filter((item) => item.quantity > 0) // Remove items with 0 quantity
 
-    // Update the entire bundle with new selection
-    await updateFlexibleBundleInCart({
+    await updateToCart({
       bundleId,
       countryCode,
       selectedItems: updatedSelection,
     })
-
-    // Dispatch bundle update event
-    window.dispatchEvent(
-      new CustomEvent("bundle-updated", {
-        detail: {
-          bundleId,
-          action: "quantity-updated",
-          itemId: bundleItemId,
-          newQuantity,
-        },
-      })
-    )
-
-    window.dispatchEvent(new Event("cart-updated"))
+    refreshCart()
   }
 
   return (
@@ -157,9 +145,7 @@ const Item = ({
               id={item.id}
               bundle_id={item.metadata?.bundle_id as string}
               bundle_item_id={item.metadata?.bundle_item_id as string} // Add this
-              allCartItems={allCartItems} // Add this
-              countryCode={countryCode} // Add this
-              remove_entire_bundle={false} // Set to false for single item removal
+              variant_id={item.variant_id}
               className="text-xs text-gray-400 hover:text-black hover:underline mt-1"
             >
               {/* {item.metadata?.bundle_id !== undefined ? (
