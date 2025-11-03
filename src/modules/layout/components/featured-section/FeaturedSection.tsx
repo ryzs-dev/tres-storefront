@@ -13,10 +13,16 @@ type FeaturedItem = {
 const FeaturedSection = ({ items }: { items: FeaturedItem[] }) => {
   return (
     <section>
-      <div className="flex justify-center sm:py-0 lg:py-6 pb-4 sm:pb-2 lg:pb-8">
+      <div className="text-center sm:py-0 lg:py-6 pb-4 sm:pb-2 lg:pb-8">
         <Heading>
-          <span className="text-2xl sm:text-3xl font-semibold">Shop All</span>
+          <span className="text-2xl sm:text-3xl font-semibold">
+            Browse by Category
+          </span>
         </Heading>
+        <p className="text-gray-600 mt-2 text-sm sm:text-base">
+          Explore our full range of styles — from everyday tops to elegant
+          dresses and matching sets.
+        </p>
       </div>
 
       <div className="grid grid-cols-3 gap-2 p-2">
