@@ -76,6 +76,7 @@ export default async function BundlesPage(props: Props) {
     "01JZ055N4Q8SFDGWD0R2XF6K1D",
     "01JZ057ZB0WNXHSWVYVSYNQJEK",
     "01JZ0AP8RMKSV9PDTN0KT0GNR7",
+    "01K927ZP13T4JKJGC7060QCD1Z",
   ]
 
   // Separate top bundles and the rest
