@@ -1,15 +1,14 @@
 "use client"
 
-import { Badge, Heading, Input, Label, Text, Tooltip } from "@medusajs/ui"
+import { Badge, Input, Label, Text } from "@medusajs/ui"
 import React, { useActionState } from "react"
 
 import { applyPromotions, submitPromotionForm } from "@lib/data/cart"
 import { convertToLocale } from "@lib/util/money"
-import { InformationCircleSolid } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import Trash from "@modules/common/icons/trash"
 import ErrorMessage from "../error-message"
 import { SubmitButton } from "../submit-button"
+import { Trash } from "lucide-react"
 
 type DiscountCodeProps = {
   cart: HttpTypes.StoreCart & {
@@ -100,9 +99,10 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
         {promotions.length > 0 && (
           <div className="w-full flex items-center">
             <div className="flex flex-col w-full">
-              <Heading className="txt-medium mb-2">
-                Promotion(s) applied:
-              </Heading>
+              <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+              <h3 className="text-base font-medium text-gray-900">Promo Code</h3>
+            </div>
 
               {promotions.map((promotion) => {
                 return (
@@ -145,7 +145,7 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
                         )} */}
                       </span>
                     </Text>
-                    {!promotion.is_automatic && (
+                    {/* {!promotion.is_automatic && (
                       <button
                         className="flex items-center"
                         onClick={() => {
@@ -162,7 +162,7 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
                           Remove discount code from order
                         </span>
                       </button>
-                    )}
+                    )} */}
                   </div>
                 )
               })}

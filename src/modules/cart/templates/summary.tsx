@@ -4,7 +4,6 @@ import { Button, Heading, Text } from "@medusajs/ui"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { getBundleDiscounts } from "@lib/util/get-bundle-discount"
 
 type SummaryProps = {
   cart: HttpTypes.StoreCart & {
@@ -21,8 +20,6 @@ const Summary = ({ cart }: SummaryProps) => {
         : item.unit_price
       return total + basePrice * item.quantity
     }, 0) || 0
-
-  const bundleDiscounts = getBundleDiscounts(cart)
 
   const otherDiscount = cart.discount_total
 
@@ -43,28 +40,10 @@ const Summary = ({ cart }: SummaryProps) => {
           </Text>
         </div>
 
-        {Object.values(bundleDiscounts)
-          .filter((bundle) => bundle.discount > 0) // ✅ only show bundles with discount
-          .map((bundle) => (
-            <div
-              key={bundle.title}
-              className="flex items-center justify-between border-b border-gray-100 pb-1"
-            >
-              <Text className="text-gray-500">Bundle: {bundle.title}</Text>
-              <Text className="text-[#99b2dd] font-medium">
-                -{" "}
-                {convertToLocale({
-                  amount: bundle.discount / 100,
-                  currency_code: cart.currency_code,
-                })}
-              </Text>
-            </div>
-          ))}
-
         {/* Other Discounts */}
         {otherDiscount > 0 && (
           <div className="flex items-center justify-between">
-            <Text>Other Discount</Text>
+            <Text>Discount</Text>
             <Text className="text-[#99b2dd] font-medium">
               -{" "}
               {convertToLocale({
