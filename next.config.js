@@ -15,9 +15,6 @@ const nextConfig = {
   compiler: {
     reactRemoveProperties: false,
   },
-  experimental: {
-    reactCompilerHydrationWarnings: true,
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
