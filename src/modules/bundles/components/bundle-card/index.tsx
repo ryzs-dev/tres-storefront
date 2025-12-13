@@ -10,10 +10,16 @@ type BundleCardProps = {
   size?: "small" | "medium" | "large"
 }
 
-const BundleCard = ({ bundle, region }: BundleCardProps) => {
+const BundleCard = ({ bundle }: BundleCardProps) => {
   const defaultThumbnail =
     bundle.items[0]?.product?.thumbnail || "/placeholder-image.jpg"
   const hoverThumbnail = bundle.items[1]?.product?.thumbnail || defaultThumbnail
+
+  // Check if bundle is a best seller
+  const bestSellerTitles = ["lively", "celine", "piper", "daz","test no bundle"]
+  const isBestSeller = bestSellerTitles.some(
+    (title) => bundle.title.toLowerCase().includes(title.toLowerCase())
+  )
 
   return (
     <LocalizedClientLink href={`/bundles/${bundle.id}`} className="group block">
@@ -22,7 +28,7 @@ const BundleCard = ({ bundle, region }: BundleCardProps) => {
         className="relative overflow-hidden p-2 sm:p-3 md:p-4 
              bg-ui-bg-subtle shadow-elevation-card-rest rounded-large 
              hover:shadow-elevation-card-hover transition-shadow ease-in-out 
-             duration-150 aspect-[9/16] min-h-[300px]" // 👈 reserve min height
+             duration-150 aspect-[9/16] min-h-[300px]"
       >
         <Image
           src={defaultThumbnail}
@@ -33,7 +39,7 @@ const BundleCard = ({ bundle, region }: BundleCardProps) => {
           quality={40}
           draggable={false}
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-          priority={true} // 👈 for above-the-fold cards
+          priority={true}
         />
         <Image
           src={hoverThumbnail}
@@ -46,6 +52,23 @@ const BundleCard = ({ bundle, region }: BundleCardProps) => {
           draggable={false}
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
         />
+
+        {/* Best Seller Banner */}
+        {isBestSeller && (
+          <div className="absolute top-0 right-0 z-10 overflow-hidden w-24 h-24">
+            <div 
+              className="absolute transform rotate-45 text-white text-center font-semibold text-xs py-1 shadow-lg"
+              style={{
+                backgroundColor: '#99B2DD',
+                width: '150px',
+                top: '20px',
+                right: '-37px',
+              }}
+            >
+              BEST SELLER
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col txt-compact-medium mt-2 sm:mt-3 md:mt-4 justify-between">
