@@ -96,7 +96,19 @@ export default function BundleProductReviews({
   }
 
   if (allReviews.length === 0) {
-    return null
+    return (
+      <div className="content-container my-16">
+        <div className="flex flex-col items-center text-center mb-12">
+          <span className="text-base-regular text-gray-600 mb-6">
+            Bundle Reviews
+          </span>
+          <p className="text-2xl-regular text-ui-fg-base max-w-lg mb-4">
+            No Reviews Yet        
+          </p>
+        </div>
+        <BundleReviewsForm products={products} />
+      </div>
+    )
   }
 
   return (

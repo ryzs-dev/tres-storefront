@@ -1,9 +1,11 @@
+'use client'
 import { HttpTypes } from "@medusajs/types"
 import { FlexibleBundle } from "@lib/data/bundles"
 import { Heading, Text } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import BundleCard from "@modules/bundles/components/bundle-card"
 import { Pagination } from "@modules/store/components/pagination"
+import { useMemo, useState } from "react"
 
 type BundlesTemplateProps = {
   bundles: FlexibleBundle[]
@@ -20,9 +22,27 @@ const BundlesTemplate: React.FC<BundlesTemplateProps> = ({
   currentPage,
 }) => {
   const itemsPerPage = 12
-  const totalPages = Math.ceil(count / itemsPerPage)
-  const hasNextPage = currentPage < totalPages
   const hasPrevPage = currentPage > 1
+  const [query, setQuery] = useState("")
+  
+  const filteredBundles = useMemo(() => {
+    if (!query.trim()) return bundles
+    
+    const q = query.toLowerCase()
+    
+    return bundles.filter((bundle) =>
+      bundle.title?.toLowerCase().includes(q) ||
+    bundle.description?.toLowerCase().includes(q)
+  )
+}, [bundles, query])
+
+const totalPages = Math.ceil(filteredBundles.length / itemsPerPage)
+const hasNextPage = currentPage < totalPages
+const paginatedBundles = filteredBundles.slice(
+  (currentPage - 1) * itemsPerPage,
+  currentPage * itemsPerPage
+)
+
 
   return (
     <div className="content-container py-4 sm:py-6 md:py-8">
@@ -36,11 +56,22 @@ const BundlesTemplate: React.FC<BundlesTemplateProps> = ({
         </Heading>
       </div>
 
+      <div className="mb-6 flex justify-center">
+        <input
+          type="text"
+          placeholder="Search bundles..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full max-w-md border rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ui-border-strong"
+        />
+      </div>
+
+
       {/* Bundles Grid */}
-      {bundles && bundles.length > 0 ? (
+      {paginatedBundles && paginatedBundles.length > 0 ? (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            {bundles.map((bundle) => (
+            {paginatedBundles.map((bundle) => (
               <BundleCard key={bundle.id} bundle={bundle} region={region} />
             ))}
           </div>
