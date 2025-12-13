@@ -1,15 +1,12 @@
 import { HttpTypes } from "@medusajs/types"
 import { FlexibleBundle } from "@lib/data/bundles"
-import { Heading, Text, Badge } from "@medusajs/ui"
 import BundleActions from "../../components/bundle-actions"
 import BundleItemCard from "../../components/bundle-item-card"
 import { BundleSelectionProvider } from "../../context/bundle-selection-context"
-import clsx from "clsx"
 import BundleInfo from "../bundle-info"
-import BundleImageGallery from "@modules/bundles/components/bundle-image-gallery"
 import BundleGalleryWrapper from "@modules/bundles/BundleGalleryWrapper"
-import RelatedProducts from "@modules/products/components/related-products"
 import RelatedBundles from "@modules/bundles/related-bundles"
+import BundleProductReviews from "@modules/bundles/components/bundle-preview"
 
 type BundleDetailTemplateProps = {
   bundle: FlexibleBundle
@@ -24,6 +21,8 @@ const BundleDetailTemplate = ({
   countryCode,
   stockData = [],
 }: BundleDetailTemplateProps) => {
+  // Products in the bundle
+  const products = bundle.items.map((item) => item.product) || []
   return (
     <BundleSelectionProvider bundle={bundle}>
       <div className="content-container py-6">
@@ -75,6 +74,9 @@ const BundleDetailTemplate = ({
           </div>
         </div>
       </div>
+
+      {/* Reviews */}
+      {products &&<BundleProductReviews products={products} />}
 
       {/* Related Bundles */}
       <div

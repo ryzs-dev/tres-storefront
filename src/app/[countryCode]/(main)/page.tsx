@@ -10,8 +10,8 @@ import HeroSlider from "@modules/home/components/hero-slider"
 import CollectionSlider from "@modules/home/components/CollectionSlider"
 
 export const metadata: Metadata = {
-  title: "Welcome to Tres",
-  description: "",
+  title: "TRES | Malaysia's Ladies Activewear",
+  description: "Malaysia's premier destination for high-quality ladies activewear. Shop stylish and comfortable fitness apparel, workout clothes, sportswear, and yoga wear.",
 }
 
 export default async function Home(props: {
