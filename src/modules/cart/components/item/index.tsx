@@ -104,7 +104,7 @@ const Item = ({
   return (
     <Table.Row className="w-full items-start" data-testid="product-row">
       {/* Product Image */}
-      <Table.Cell className="!pl-0 p-2 small:p-4 w-16 small:w-24 align-top">
+      <Table.Cell className="!pl-0 p-2 small:p-4 w-16 small:w-24 align-top bg-tres-secondary">
         <div className="relative inline-block">
           <Thumbnail
             thumbnail={item.thumbnail}
@@ -126,7 +126,7 @@ const Item = ({
       </Table.Cell>
 
       {/* Product Details */}
-      <Table.Cell className="text-left p-2 small:p-4 align-top">
+      <Table.Cell className="text-left p-2 small:p-4 align-top bg-tres-secondary">
         <div className="flex flex-col gap-1 small:gap-2">
           <Text
             className="text-sm small:txt-medium-plus text-ui-fg-base font-medium"
@@ -168,10 +168,10 @@ const Item = ({
         </div>
       </Table.Cell>
 
-      <Table.Cell></Table.Cell>
+      <Table.Cell className="bg-tres-secondary"></Table.Cell>
       {/* Quantity Column */}
       {type === "full" && (
-        <Table.Cell className="p-2 small:p-4 align-top text-right">
+        <Table.Cell className="p-2 small:p-4 align-top text-right bg-tres-secondary">
           <div className="flex flex-col items-end gap-2">
             <div className="flex items-center gap-2">
               <button
@@ -218,7 +218,7 @@ const Item = ({
       )}
 
       {/* Unit Price (desktop only) */}
-      <Table.Cell className="hidden small:table-cell p-2 small:p-4 align-top text-right">
+      <Table.Cell className="bg-tres-secondary hidden small:table-cell p-2 small:p-4 align-top text-right">
         <LineItemUnitPrice
           item={item}
           style="default"
@@ -227,7 +227,7 @@ const Item = ({
       </Table.Cell>
 
       {/* Total Column */}
-      <Table.Cell className="!pr-0 p-2 small:p-4 align-top text-right">
+      <Table.Cell className="bg-tres-secondary !pr-0 p-2 small:p-4 align-top text-right">
         <div className="flex flex-col items-end gap-1">
           {/* Mobile: Show unit price above total */}
           <div className="small:hidden text-xs text-gray-600">

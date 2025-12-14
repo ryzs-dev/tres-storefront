@@ -287,7 +287,7 @@ export default function OnePageCheckout({
               setError("Something went wrong while completing the order.")
             }
           },
-          theme: { color: "#99B2DD" },
+          theme: { color: "#6F171F" },
         })
 
         razorpay.open()
@@ -355,7 +355,7 @@ export default function OnePageCheckout({
   )
 
   return (
-    <div className="w-full mx-auto px-4">
+    <div className="w-full mx-auto ">
       <Heading
         level="h2"
         className="flex flex-row text-3xl-regular items-baseline pb-4"

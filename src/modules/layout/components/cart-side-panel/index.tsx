@@ -114,7 +114,7 @@ const CartSidePanel = ({
                 leaveTo="translate-x-full"
               >
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
-                  <div className="flex h-full flex-col bg-white shadow-xl">
+                  <div className="flex h-full flex-col bg-tres-secondary shadow-xl">
                     {/* Header */}
                     <div className="flex items-center justify-between px-4 py-6 border-b border-gray-200">
                       <h2 className="text-lg font-semibold text-gray-900">
@@ -177,7 +177,7 @@ const CartSidePanel = ({
                       ) : (
                         // Empty cart state
                         <div className="flex flex-col items-center justify-center h-full px-4">
-                          <div className="bg-[#99b2dd] text-white flex items-center justify-center w-12 h-12 rounded-full mb-4">
+                          <div className="bg-tres-primary text-white flex items-center justify-center w-12 h-12 rounded-full mb-4">
                             <span className="text-lg">0</span>
                           </div>
                           <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -189,7 +189,7 @@ const CartSidePanel = ({
                           <LocalizedClientLink href="/bundles">
                             <Button
                               onClick={onClose}
-                              className="w-full bg-[#99b2dd] border-[#99b2dd] text-white hover:bg-[#7a9cd9] hover:border-[#7a9cd9]"
+                              className="w-full bg-tres-primary border-tres-primary text-white hover:bg-[#7a9cd9] hover:border-[#7a9cd9]"
                               variant="transparent"
                             >
                               Explore products
@@ -227,7 +227,7 @@ const CartSidePanel = ({
                         <div className=" flex w-full items-center gap-2 justify-center">
                           <Button
                             asChild
-                            className="w-full flex items-center justify-center  "
+                            className="w-full flex items-center justify-center bg-tres-secondary hover:bg-tres-secondary/90 border-tres-secondary text-tres-primary"
                             size="large"
                             variant="secondary"
                             onClick={onClose}
@@ -242,7 +242,7 @@ const CartSidePanel = ({
                           </Button>
                           <Button
                             asChild
-                            className="w-full flex items-center justify-center  "
+                            className="w-full flex items-center justify-center bg-tres-primary hover:bg-tres-primary/90 border-tres-primary text-tres-secondary"
                             size="large"
                             variant="primary"
                             onClick={onClose}

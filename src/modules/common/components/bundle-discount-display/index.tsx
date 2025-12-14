@@ -24,18 +24,18 @@ export const BundleDiscountDisplay = ({
 
   return (
     <div className={`mt-2 space-y-1 ${className}`}>
-      <Badge className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+      <Badge className="text-xs bg-blue-50 text-blue-700 tres-primary">
         📦 {bundleTitle || "Bundle Item"}
       </Badge>
 
       {savingsInfo.discountType !== "none" && (
-        <div className="text-xs text-[#99b2dd] font-medium">
+        <div className="text-xs text-tres-primary font-medium">
           🎉 {savingsInfo.discountText}
         </div>
       )}
 
       {showSavings && savingsInfo.savings > 0 && (
-        <div className="text-xs text-[#99b2dd]">
+        <div className="text-xs text-tres-primary">
           Saved: {formatCurrency(savingsInfo.savings)}
         </div>
       )}

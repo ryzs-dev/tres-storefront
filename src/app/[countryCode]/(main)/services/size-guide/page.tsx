@@ -231,7 +231,7 @@ const TresSizing = () => {
           <h2 className="text-lg font-semibold text-gray-900 mb-6">
             Sizing Tips
           </h2>
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="p-4 bg-blue-50 border tres-primary rounded-lg">
             <div className="space-y-2">
               <div className="flex gap-3">
                 <span className="text-blue-600 font-bold">•</span>

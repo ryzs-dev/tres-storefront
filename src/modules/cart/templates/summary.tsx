@@ -44,7 +44,7 @@ const Summary = ({ cart }: SummaryProps) => {
         {otherDiscount > 0 && (
           <div className="flex items-center justify-between">
             <Text>Discount</Text>
-            <Text className="text-[#99b2dd] font-medium">
+            <Text className="text-tres-primary font-medium">
               -{" "}
               {convertToLocale({
                 amount: otherDiscount,

@@ -22,26 +22,21 @@ const BundlesTemplate: React.FC<BundlesTemplateProps> = ({
   currentPage,
 }) => {
   const itemsPerPage = 12
+  const totalPages = Math.ceil(count / itemsPerPage)
+  const hasNextPage = currentPage < totalPages
   const hasPrevPage = currentPage > 1
   const [query, setQuery] = useState("")
-  
+
   const filteredBundles = useMemo(() => {
-    if (!query.trim()) return bundles
-    
-    const q = query.toLowerCase()
-    
-    return bundles.filter((bundle) =>
-      bundle.title?.toLowerCase().includes(q) ||
+  if (!query.trim()) return bundles
+
+  const q = query.toLowerCase()
+
+  return bundles.filter((bundle) =>
+    bundle.title?.toLowerCase().includes(q) ||
     bundle.description?.toLowerCase().includes(q)
   )
 }, [bundles, query])
-
-const totalPages = Math.ceil(filteredBundles.length / itemsPerPage)
-const hasNextPage = currentPage < totalPages
-const paginatedBundles = filteredBundles.slice(
-  (currentPage - 1) * itemsPerPage,
-  currentPage * itemsPerPage
-)
 
 
   return (
@@ -56,22 +51,11 @@ const paginatedBundles = filteredBundles.slice(
         </Heading>
       </div>
 
-      <div className="mb-6 flex justify-center">
-        <input
-          type="text"
-          placeholder="Search bundles..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full max-w-md border rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ui-border-strong"
-        />
-      </div>
-
-
       {/* Bundles Grid */}
-      {paginatedBundles && paginatedBundles.length > 0 ? (
+      {bundles && bundles.length > 0 ? (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            {paginatedBundles.map((bundle) => (
+            {bundles.map((bundle) => (
               <BundleCard key={bundle.id} bundle={bundle} region={region} />
             ))}
           </div>

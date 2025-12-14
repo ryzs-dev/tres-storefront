@@ -36,13 +36,19 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
       </div>
 
       <Table>
-        <Table.Header className="border-t-0 w-full">
-          <Table.Row className="text-ui-fg-subtle txt-medium-plus">
-            <Table.HeaderCell className="!pl-0">Item</Table.HeaderCell>
-            <Table.HeaderCell></Table.HeaderCell>
-            <Table.HeaderCell></Table.HeaderCell>
-            <Table.HeaderCell className="text-right">Quantity</Table.HeaderCell>
-            <Table.HeaderCell className="text-right">Price</Table.HeaderCell>
+        <Table.Header className="border-t-0 w-full ">
+          <Table.Row className="text-ui-fg-subtle txt-medium-plus ">
+            <Table.HeaderCell className="!pl-0 bg-tres-secondary">
+              Item
+            </Table.HeaderCell>
+            <Table.HeaderCell className="bg-tres-secondary"></Table.HeaderCell>
+            <Table.HeaderCell className="bg-tres-secondary"></Table.HeaderCell>
+            <Table.HeaderCell className="text-right bg-tres-secondary">
+              Quantity
+            </Table.HeaderCell>
+            <Table.HeaderCell className="text-right bg-tres-secondary">
+              Price
+            </Table.HeaderCell>
             {/* <Table.HeaderCell className="!pr-0 text-right">
               Total
             </Table.HeaderCell> */}

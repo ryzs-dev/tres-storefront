@@ -197,7 +197,7 @@ const BundleItemCard = ({ item }: Props) => {
       className={clsx(
         "border rounded-lg p-4 transition-colors",
         isSelected
-          ? "border-blue-200 bg-blue-50/30"
+          ? "tres-primary bg-tres-primary-50/30"
           : "border-gray-200 hover:border-gray-300"
       )}
     >

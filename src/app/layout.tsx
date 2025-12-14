@@ -15,10 +15,10 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light">
       <SpeedInsights />
-      <body>
+      <body className="bg-tres-secondary">
         <RegionProvider>
           <CartProvider>
-            <main className="relative">
+            <main className="relative bg-tres-secondary">
               {props.children} <Toaster />
             </main>
           </CartProvider>

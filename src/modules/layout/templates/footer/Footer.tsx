@@ -1,3 +1,4 @@
+import { TresLogo } from "@modules/brand/logo"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 
@@ -27,21 +28,15 @@ export default function Footer() {
   ]
 
   return (
-    <footer id="page-footer" className="bg-white border-gray-200 w-full z-0">
+    <footer id="page-footer" className="bg-tres-primary text-tres-secondary border-gray-200 w-full z-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row justify-between py-16 gap-12">
           {/* Logo and Brand Section */}
           <div className="flex-shrink-0 lg:max-w-xs">
             <LocalizedClientLink href="/" className="inline-block">
-              <Image
-                src="/images/tres-logo-3.svg"
-                alt="Tres-logo"
-                width={85}
-                height={85}
-                className="transition-all hover:scale-105 duration-300 drop-shadow-sm"
-              />
+              <TresLogo width={85} height={85} color="#F4EBE3"/>
             </LocalizedClientLink>
-            <p className="mt-4 text-sm text-gray-600 leading-relaxed">
+            <p className="mt-4 text-sm leading-relaxed">
               Discover exclusive collections and premium categories at TRES.
             </p>
           </div>
@@ -50,14 +45,14 @@ export default function Footer() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-12 flex-1">
             {/* Categories */}
             <div className="space-y-4">
-              <h4 className="text-gray-900 font-semibold text-base tracking-wide uppercase">
+              <h4 className="font-semibold text-base tracking-wide uppercase">
                 Categories
               </h4>
               <ul className="space-y-3">
                 {categories.map((c) => (
                   <li key={c.handle}>
                     <LocalizedClientLink
-                      className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm font-medium relative group"
+                      className=" transition-colors duration-200 text-sm font-medium relative group"
                       href={`/categories/${c.handle}`}
                     >
                       {c.name}
@@ -70,14 +65,14 @@ export default function Footer() {
 
             {/* Collections */}
             <div className="space-y-4">
-              <h4 className="text-gray-900 font-semibold text-base tracking-wide uppercase">
+              <h4 className=" font-semibold text-base tracking-wide uppercase">
                 Collections
               </h4>
               <ul className="space-y-3">
                 {collections.map((c) => (
                   <li key={c.handle}>
                     <LocalizedClientLink
-                      className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm font-medium relative group"
+                      className=" transition-colors duration-200 text-sm font-medium relative group"
                       href={`/collections/${c.handle}`}
                     >
                       {c.title}
@@ -90,14 +85,14 @@ export default function Footer() {
 
             {/* Services */}
             <div className="space-y-4">
-              <h4 className="text-gray-900 font-semibold text-base tracking-wide uppercase">
+              <h4 className=" font-semibold text-base tracking-wide uppercase">
                 Services
               </h4>
               <ul className="space-y-3">
                 {serviceLinks.map((link) => (
                   <li key={link.href}>
                     <LocalizedClientLink
-                      className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm font-medium relative group"
+                      className=" transition-colors duration-200 text-sm font-medium relative group"
                       href={link.href}
                     >
                       {link.name}
@@ -113,15 +108,15 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="border-t border-gray-200 py-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-gray-500 font-medium">
+            <p className="text-xs  font-medium">
               © TRES {new Date().getFullYear()} All rights reserved.
             </p>
 
             {/* Optional: Add social links or additional info */}
-            <div className="flex items-center gap-6 text-xs text-gray-500">
+            <div className="flex items-center gap-6 text-xs ">
               <LocalizedClientLink
                 href="/services/privacy-policy"
-                className="hover:text-gray-900 transition-colors duration-200"
+                className=" transition-colors duration-200"
               >
                 Privacy Policy
               </LocalizedClientLink>
@@ -133,7 +128,7 @@ export default function Footer() {
               </LocalizedClientLink> */}
               <LocalizedClientLink
                 href="/services/terms"
-                className="hover:text-gray-900 transition-colors duration-200"
+                className=" transition-colors duration-200"
               >
                 Terms and Conditons
               </LocalizedClientLink>

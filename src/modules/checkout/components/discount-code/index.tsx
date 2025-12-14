@@ -18,6 +18,7 @@ type DiscountCodeProps = {
 
 const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [promoError, setPromoError] = React.useState<string | null>(null)
 
   const { items = [], promotions = [] } = cart
   const removePromotionCode = async (code: string) => {
@@ -31,27 +32,33 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
   }
 
   const addPromotionCode = async (formData: FormData) => {
-    const code = formData.get("code")
-    if (!code) {
-      return
-    }
-    const input = document.getElementById("promotion-input") as HTMLInputElement
-    const codes = promotions
-      .filter((p) => p.code === undefined)
-      .map((p) => p.code!)
-    codes.push(code.toString())
+    setPromoError(null)
 
-    await applyPromotions(codes)
+    try {
+      const code = formData.get("code")
+      if (!code) return
 
-    if (input) {
-      input.value = ""
+      const input = document.getElementById(
+        "promotion-input"
+      ) as HTMLInputElement
+
+      const codes = promotions
+        .filter((p) => p.code !== undefined)
+        .map((p) => p.code!)
+      codes.push(code.toString())
+
+      await applyPromotions(codes)
+
+      if (input) input.value = ""
+    } catch (err: any) {
+      setPromoError(err.message) // <— UI-safe error
     }
   }
 
   const [message, formAction] = useActionState(submitPromotionForm, null)
 
   return (
-    <div className="w-full bg-white flex flex-col">
+    <div className="w-full flex flex-col">
       <div className="txt-medium">
         <form action={(a) => addPromotionCode(a)} className="w-full mb-5">
           <Label className="flex gap-x-1 my-2 items-center">
@@ -100,9 +107,11 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
           <div className="w-full flex items-center">
             <div className="flex flex-col w-full">
               <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
-              <h3 className="text-base font-medium text-gray-900">Promo Code</h3>
-            </div>
+                <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+                <h3 className="text-base font-medium text-gray-900">
+                  Promo Code
+                </h3>
+              </div>
 
               {promotions.map((promotion) => {
                 return (
@@ -169,6 +178,8 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
             </div>
           </div>
         )}
+
+        {promoError && <ErrorMessage error={promoError} />}
       </div>
     </div>
   )

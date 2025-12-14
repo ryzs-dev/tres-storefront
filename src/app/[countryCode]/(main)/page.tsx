@@ -11,7 +11,8 @@ import CollectionSlider from "@modules/home/components/CollectionSlider"
 
 export const metadata: Metadata = {
   title: "TRES | Malaysia's Ladies Activewear",
-  description: "Malaysia's premier destination for high-quality ladies activewear. Shop stylish and comfortable fitness apparel, workout clothes, sportswear, and yoga wear.",
+  description:
+    "Malaysia's premier destination for high-quality ladies activewear. Shop stylish and comfortable fitness apparel, workout clothes, sportswear, and yoga wear.",
 }
 
 export default async function Home(props: {
@@ -95,35 +96,41 @@ export default async function Home(props: {
   return (
     <>
       {/* Hero Section 1 */}
-      <div>
-        <div className="h-[50vh] lg:h-[87vh] w-full border-b border-ui-border-base relative">
-          <Image
-            src="https://storage.tres.my/Hero_Image/DSCF2829.jpg"
-            fill
-            alt="Hero background"
-            className={`object-cover object-[30%_30%]`} // Use the objectPosition prop
-            priority
-          />
-          <div
-            className={`absolute inset-0 z-10 flex flex-col p-8 small:px-32 gap-6 justify-end items-start text-left
-        )}`}
-          >
-            <span className="flex flex-col gap-4">
-              <Heading
-                level="h1"
-                className="text-5xl sm:text-7xl leading-tight text-white font-urw font-normal m-0 p-0"
-              >
-                Be Tres
-              </Heading>
-              <Text
-                family="sans"
-                size="large"
-                className="font-urwCond text-3xl text-white"
-              >
-                From Women For Women
-              </Text>
-            </span>
-          </div>
+      <div className="h-[50vh] lg:h-[100vh] pt-16 w-full border-b border-ui-border-base relative">
+        <Image
+          src="https://storage.tres.my/christmas/christmas_banner_1.png"
+          fill
+          priority
+          alt="Hero background"
+          className="object-cover object-center"
+        />
+
+        {/* Centered content */}
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
+          <span className="flex flex-col gap-3">
+            <Heading
+              level="h1"
+              className="text-5xl sm:text-7xl leading-tight text-white font-urw font-normal m-0 p-0"
+            >
+              HOLIDAY <br />
+              SALE
+            </Heading>
+
+            <Text
+              family="sans"
+              size="large"
+              className="font-urwCond text-2xl sm:text-3xl text-white"
+            >
+              All items 20% off
+            </Text>
+            <Text
+              family="sans"
+              size="small"
+              className="text-white/80 mt-2 sm:mt-3"
+            >
+              Discount auto-applied at checkout
+            </Text>
+          </span>
         </div>
       </div>
 
@@ -134,7 +141,7 @@ export default async function Home(props: {
         </div>
       </section> */}
 
-      <section className="w-full bg-white px-4 sm:px-6 lg:px-0">
+      <section className="w-full  px-4 sm:px-6 lg:px-0">
         <CollectionSlider
           collections={bundleCollections}
           countryCode={countryCode}
@@ -169,14 +176,14 @@ export default async function Home(props: {
       </section>
 
       {/* Featured Section */}
-      <section className="px- sm:px-0 lg:px-0 py-10 sm:py-14 bg-gray-100">
+      <section className="px- sm:px-0 lg:px-0 py-10 sm:py-14">
         <div className=" min-w-full">
           <FeaturedSection items={categories} />
         </div>
       </section>
 
       {/* Strength Section */}
-      <section className="px-4 sm:px-6 lg:px-0 py-10 sm:py-14 bg-gray-100">
+      <section className="px-4 sm:px-6 lg:px-0 py-10 sm:py-14 bg-tres-secondary">
         <div className=" min-w-full">
           <StrengthSection />
         </div>

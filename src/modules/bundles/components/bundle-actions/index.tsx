@@ -297,7 +297,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
           </Text>
           <Text
             className={`text-lg font-semibold ${
-              pricingInfo.hasPromotion ? "text-[#99b2dd]" : ""
+              pricingInfo.hasPromotion ? "text-tres-primary" : ""
             }`}
           >
             {formatCurrency(pricingInfo.promotionalTotal)}
@@ -306,7 +306,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
 
         {pricingInfo.hasPromotion && (
           <div className="mt-2">
-            <div className="flex justify-between text-sm text-[#99b2dd]">
+            <div className="flex justify-between text-sm text-tres-primary">
               <Text>Discount Applied:</Text>
               <Text className="font-medium">{pricingInfo.displayText}</Text>
             </div>
@@ -327,7 +327,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             {(bundle.discount_2_items_amount || bundle.discount_2_items) && (
               <div className="flex justify-between">
                 <span>• 2 items total:</span>
-                <span className="text-[#99b2dd] font-medium">
+                <span className="text-tres-primary font-medium">
                   {formatDiscountText(
                     bundle.discount_type,
                     bundle.discount_2_items_amount,
@@ -340,7 +340,7 @@ const BundleActions = ({ bundle, region, countryCode }: BundleActionsProps) => {
             {(bundle.discount_3_items_amount || bundle.discount_3_items) && (
               <div className="flex justify-between">
                 <span>• 3+ items total:</span>
-                <span className="text-[#99b2dd] font-medium">
+                <span className="text-tres-primary font-medium">
                   {formatDiscountText(
                     bundle.discount_type,
                     bundle.discount_3_items_amount,

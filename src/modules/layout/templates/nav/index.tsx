@@ -7,6 +7,7 @@ import CartButton from "@modules/layout/components/cart-button"
 import SideMenu from "@modules/layout/components/side-menu"
 import { listCategories } from "@lib/data/categories"
 import Image from "next/image"
+import { TresLogo } from "@modules/brand/logo"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
@@ -20,8 +21,8 @@ export default async function Nav() {
 
   return (
     <div className="sticky top-0 inset-x-0 z-40 group">
-      <header className="relative h-16 mx-auto border-b duration-200 bg-white border-ui-border-base">
-        <nav className="content-container txt-xsmall-plus text-ui-fg-subtle flex items-center justify-between w-full h-full text-small-regular">
+      <header className="relative h-16 mx-auto border-b duration-200 bg-tres-secondary text-tres-primary border-ui-border-base">
+        <nav className="content-container txt-xsmall-plus  flex items-center justify-between w-full h-full text-small-regular">
           {/* Logo */}
           <div className="flex items-center h-full flex-1">
             <LocalizedClientLink
@@ -29,13 +30,14 @@ export default async function Nav() {
               className="font-urw text-xl hover:text-ui-fg-base uppercase flex items-center"
               data-testid="nav-store-link"
             >
-              <Image
+              {/* <Image
                 src="/images/tres-logo-3.svg"
                 alt="Tres Triangle Logo"
                 width={75}
                 height={75}
                 className="h-auto"
-              />
+              /> */}
+              <TresLogo height={75} width={75} color="#6F171F" />
             </LocalizedClientLink>
           </div>
 

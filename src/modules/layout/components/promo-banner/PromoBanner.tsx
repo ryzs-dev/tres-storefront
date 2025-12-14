@@ -12,9 +12,9 @@ const PromoBanner = () => {
       loop={true}
       autoplay={{ delay: 3000, disableOnInteraction: false }}
       modules={[Autoplay]}
-      className="bg-[#99B2DD] text-white text-center font-urw font-medium [&_.swiper-wrapper]:!py-2 [&_.swiper-wrapper]:!m-0"
+      className="bg-tres-primary text-white text-center font-urw font-medium [&_.swiper-wrapper]:!py-2 [&_.swiper-wrapper]:!m-0"
     >
-      <SwiperSlide>New Collection Arrived!</SwiperSlide>
+      <SwiperSlide>Merry Christmas</SwiperSlide>
       <SwiperSlide>Free Delivery for Shipping Above RM180</SwiperSlide>
       <SwiperSlide>Limited Time Offer!</SwiperSlide>
     </Swiper>

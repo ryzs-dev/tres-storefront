@@ -16,9 +16,15 @@ const BundleCard = ({ bundle }: BundleCardProps) => {
   const hoverThumbnail = bundle.items[1]?.product?.thumbnail || defaultThumbnail
 
   // Check if bundle is a best seller
-  const bestSellerTitles = ["lively", "celine", "piper", "daz","test no bundle"]
-  const isBestSeller = bestSellerTitles.some(
-    (title) => bundle.title.toLowerCase().includes(title.toLowerCase())
+  const bestSellerTitles = [
+    "lively",
+    "celine",
+    "piper",
+    "daz",
+    "test no bundle",
+  ]
+  const isBestSeller = bestSellerTitles.some((title) =>
+    bundle.title.toLowerCase().includes(title.toLowerCase())
   )
 
   return (
@@ -56,13 +62,12 @@ const BundleCard = ({ bundle }: BundleCardProps) => {
         {/* Best Seller Banner */}
         {isBestSeller && (
           <div className="absolute top-0 right-0 z-10 overflow-hidden w-24 h-24">
-            <div 
-              className="absolute transform rotate-45 text-white text-center font-semibold text-xs py-1 shadow-lg"
+            <div
+              className="absolute transform rotate-45 text-white text-center font-semibold text-xs py-2 shadow-lg bg-tres-primary"
               style={{
-                backgroundColor: '#99B2DD',
-                width: '150px',
-                top: '20px',
-                right: '-37px',
+                width: "150px",
+                top: "20px",
+                right: "-37px",
               }}
             >
               BEST SELLER
