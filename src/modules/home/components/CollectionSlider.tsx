@@ -53,7 +53,7 @@ export default function CollectionSlider({
   if (!collections || collections.length === 0) return null
 
   return (
-    <div className="content-container py-8 sm:py-12 md:py-16 lg:py-24">
+    <div className=" py-8 sm:py-12 md:py-16 lg:py-24">
       <div className="flex flex-row sm:items-center justify-between mb-4 sm:mb-6">
         <Heading
           level="h2"
@@ -67,10 +67,11 @@ export default function CollectionSlider({
       <Swiper
         onSwiper={setSwiper}
         modules={[Navigation]}
-        spaceBetween={16}
-        slidesPerView={1.1}
+        centeredSlides={false}
+        spaceBetween={8}
+        slidesPerView={1.7}
         breakpoints={{
-          640: { slidesPerView: 1.3, spaceBetween: 20 },
+          640: { slidesPerView: 1.5, spaceBetween: 20 },
           768: { slidesPerView: 2, spaceBetween: 24 },
           1024: { slidesPerView: 3, spaceBetween: 24 },
           1280: { slidesPerView: 4, spaceBetween: 24 },

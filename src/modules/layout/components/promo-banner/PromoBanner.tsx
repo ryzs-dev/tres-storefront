@@ -14,9 +14,13 @@ const PromoBanner = () => {
       modules={[Autoplay]}
       className="bg-tres-primary text-white text-center font-urw font-medium [&_.swiper-wrapper]:!py-2 [&_.swiper-wrapper]:!m-0"
     >
-      <SwiperSlide>Merry Christmas</SwiperSlide>
-      <SwiperSlide>Free Delivery for Shipping Above RM180</SwiperSlide>
-      <SwiperSlide>Limited Time Offer!</SwiperSlide>
+      <SwiperSlide>
+        🔥 20% OFF STOREWIDE until 5th Jan ! SALES END SOON !
+      </SwiperSlide>
+      <SwiperSlide>🚚 Free Shipping above RM180</SwiperSlide>
+      <SwiperSlide>
+        🎁 No hesitation! Extra 20% apply on Bundle Deals too!
+      </SwiperSlide>
     </Swiper>
   )
 }

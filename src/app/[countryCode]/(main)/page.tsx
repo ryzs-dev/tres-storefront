@@ -8,6 +8,8 @@ import { Heading, Text } from "@medusajs/ui"
 import Image from "next/image"
 import HeroSlider from "@modules/home/components/hero-slider"
 import CollectionSlider from "@modules/home/components/CollectionSlider"
+import { Link } from "lucide-react"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 export const metadata: Metadata = {
   title: "TRES | Malaysia's Ladies Activewear",
@@ -130,6 +132,16 @@ export default async function Home(props: {
             >
               Discount auto-applied at checkout
             </Text>
+
+            {/* 👇 Shop All Button */}
+            <div className="mt-6 sm:mt-8">
+              <LocalizedClientLink
+                href="/bundles"
+                className="inline-block px-6 py-2 bg-tres-primary text-tres-secondary font-semibold rounded-md hover:bg-tres-secondary hover:text-tres-primary transition-colors"
+              >
+                Shop All
+              </LocalizedClientLink>
+            </div>
           </span>
         </div>
       </div>
@@ -141,11 +153,11 @@ export default async function Home(props: {
         </div>
       </section> */}
 
-      <section className="w-full  px-4 sm:px-6 lg:px-0">
+      <section className="w-full px-4 sm:px-6 lg:px-0">
         <CollectionSlider
           collections={bundleCollections}
           countryCode={countryCode}
-          heading="Explore Our Exclusive Collections"
+          heading="Our Exclusive Collections"
         />
       </section>
 

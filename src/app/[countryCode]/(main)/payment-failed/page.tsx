@@ -2,20 +2,12 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { Heading, Button } from "@medusajs/ui"
-import {
-  XCircle,
-  RefreshCcw,
-  Home,
-  Mail,
-  ArrowRight,
-  ArrowLeft,
-} from "lucide-react"
+import { XCircle } from "lucide-react"
 
 export default function PaymentFailedPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const error = searchParams.get("error")
-  const cartId = searchParams.get("cart_id")
 
   const getErrorMessage = () => {
     switch (error) {

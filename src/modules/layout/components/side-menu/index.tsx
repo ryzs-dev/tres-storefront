@@ -14,8 +14,9 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import CountrySelect from "../country-select"
 import { HttpTypes } from "@medusajs/types"
 import CategoriesSelect from "./CategoriesSelect"
-import { MenuIcon, ShoppingBag } from "lucide-react"
+import { MenuIcon, ShoppingBag, User } from "lucide-react"
 import { retrieveCart } from "@lib/data/cart"
+import { open } from "fs"
 
 const SideMenuItems = {
   Home: "/",
@@ -85,7 +86,7 @@ const SideMenu = ({
 
   return (
     <div className="h-full">
-      <div className="flex items-center h-full gap-4">
+      <div className="flex items-center h-full gap-4 text-tres-primary">
         {/* Cart Button with Badge */}
         <LocalizedClientLink
           href="/cart"
@@ -107,6 +108,14 @@ const SideMenu = ({
           )}
         </LocalizedClientLink>
 
+        <LocalizedClientLink
+          href="/account"
+          className="flex items-center justify-center p-2 rounded-full transition-colors"
+          data-testid="nav-account-button"
+        >
+          <User className="w-6 h-6 " />
+        </LocalizedClientLink>
+
         {/* Hamburger Menu */}
         <Popover className="h-full flex">
           {({ open, close }) => (
@@ -122,13 +131,12 @@ const SideMenu = ({
 
               <Transition
                 show={open}
-                as={Fragment}
-                enter="transition ease-out duration-150"
-                enterFrom="translate-x-full"
-                enterTo="translate-x-0"
-                leave="transition ease-in duration-150"
-                leaveFrom="translate-x-0"
-                leaveTo="translate-x-full"
+                enter="transition-all duration-200"
+                enterFrom="opacity-0 translate-x-4"
+                enterTo="opacity-100 translate-x-0"
+                leave="transition-all duration-150"
+                leaveFrom="opacity-100 translate-x-0"
+                leaveTo="opacity-0 translate-x-4"
               >
                 <PopoverPanel className="fixed top-0 right-0 z-30 w-[75vw] max-w-[480px] h-full bg-white shadow-lg border-l border-gray-200 text-ui-fg-base overflow-y-auto">
                   <div className="flex flex-col justify-between h-full p-6">
@@ -145,7 +153,7 @@ const SideMenu = ({
                       <ul className="flex flex-col divide-y divide-gray-200">
                         {Object.entries(SideMenuItems).map(([name, href]) => (
                           <li key={name} className="py-4">
-                            {name === "Categories" ? (
+                            {name === "Shop All" ? (
                               <div
                                 className="flex justify-between items-center cursor-pointer"
                                 onMouseEnter={categoriesToggleState.open}

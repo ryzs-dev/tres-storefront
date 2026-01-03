@@ -28,7 +28,7 @@ const CategoriesSelect = ({
             return (
               <li
                 key={c.id}
-                className="text-ui-fg-on-color py-2 txt-small hover:text-ui-fg-disabled"
+                className="text-black py-2 txt-small hover:text-ui-fg-disabled"
               >
                 <LocalizedClientLink
                   className={clx("hover:text-ui-fg-disabled")}

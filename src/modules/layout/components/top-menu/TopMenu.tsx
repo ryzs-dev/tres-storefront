@@ -1,8 +1,7 @@
 "use client"
 
-import { ArrowRightMini, ChevronDown, XMark } from "@medusajs/icons"
-import { Text, clx, useToggleState } from "@medusajs/ui"
-import { Fragment } from "react"
+import { ChevronDown } from "@medusajs/icons"
+import { clx, useToggleState } from "@medusajs/ui"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CountrySelect from "../country-select"
