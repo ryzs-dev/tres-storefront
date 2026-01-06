@@ -28,13 +28,16 @@ export default function Footer() {
   ]
 
   return (
-    <footer id="page-footer" className="bg-tres-primary text-tres-secondary border-gray-200 w-full z-0">
+    <footer
+      id="page-footer"
+      className="bg-tres-primary text-tres-secondary border-gray-200 w-full z-0"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row justify-between py-16 gap-12">
           {/* Logo and Brand Section */}
           <div className="flex-shrink-0 lg:max-w-xs">
             <LocalizedClientLink href="/" className="inline-block">
-              <TresLogo width={85} height={85} color="#F4EBE3"/>
+              <TresLogo width={85} height={85} color="#FFF" />
             </LocalizedClientLink>
             <p className="mt-4 text-sm leading-relaxed">
               Discover exclusive collections and premium categories at TRES.

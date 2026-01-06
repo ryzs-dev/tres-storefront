@@ -1,6 +1,5 @@
 import { Metadata } from "next"
 import { listCollections } from "@lib/data/collections"
-import { listCategories } from "@lib/data/categories"
 import { getRegion } from "@lib/data/regions"
 import StrengthSection from "@modules/home/components/banner/StrengthSection"
 import FeaturedSection from "@modules/layout/components/featured-section/FeaturedSection"
@@ -8,7 +7,6 @@ import { Heading, Text } from "@medusajs/ui"
 import Image from "next/image"
 import HeroSlider from "@modules/home/components/hero-slider"
 import CollectionSlider from "@modules/home/components/CollectionSlider"
-import { Link } from "lucide-react"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 export const metadata: Metadata = {
@@ -100,9 +98,10 @@ export default async function Home(props: {
       {/* Hero Section 1 */}
       <div className="h-[50vh] lg:h-[100vh] pt-16 w-full border-b border-ui-border-base relative">
         <Image
-          src="https://storage.tres.my/christmas/christmas_banner_1.png"
+          src="https://storage.tres.my/Hero_Image/DSCF2829.jpg"
           fill
           priority
+          style={{ objectPosition: "30% 30%" }}
           alt="Hero background"
           className="object-cover object-center"
         />
@@ -114,8 +113,7 @@ export default async function Home(props: {
               level="h1"
               className="text-5xl sm:text-7xl leading-tight text-white font-urw font-normal m-0 p-0"
             >
-              HOLIDAY <br />
-              SALE
+              TRES
             </Heading>
 
             <Text
@@ -123,23 +121,21 @@ export default async function Home(props: {
               size="large"
               className="font-urwCond text-2xl sm:text-3xl text-white"
             >
-              All items 20% off
+              From Women For Women
             </Text>
-            <Text
+            {/* <Text
               family="sans"
               size="small"
               className="text-white/80 mt-2 sm:mt-3"
-            >
-              Discount auto-applied at checkout
-            </Text>
+            ></Text> */}
 
             {/* 👇 Shop All Button */}
             <div className="mt-6 sm:mt-8">
               <LocalizedClientLink
                 href="/bundles"
-                className="inline-block px-6 py-2 bg-tres-primary text-tres-secondary font-semibold rounded-md hover:bg-tres-secondary hover:text-tres-primary transition-colors"
+                className="inline-block px-6 py-2 bg-tres-primary text-tres-secondary font-semibold  hover:bg-tres-secondary hover:text-tres-primary transition-colors"
               >
-                Shop All
+                SHOP NOW{" "}
               </LocalizedClientLink>
             </div>
           </span>
@@ -153,7 +149,7 @@ export default async function Home(props: {
         </div>
       </section> */}
 
-      <section className="w-full px-4 sm:px-6 lg:px-0">
+      <section className="w-full px-4 sm:px-6 lg:px-4">
         <CollectionSlider
           collections={bundleCollections}
           countryCode={countryCode}
@@ -188,7 +184,7 @@ export default async function Home(props: {
       </section>
 
       {/* Featured Section */}
-      <section className="px- sm:px-0 lg:px-0 py-10 sm:py-14">
+      <section className="px-4 py-10 sm:py-14">
         <div className=" min-w-full">
           <FeaturedSection items={categories} />
         </div>

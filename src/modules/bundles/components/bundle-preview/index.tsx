@@ -217,25 +217,15 @@ function ReviewCard({
   return (
     <div className="flex flex-col gap-4 text-sm text-ui-fg-base p-4 border border-ui-border-base rounded-xl bg-white shadow-sm max-w-md mx-auto">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <span
-          className="px-3 py-1 rounded-full text-xs font-semibold"
-          style={{
-            color: "#6F171F",
-            backgroundColor: "rgba(153, 178, 221, 0.1)",
-          }}
-        >
+        <span className="px-3 py-1 rounded-full text-xs font-semibold text-tres-secondary bg-tres-primary">
           {productTitle}
         </span>
         <div className="flex gap-1">
           {Array.from({ length: 5 }).map((_, i) =>
             i < review.rating ? (
-              <StarSolid
-                key={i}
-                className="w-4 h-4"
-                style={{ color: "#6F171F" }}
-              />
+              <StarSolid key={i} className="w-4 h-4 text-tres-primary" />
             ) : (
-              <Star key={i} className="w-4 h-4" style={{ color: "#6F171F" }} />
+              <Star key={i} className="w-4 h-4 text-tres-primary" />
             )
           )}
         </div>

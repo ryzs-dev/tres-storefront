@@ -25,7 +25,7 @@ const FeaturedSection = ({ items }: { items: FeaturedItem[] }) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 p-2">
+      <div className="grid grid-cols-3 gap-2">
         {items.map((item) => (
           <div
             key={item.name}

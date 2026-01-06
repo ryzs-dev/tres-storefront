@@ -12,7 +12,6 @@ import Nav from "@modules/layout/templates/nav"
 import PromoBanner from "@modules/layout/components/promo-banner/PromoBanner"
 import ChristmasPopup from "@modules/promotion/ChritmasPopup"
 
-
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
 }
@@ -31,15 +30,14 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
   return (
     <>
       {/* First Order Popup - appears on top of everything */}
-      {/* {!customer && <FirstOrderPopup customer={customer} />} */}
-      <ChristmasPopup customer={customer} />
+      {!customer && <FirstOrderPopup customer={customer} />}
+      {/* <ChristmasPopup customer={customer} /> */}
 
       <PromoBanner />
       <Nav />
       {customer && cart && (
         <CartMismatchBanner customer={customer} cart={cart} />
       )}
-  
 
       {props.children}
       <Footer />
