@@ -15,12 +15,9 @@ const PromoBanner = () => {
       className="bg-tres-primary text-white text-center font-urw font-medium [&_.swiper-wrapper]:!py-2 [&_.swiper-wrapper]:!m-0"
     >
       <SwiperSlide>
-        🔥 20% OFF STOREWIDE until 5th Jan ! SALES END SOON !
+        Sign Up Now & Get Extra 10% OFF Your First Order!
       </SwiperSlide>
       <SwiperSlide>🚚 Free Shipping above RM180</SwiperSlide>
-      <SwiperSlide>
-        🎁 No hesitation! Extra 20% apply on Bundle Deals too!
-      </SwiperSlide>
     </Swiper>
   )
 }
