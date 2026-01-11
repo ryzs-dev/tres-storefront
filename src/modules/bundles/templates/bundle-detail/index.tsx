@@ -63,8 +63,9 @@ const BundleDetailTemplate = ({
                   )
                 })}
               </div>
+
               {/* Review Section */}
-              {products && <BundleProductReviews products={products} />}
+              <BundleProductReviews products={products} />
 
               <div className="mt-6">
                 <BundleActions

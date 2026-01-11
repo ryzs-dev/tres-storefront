@@ -9,7 +9,6 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination } from "swiper/modules"
 import type { Swiper as SwiperType } from "swiper"
 
-// Import Swiper styles
 import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
@@ -35,10 +34,8 @@ export default function BundleProductReviews({
 }: BundleProductReviewsProps) {
   const [productReviews, setProductReviews] = useState<ProductReviewsData[]>([])
   const [loading, setLoading] = useState(true)
-  const [currentIndex, setCurrentIndex] = useState(0)
   const reviewsPerProduct = 3
 
-  // Flatten all reviews into a single array
   const allReviews: ReviewWithProduct[] = productReviews.flatMap(
     (productData) =>
       productData.reviews.map((review) => ({
@@ -57,6 +54,7 @@ export default function BundleProductReviews({
               limit: reviewsPerProduct,
               offset: 0,
             })
+
             return {
               productId: product.id,
               productTitle: product.title,
@@ -64,7 +62,7 @@ export default function BundleProductReviews({
               averageRating: Math.round(average_rating),
               totalCount: count,
             }
-          } catch (error) {
+          } catch {
             return {
               productId: product.id,
               productTitle: product.title,
@@ -75,125 +73,90 @@ export default function BundleProductReviews({
           }
         })
       )
-      setProductReviews(reviewsData.filter((data) => data.reviews.length > 0))
+
+      setProductReviews(reviewsData.filter((d) => d.reviews.length > 0))
       setLoading(false)
     }
 
     fetchAllReviews()
   }, [products])
 
-  const handleSlideChange = (swiper: SwiperType) => {
-    setCurrentIndex(swiper.realIndex)
-  }
-
   if (loading) {
     return (
-      <div className="content-container my-16">
-        <div className="flex justify-center items-center py-12">
-          <p className="text-base-regular text-gray-600">Loading reviews...</p>
-        </div>
+      <div className="content-container py-16 text-center text-ui-fg-subtle">
+        Loading reviews…
       </div>
     )
   }
 
-  if (allReviews.length === 0) {
-    return null
-  }
+  const hasReviews = allReviews.length > 0
 
   return (
-    <div className="content-container my-4">
-      <div className="relative max-w-4xl mx-auto">
-        <Swiper
-          modules={[Navigation, Pagination]}
-          slidesPerView={1}
-          spaceBetween={30}
-          loop={true}
-          navigation={{
-            prevEl: ".swiper-button-prev-custom",
-            nextEl: ".swiper-button-next-custom",
-          }}
-          pagination={{
-            el: ".swiper-pagination-custom",
-            clickable: true,
-            renderBullet: (index: number, className: string) => {
-              return `<span class="${className}"></span>`
-            },
-          }}
-          onSlideChange={handleSlideChange}
-          className="reviews-swiper"
-        >
-          {allReviews.map((review, index) => (
-            <SwiperSlide key={`${review.id}-${index}`}>
-              <ReviewCard review={review} productTitle={review.productTitle} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+    <div className="content-container my-12 space-y-16">
+      {/* ================= Reviews Section ================= */}
+      <section className="space-y-6">
+        <div className="text-center space-y-1">
+          <h2 className="text-xl font-semibold text-ui-fg-base">
+            Customer Reviews
+          </h2>
+          <p className="text-sm text-ui-fg-subtle">
+            What customers say about this bundle
+          </p>
+        </div>
 
-        {/* Custom Navigation Buttons */}
-        <button
-          className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-8 h-8 rounded-full bg-white shadow-lg border border-ui-border-base flex items-center justify-center hover:bg-gray-50 transition-colors"
-          aria-label="Previous review"
-        >
-          <svg
-            className="w-6 h-6"
-            style={{ color: "#99B2DD" }}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
+        <div className="relative max-w-4xl mx-auto">
+          {hasReviews ? (
+            <>
+              <Swiper
+                modules={[Navigation, Pagination]}
+                slidesPerView={1}
+                spaceBetween={30}
+                loop
+                navigation={{
+                  prevEl: ".swiper-button-prev-custom",
+                  nextEl: ".swiper-button-next-custom",
+                }}
+                className="reviews-swiper"
+              >
+                {allReviews.map((review, index) => (
+                  <SwiperSlide key={`${review.id}-${index}`}>
+                    <ReviewCard
+                      review={review}
+                      productTitle={review.productTitle}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
 
-        <button
-          className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-8 h-8 rounded-full bg-white shadow-lg border border-ui-border-base flex items-center justify-center hover:bg-gray-50 transition-colors"
-          aria-label="Next review"
-        >
-          <svg
-            className="w-6 h-6"
-            style={{ color: "#99B2DD" }}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
+              <NavButton direction="prev" />
+              <NavButton direction="next" />
+            </>
+          ) : (
+            <EmptyState />
+          )}
+        </div>
+      </section>
 
-        {/* Custom Pagination Dots */}
-        {/* <div className="swiper-pagination-custom flex justify-center gap-x-2 mt-8"></div> */}
-      </div>
+      {/* ================= Divider ================= */}
+      <div className="border-t border-ui-border-base max-w-3xl mx-auto" />
 
-      <BundleReviewsForm products={products} />
+      {/* ================= Review Form Section ================= */}
+      <section className="space-y-6 max-w-2xl mx-auto">
+        <div className="text-center space-y-1">
+          <h2 className="text-lg font-semibold text-ui-fg-base">
+            Write a Review
+          </h2>
+          <p className="text-sm text-ui-fg-subtle">
+            Share your experience with this bundle
+          </p>
+        </div>
+
+        <BundleReviewsForm products={products} />
+      </section>
 
       <style jsx global>{`
         .reviews-swiper {
-          padding-bottom: 50px;
-        }
-
-        .swiper-pagination-custom .swiper-pagination-bullet {
-          width: 8px;
-          height: 8px;
-          background-color: #d1d5db;
-          opacity: 1;
-          transition: all 0.3s ease;
-          border-radius: 9999px;
-        }
-
-        .swiper-pagination-custom .swiper-pagination-bullet-active {
-          width: 32px;
-          border-radius: 4px;
-          background-color: #99b2dd;
+          padding-bottom: 40px;
         }
 
         @media (max-width: 640px) {
@@ -207,6 +170,8 @@ export default function BundleProductReviews({
   )
 }
 
+/* ================= Subcomponents ================= */
+
 function ReviewCard({
   review,
   productTitle,
@@ -215,9 +180,9 @@ function ReviewCard({
   productTitle: string
 }) {
   return (
-    <div className="flex flex-col gap-4 text-sm text-ui-fg-base p-4 border border-ui-border-base rounded-xl bg-white shadow-sm max-w-md mx-auto">
+    <div className="mx-auto max-w-md bg-white border border-ui-border-base rounded-xl p-5 shadow-sm space-y-3">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <span className="px-3 py-1 rounded-full text-xs font-semibold text-tres-secondary bg-tres-primary">
+        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-tres-primary text-tres-secondary">
           {productTitle}
         </span>
         <div className="flex gap-1">
@@ -232,18 +197,46 @@ function ReviewCard({
       </div>
 
       {review.title && (
-        <h3 className="text-sm font-semibold text-ui-fg-base">
-          {review.title}
-        </h3>
+        <h3 className="font-semibold text-ui-fg-base">{review.title}</h3>
       )}
 
-      <p className="text-sm text-ui-fg-subtle leading-snug">{review.content}</p>
-
-      <div className="border-t border-ui-border-base pt-2 mt-2">
-        <p className="text-xs font-semibold text-ui-fg-base">
-          {review.first_name} {review.last_name}
-        </p>
-      </div>
+      <p className="text-sm text-ui-fg-subtle">{review.content}</p>
     </div>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div className="text-center py-16 px-6 border border-dashed border-ui-border-base rounded-xl bg-ui-bg-subtle">
+      <p className="text-sm text-ui-fg-subtle">
+        No reviews yet. Be the first to share your experience!
+      </p>
+    </div>
+  )
+}
+
+function NavButton({ direction }: { direction: "prev" | "next" }) {
+  const isPrev = direction === "prev"
+
+  return (
+    <button
+      className={`swiper-button-${direction}-custom absolute top-1/2 -translate-y-1/2 ${
+        isPrev ? "-left-4" : "-right-4"
+      } z-10 w-8 h-8 rounded-full bg-white shadow border border-ui-border-base flex items-center justify-center`}
+    >
+      <svg
+        className="w-5 h-5 text-tres-primary"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d={isPrev ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"}
+        />
+      </svg>
+    </button>
   )
 }
