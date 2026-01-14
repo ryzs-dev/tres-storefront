@@ -8,6 +8,7 @@ import Image from "next/image"
 import HeroSlider from "@modules/home/components/hero-slider"
 import CollectionSlider from "@modules/home/components/CollectionSlider"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { TresLogo } from "@modules/brand/logo"
 
 export const metadata: Metadata = {
   title: "TRES | Malaysia's Ladies Activewear",
@@ -108,14 +109,16 @@ export default async function Home(props: {
 
         {/* Centered content */}
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
-          <span className="flex flex-col gap-3">
-            <Heading
+          <span className="flex flex-col gap-3 sm:gap-2">
+            {/* <Heading
               level="h1"
               className="text-5xl sm:text-7xl leading-tight text-white font-urw font-normal m-0 p-0"
             >
               TRES
-            </Heading>
-
+            </Heading> */}
+            <div className="flex items-center justify-center">
+              <TresLogo width={120} height={80} color="#fff" />
+            </div>
             <Text
               family="sans"
               size="large"

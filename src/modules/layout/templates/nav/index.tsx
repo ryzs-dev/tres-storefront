@@ -12,6 +12,21 @@ export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
   const categories = await listCategories()
 
+  function getCategoryHierarchy(categories: any[]) {
+    // Filter only parent categories
+    const parents = categories.filter((cat) => !cat.parent_category_id)
+
+    // Map each parent to its children
+    return parents.map((parent) => ({
+      ...parent,
+      children: categories.filter(
+        (cat) => cat.parent_category_id === parent.id
+      ),
+    }))
+  }
+
+  const categoryHierarchy = getCategoryHierarchy(categories)
+
   return (
     <div className="sticky top-0 inset-x-0 z-40 text-tres-primary">
       <header className="relative bg-tres-secondary border-b border-ui-border-base overflow-visible">
@@ -54,30 +69,40 @@ export default async function Nav() {
                 {/* 👇 FULL WIDTH SHOP PANEL - Positioned absolutely from this trigger */}
                 <div
                   className="
-                    hidden small:block
-                    fixed left-0 w-full z-[-15] mt-10
-                    bg-tres-secondary border-t border-ui-border-base
-                    opacity-0 invisible
-                    group-hover/dropdown:opacity-100 group-hover/dropdown:visible
-                    transition-all duration-300 ease-out
-                    shadow-lg
-                  "
+    hidden small:block
+    fixed left-0 w-full z-[-15] mt-10
+    bg-tres-secondary border-t border-ui-border-base
+    opacity-0 invisible
+    group-hover/dropdown:opacity-100 group-hover/dropdown:visible
+    transition-all duration-300 ease-out
+    shadow-lg
+  "
                   style={{ top: "4rem" }}
                 >
-                  <div className="content-container py-10 text-tres-primary mx-auto max-w-5xl">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
-                      {categories.map((category) => (
-                        <div key={category.id}>
-                          <LocalizedClientLink
-                            href={`/categories/${category.handle}`}
-                            className="
-                              font-urw text-sm font-semibold
-                              hover:underline
-                              transition-colors
-                            "
-                          >
-                            {category.name}
-                          </LocalizedClientLink>
+                  <div className="content-container py-10 text-tres-primary mx-auto max-w-4xl">
+                    <div className="flex flex-row md:gap-8 gap-12 justify-start items-start">
+                      {categoryHierarchy.map((parent) => (
+                        <div key={parent.id} className="pr-4">
+                          {/* Parent category */}
+                          <h3 className="font-urw text-md font-semibold hover:underline transition-colors">
+                            {parent.name}
+                          </h3>
+
+                          {/* Children categories */}
+                          {parent.children.length > 0 && (
+                            <ul className="mt-2 space-y-1">
+                              {parent.children.map((child: any) => (
+                                <li key={child.id}>
+                                  <LocalizedClientLink
+                                    href={`/categories/${child.handle}`}
+                                    className="font-urw text-sm hover:underline transition-colors"
+                                  >
+                                    {child.name}
+                                  </LocalizedClientLink>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                       ))}
                     </div>
