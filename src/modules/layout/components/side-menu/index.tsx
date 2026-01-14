@@ -154,60 +154,50 @@ const SideMenu = ({
                         {Object.entries(SideMenuItems).map(([name, href]) => (
                           <li key={name} className="py-4">
                             {name === "Shop All" ? (
-                              <div
-                                className="flex justify-between items-center cursor-pointer"
-                                onMouseEnter={categoriesToggleState.open}
-                                onMouseLeave={categoriesToggleState.close}
-                              >
-                                <div className="flex flex-col">
-                                  <LocalizedClientLink
-                                    className="text-xl font-medium hover:text-ui-fg-muted"
-                                    href={href}
-                                    onClick={close}
-                                    data-testid={`${name.toLowerCase()}-link`}
-                                  >
-                                    {name}
-                                  </LocalizedClientLink>
-                                  {categories && (
-                                    <CategoriesSelect
-                                      toggleState={categoriesToggleState}
-                                      categories={categories}
-                                      closePopover={close}
-                                    />
-                                  )}
-                                </div>
-                                <ArrowRightMini
-                                  className={clx(
-                                    "transition-transform duration-150",
-                                    categoriesToggleState.state
-                                      ? "rotate-90"
-                                      : ""
-                                  )}
-                                />
-                              </div>
-                            ) : name === "Cart" ? (
-                              <div className="flex items-center justify-between">
-                                <LocalizedClientLink
-                                  href={href}
-                                  className="text-xl font-medium hover:text-ui-fg-muted"
-                                  onClick={close}
-                                  data-testid={`${name.toLowerCase()}-link`}
+                              <div>
+                                {/* Parent row */}
+                                <button
+                                  type="button"
+                                  className="w-full flex items-center justify-between text-xl font-medium hover:text-ui-fg-muted"
+                                  onClick={categoriesToggleState.toggle}
                                 >
-                                  {name}
-                                </LocalizedClientLink>
-                                {/* Cart count in menu */}
-                                {!isLoadingCart && cartItemCount > 0 && (
-                                  <span className="bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 font-medium">
-                                    {cartItemCount > 99 ? "99+" : cartItemCount}
-                                  </span>
-                                )}
+                                  <span>Shop All</span>
+                                  <ArrowRightMini
+                                    className={clx(
+                                      "transition-transform duration-200",
+                                      categoriesToggleState.state
+                                        ? "rotate-90"
+                                        : ""
+                                    )}
+                                  />
+                                </button>
+
+                                {/* Sliding sub-categories */}
+                                <Transition
+                                  show={categoriesToggleState.state}
+                                  enter="transition-all duration-300 ease-out"
+                                  enterFrom="max-h-0 opacity-0 translate-x-2"
+                                  enterTo="max-h-[500px] opacity-100 translate-x-0"
+                                  leave="transition-all duration-200 ease-in"
+                                  leaveFrom="max-h-[500px] opacity-100 translate-x-0"
+                                  leaveTo="max-h-0 opacity-0 translate-x-2"
+                                >
+                                  <div className="overflow-hidden mt-3 ml-4 space-y-2">
+                                    {categories && (
+                                      <CategoriesSelect
+                                        categories={categories}
+                                        closePopover={close}
+                                        toggleState={categoriesToggleState}
+                                      />
+                                    )}
+                                  </div>
+                                </Transition>
                               </div>
                             ) : (
                               <LocalizedClientLink
                                 href={href}
                                 className="text-xl font-medium hover:text-ui-fg-muted"
                                 onClick={close}
-                                data-testid={`${name.toLowerCase()}-link`}
                               >
                                 {name}
                               </LocalizedClientLink>
