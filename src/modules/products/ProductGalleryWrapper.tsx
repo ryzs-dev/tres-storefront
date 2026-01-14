@@ -25,10 +25,6 @@ const ProductGalleryWrapper = ({
     const handleVariantChange = (
       event: CustomEvent<HttpTypes.StoreProductVariant | undefined>
     ) => {
-      console.log(
-        "🖼️ ProductGalleryWrapper: Received variant change:",
-        event.detail?.sku
-      )
       setSelectedVariant(event.detail)
     }
 

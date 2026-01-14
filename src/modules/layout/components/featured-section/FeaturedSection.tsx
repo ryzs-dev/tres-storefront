@@ -25,22 +25,25 @@ const FeaturedSection = ({ items }: { items: FeaturedItem[] }) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         {items.map((item) => (
           <div
             key={item.name}
-            className="relative overflow-hidden rounded-md sm:w-52 sm:h-40 lg:w-full lg:h-full"
+            className="relative overflow-hidden rounded-md
+                 h-32 sm:h-40 lg:h-full
+                 w-full sm:w-52 lg:w-full"
           >
             <LocalizedClientLink href={item.href}>
               <Image
                 src={item.image}
                 alt={`Shop ${item.name}`}
-                width={200}
-                height={300}
-                className="w-full h-full object-cover transition-transform duration-300 hover-zoom"
+                fill
+                className="object-cover transition-transform duration-300 hover-zoom"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-30 overlay-fade flex items-center justify-center">
-                <span className="text-white text-m lg:text-xl font-urw">{`SHOP ${item.name}`}</span>
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <span className="text-white text-sm sm:text-base lg:text-xl font-urw">
+                  SHOP {item.name}
+                </span>
               </div>
             </LocalizedClientLink>
           </div>
