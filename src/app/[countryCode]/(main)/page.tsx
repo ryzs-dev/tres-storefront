@@ -129,7 +129,7 @@ export default async function Home(props: {
             <Text
               family="sans"
               size="base"
-              className="font-urwCond text-2xl sm:text-3xl text-white"
+              className="font-urwCond text-lg md:text-3xl text-white"
             >
               From Women For Women
             </Text>
