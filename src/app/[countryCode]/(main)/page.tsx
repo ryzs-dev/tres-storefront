@@ -118,8 +118,8 @@ export default async function Home(props: {
         />
 
         {/* Centered content */}
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-6">
-          <span className="flex flex-col gap-3 sm:gap-2">
+        <div className="absolute inset-0 z-10 flex flex-col items-center lg:justify-center justify-end text-center px-6 mb-16 md:mb-0">
+          <span className="flex flex-col sm:gap-2">
             {/* <Heading
               level="h1"
               className="text-5xl sm:text-7xl leading-tight text-white font-urw font-normal m-0 p-0"
@@ -140,7 +140,7 @@ export default async function Home(props: {
             ></Text> */}
 
             {/* 👇 Shop All Button */}
-            <div className="mt-2 sm:mt-8">
+            <div className="mt-2 lg:mt-8">
               <LocalizedClientLink
                 href="/bundles"
                 className="inline-block px-6 py-2 bg-tres-primary text-tres-secondary font-semibold  hover:bg-tres-secondary hover:text-tres-primary transition-colors"
