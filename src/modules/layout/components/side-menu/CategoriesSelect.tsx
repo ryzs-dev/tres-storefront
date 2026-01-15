@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { StateType } from "@lib/hooks/use-toggle-state"
 import { HttpTypes } from "@medusajs/types"
@@ -46,22 +44,35 @@ const CategoriesSelect = ({
 
         return (
           <li key={parent.id}>
-            {/* Parent */}
-            <button
-              type="button"
-              className="w-full flex items-center justify-between text-sm font-medium text-left"
-              onClick={() => setOpenParentId(isOpen ? null : parent.id)}
-            >
-              <span>{parent.name}</span>
+            <div className="flex items-center justify-between w-full">
+              {/* Parent link */}
+              <LocalizedClientLink
+                href={`/categories/${parent.handle}`}
+                className="text-sm font-medium text-left hover:underline"
+                onClick={() => {
+                  close()
+                  closePopover()
+                }}
+              >
+                {parent.name}
+              </LocalizedClientLink>
+
+              {/* Toggle arrow */}
               {children.length > 0 && (
-                <ArrowRightMini
-                  className={clx(
-                    "transition-transform duration-200",
-                    isOpen ? "rotate-90" : ""
-                  )}
-                />
+                <button
+                  type="button"
+                  onClick={() => setOpenParentId(isOpen ? null : parent.id)}
+                  className="ml-2"
+                >
+                  <ArrowRightMini
+                    className={clx(
+                      "transition-transform duration-200",
+                      isOpen ? "rotate-90" : ""
+                    )}
+                  />
+                </button>
               )}
-            </button>
+            </div>
 
             {/* Children (sliding) */}
             <Transition

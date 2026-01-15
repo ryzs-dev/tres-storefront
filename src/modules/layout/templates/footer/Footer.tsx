@@ -6,6 +6,10 @@ import Image from "next/image"
 export default async function Footer() {
   const categories = await listCategories()
 
+  const parentCategories = categories.filter(
+    (cat) => cat.parent_category_id === null
+  )
+
   // Hardcoded collections
   const collections = [
     { title: "Pedal & Power", handle: "pedal-and-power" },
@@ -48,7 +52,7 @@ export default async function Footer() {
                 Categories
               </h4>
               <ul className="space-y-3">
-                {categories.map((c) => (
+                {parentCategories.map((c) => (
                   <li key={c.handle}>
                     <LocalizedClientLink
                       className=" transition-colors duration-200 text-sm font-medium relative group"
