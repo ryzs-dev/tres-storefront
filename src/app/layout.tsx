@@ -32,15 +32,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       </Script>
 
       {/* Noscript fallback */}
-      <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src="https://www.facebook.com/tr?id=882278674201683&ev=PageView&noscript=1"
-          alt="facebook-pixel"
-        />
-      </noscript>
+
       <body className="bg-tres-secondary">
         <RegionProvider>
           <CartProvider>

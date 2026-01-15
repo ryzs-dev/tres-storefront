@@ -62,7 +62,7 @@ const ImageGallery = ({
   const displayImages = filteredImages.length > 0 ? filteredImages : images
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full md:px-6 lg:px-8">
       <Swiper
         slidesPerView={1}
         spaceBetween={16}

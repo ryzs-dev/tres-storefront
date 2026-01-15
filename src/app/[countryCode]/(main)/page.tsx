@@ -92,6 +92,16 @@ export default async function Home(props: {
       href: "/categories/dresses",
       image: "https://storage.tres.my/Featured%20Sections/dresses.JPG",
     },
+    {
+      name: "Bottoms",
+      href: "/categories/bottoms",
+      image: "https://storage.tres.my/Featured%20Sections/dresses.JPG",
+    },
+    {
+      name: "Unitards",
+      href: "/categories/unitards",
+      image: "https://storage.tres.my/Featured%20Sections/featured_sets.JPG",
+    },
   ]
 
   return (

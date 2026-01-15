@@ -1,14 +1,10 @@
+import { listCategories } from "@lib/data/categories"
 import { TresLogo } from "@modules/brand/logo"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 
-export default function Footer() {
-  // Hardcoded categories
-  const categories = [
-    { name: "Tops", handle: "tops" },
-    { name: "Dresses", handle: "dresses" },
-    { name: "Sets", handle: "sets" },
-  ]
+export default async function Footer() {
+  const categories = await listCategories()
 
   // Hardcoded collections
   const collections = [
@@ -32,7 +28,7 @@ export default function Footer() {
       id="page-footer"
       className="bg-tres-primary text-tres-secondary border-gray-200 w-full z-0"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row justify-between py-16 gap-12">
           {/* Logo and Brand Section */}
           <div className="flex-shrink-0 lg:max-w-xs">
