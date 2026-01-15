@@ -84,9 +84,12 @@ export default async function Nav() {
                       {categoryHierarchy.map((parent) => (
                         <div key={parent.id} className="pr-4">
                           {/* Parent category */}
-                          <h3 className="font-urw text-md font-semibold hover:underline transition-colors">
+                          <LocalizedClientLink
+                            href={`/categories/${parent.handle}`}
+                            className="font-urw text-md font-semibold hover:underline transition-colors"
+                          >
                             {parent.name}
-                          </h3>
+                          </LocalizedClientLink>
 
                           {/* Children categories */}
                           {parent.children.length > 0 && (

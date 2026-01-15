@@ -126,12 +126,9 @@ export default async function Home(props: {
             >
               TRES
             </Heading> */}
-            <div className="flex items-center justify-center">
-              <TresLogo width={120} height={80} color="#fff" />
-            </div>
             <Text
               family="sans"
-              size="large"
+              size="base"
               className="font-urwCond text-2xl sm:text-3xl text-white"
             >
               From Women For Women
@@ -143,7 +140,7 @@ export default async function Home(props: {
             ></Text> */}
 
             {/* 👇 Shop All Button */}
-            <div className="mt-6 sm:mt-8">
+            <div className="mt-2 sm:mt-8">
               <LocalizedClientLink
                 href="/bundles"
                 className="inline-block px-6 py-2 bg-tres-primary text-tres-secondary font-semibold  hover:bg-tres-secondary hover:text-tres-primary transition-colors"
