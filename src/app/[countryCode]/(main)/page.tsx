@@ -78,8 +78,8 @@ export default async function Home(props: {
 
   const categories = [
     {
-      name: "Tops",
-      href: "/categories/tops",
+      name: "Bras & Tops",
+      href: "/categories/bras-and-tops",
       image: "https://storage.tres.my/Featured%20Sections/shop_tops.JPG",
     },
     {
