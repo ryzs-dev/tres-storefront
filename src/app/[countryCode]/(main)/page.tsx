@@ -9,6 +9,8 @@ import HeroSlider from "@modules/home/components/hero-slider"
 import CollectionSlider from "@modules/home/components/CollectionSlider"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { TresLogo } from "@modules/brand/logo"
+import { listCategories } from "@lib/data/categories"
+import { getCategoryHierarchy } from "@lib/util/category-hiearchy"
 
 export const metadata: Metadata = {
   title: "TRES | Malaysia's Ladies Activewear",
@@ -21,6 +23,10 @@ export default async function Home(props: {
 }) {
   const params = await props.params
   const { countryCode } = params
+
+  const categories = await listCategories()
+
+  const categoryHierarchy = getCategoryHierarchy(categories)
 
   const region = await getRegion(countryCode)
   const { collections } = await listCollections(
@@ -76,7 +82,7 @@ export default async function Home(props: {
     },
   ]
 
-  const categories = [
+  const testCategories = [
     {
       name: "Bras & Tops",
       href: "/categories/bras-and-tops",
@@ -196,7 +202,7 @@ export default async function Home(props: {
       {/* Featured Section */}
       <section className="px-4 py-10 sm:py-14">
         <div className=" min-w-full">
-          <FeaturedSection items={categories} />
+          <FeaturedSection items={categoryHierarchy} />
         </div>
       </section>
 

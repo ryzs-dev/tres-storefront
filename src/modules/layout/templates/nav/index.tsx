@@ -7,23 +7,11 @@ import CartButton from "@modules/layout/components/cart-button"
 import SideMenu from "@modules/layout/components/side-menu"
 import { listCategories } from "@lib/data/categories"
 import { TresLogo } from "@modules/brand/logo"
+import { getCategoryHierarchy } from "@lib/util/category-hiearchy"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
   const categories = await listCategories()
-
-  function getCategoryHierarchy(categories: any[]) {
-    // Filter only parent categories
-    const parents = categories.filter((cat) => !cat.parent_category_id)
-
-    // Map each parent to its children
-    return parents.map((parent) => ({
-      ...parent,
-      children: categories.filter(
-        (cat) => cat.parent_category_id === parent.id
-      ),
-    }))
-  }
 
   const categoryHierarchy = getCategoryHierarchy(categories)
 
