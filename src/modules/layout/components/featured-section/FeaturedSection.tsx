@@ -39,7 +39,7 @@ const FeaturedSection = ({ items }: { items: FeaturedItem[] }) => {
                   src={image} // must be valid
                   alt={`Shop ${item.name}`}
                   fill
-                  className="object-cover object-top sm:object-center transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover object-[30%_35%] sm:object-center transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 md:bg-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                   <span className="text-white text-sm sm:text-base lg:text-xl font-urw">
