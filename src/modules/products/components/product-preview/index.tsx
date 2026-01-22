@@ -39,9 +39,14 @@ export default function ProductPreview({
       )
     : []
 
+  const bestSellerTitles = ["lively", "celine", "piper", "daz"]
+  const isBestSeller = bestSellerTitles.some((title) =>
+    product.title.toLowerCase().includes(title.toLowerCase())
+  )
+
   return (
     <>
-      <div data-testid="product-wrapper">
+      <div data-testid="product-wrapper" className="relative">
         {/* IMAGE + COLOR are interactive */}
         <ColorSelector
           colors={colorVariants.map(([color, variant]) => ({
@@ -51,6 +56,13 @@ export default function ProductPreview({
           }))}
           defaultImage={product.thumbnail}
         />
+
+        {/* Best Seller Badge */}
+        {isBestSeller && (
+          <span className="absolute top-0 left-0 bg-tres-primary text-white text-sm font-semibold px-2 py-0.5 z-10">
+            Best Seller
+          </span>
+        )}
 
         {/* LINK only for navigation */}
         <LocalizedClientLink
