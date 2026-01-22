@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { colorMap } from "../product-actions/option-select"
 
 export default function ColorSelector({
   colors,
@@ -15,8 +16,6 @@ export default function ColorSelector({
   defaultImage: string
 }) {
   const [image, setImage] = useState(defaultImage)
-
-  console.log(colors)
 
   return (
     <div>
@@ -33,9 +32,16 @@ export default function ColorSelector({
           <button
             key={c.variantId}
             onClick={() => setImage(c.thumbnail)}
-            className="w-6 h-6 rounded-full border border-black"
+            className={`w-6 h-6 rounded-full border ${
+              image === c.thumbnail
+                ? "border-2 border-black"
+                : "border border-black"
+            }`}
             title={c.color}
-            style={{ backgroundColor: c.color.toLowerCase() }}
+            style={{
+              backgroundColor:
+                colorMap[c.color.toLowerCase()] || c.color.toLowerCase(),
+            }}
           />
         ))}
       </div>

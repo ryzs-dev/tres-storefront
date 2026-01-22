@@ -12,7 +12,7 @@ type OptionSelectProps = {
   "data-testid"?: string
 }
 
-const colorMap: Record<string, string> = {
+export const colorMap: Record<string, string> = {
   "sonic pink": "#E157B1",
   "electric blue": "#114EB8",
   pistachio: "#798835",
