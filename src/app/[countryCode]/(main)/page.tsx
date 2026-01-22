@@ -148,7 +148,7 @@ export default async function Home(props: {
             {/* 👇 Shop All Button */}
             <div className="mt-2 lg:mt-8">
               <LocalizedClientLink
-                href="/bundles"
+                href="/store"
                 className="inline-block px-6 py-2 bg-tres-primary text-tres-secondary font-semibold  hover:bg-tres-secondary hover:text-tres-primary transition-colors"
               >
                 SHOP NOW{" "}

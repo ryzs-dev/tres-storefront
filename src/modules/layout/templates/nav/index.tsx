@@ -102,7 +102,7 @@ export default async function Nav() {
                     {/* Optional bottom CTA */}
                     <div className="mt-10">
                       <LocalizedClientLink
-                        href="/bundles"
+                        href="/store"
                         className="font-urw text-sm font-semibold underline"
                       >
                         View All Products
