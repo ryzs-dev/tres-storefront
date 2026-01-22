@@ -19,13 +19,14 @@ export default function ColorSelector({
 
   return (
     <div>
-      <Image
-        src={image}
-        alt="Product image"
-        width={600}
-        height={600}
-        className="rounded"
-      />
+      <div className="relative w-full aspect-[9/16] rounded overflow-hidden">
+        <Image
+          src={image}
+          alt="Product image"
+          fill
+          className="object-cover object-center transition-transform duration-300"
+        />
+      </div>
 
       <div className="flex gap-2 mt-2">
         {colors.map((c) => (
@@ -34,7 +35,7 @@ export default function ColorSelector({
             onClick={() => setImage(c.thumbnail)}
             className={`w-6 h-6 rounded-full border ${
               image === c.thumbnail
-                ? "border-2 border-black"
+                ? "border-2 border-tres-primary"
                 : "border border-black"
             }`}
             title={c.color}
