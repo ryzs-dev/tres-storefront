@@ -114,8 +114,7 @@ export const listProducts = async ({
         limit,
         offset,
         region_id: region?.id,
-        fields:
-          "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags",
+        fields: "*variants.images,+metadata,+tags",
         ...queryParams,
       },
       headers,
@@ -206,7 +205,7 @@ export const getProductReviews = async ({
 }: {
   productId: string
   limit?: number
-  offset?: number 
+  offset?: number
 }) => {
   const headers = {
     ...(await getAuthHeaders()),
@@ -239,7 +238,7 @@ export const addProductReview = async (input: {
   content: string
   first_name: string
   last_name: string
-  rating: number,
+  rating: number
   product_id: string
 }) => {
   const headers = {

@@ -17,6 +17,7 @@ import CategoriesSelect from "./CategoriesSelect"
 import { MenuIcon, ShoppingBag, User } from "lucide-react"
 import { retrieveCart } from "@lib/data/cart"
 import { open } from "fs"
+import SearchModal from "@modules/search/components/modal"
 
 const SideMenuItems = {
   Home: "/",
@@ -87,6 +88,8 @@ const SideMenu = ({
   return (
     <div className="h-full">
       <div className="flex items-center h-full gap-4 text-tres-primary">
+        <SearchModal />
+
         {/* Cart Button with Badge */}
         <LocalizedClientLink
           href="/cart"
@@ -190,6 +193,13 @@ const SideMenu = ({
                                         toggleState={categoriesToggleState}
                                       />
                                     )}
+                                    <LocalizedClientLink
+                                      href="/store"
+                                      className="mt-3 pt-4 space-y-10 font-medium hover:text-ui-fg-muted"
+                                      onClick={close}
+                                    >
+                                      View all products
+                                    </LocalizedClientLink>
                                   </div>
                                 </Transition>
                               </div>

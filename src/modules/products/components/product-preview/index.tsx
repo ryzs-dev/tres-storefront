@@ -1,52 +1,73 @@
 import { Text } from "@medusajs/ui"
-import { listProducts } from "@lib/data/products"
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
+import ColorSelector from "./color-selector"
 
-export default async function ProductPreview({
+export default function ProductPreview({
   product,
   isFeatured,
+  region,
 }: {
-  product: HttpTypes.StoreProduct
+  product: any
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
 }) {
-  // const pricedProduct = await listProducts({
-  //   regionId: region.id,
-  //   queryParams: { id: [product.id!] },
-  // }).then(({ response }) => response.products[0])
-
-  // if (!pricedProduct) {
-  //   return null
-  // }
-
   const selectedPrice = getProductPrice({
     product,
+    region,
   })
 
+  const colorOption = product.options?.find(
+    (o: { title: string }) => o.title.toLowerCase() === "color"
+  )
+
+  const colorVariants = colorOption
+    ? Array.from(
+        new Map(
+          product?.variants
+            .map((v: { options: any[] }) => {
+              const color = v.options?.find(
+                (o) => o.option_id === colorOption.id
+              )?.value
+              return color ? [color, v] : null
+            })
+            .filter(Boolean) as [string, any][]
+        )
+      )
+    : []
+
   return (
-    <LocalizedClientLink href={`/products/${product.handle}`} className="group">
+    <>
       <div data-testid="product-wrapper">
-        <Thumbnail
-          thumbnail={product.thumbnail}
-          images={product.images}
-          size="full"
-          isFeatured={isFeatured}
+        {/* IMAGE + COLOR are interactive */}
+        <ColorSelector
+          colors={colorVariants.map(([color, variant]) => ({
+            color,
+            thumbnail: variant.thumbnail,
+            variantId: variant.id,
+          }))}
+          defaultImage={product.thumbnail}
         />
-        <div className="flex flex-col txt-compact-medium mt-4 justify-between">
-          <Text className="text-ui-fg-subtle" data-testid="product-title">
-            {product.title}
-          </Text>
-          <div className="flex items-center gap-x-2">
-            {selectedPrice?.calculated_price_number && (
-              <PreviewPrice price={selectedPrice.calculated_price_number} />
-            )}
+
+        {/* LINK only for navigation */}
+        <LocalizedClientLink
+          href={`/products/${product.handle}`}
+          className="group"
+        >
+          <div className="mt-4 flex flex-col txt-compact-medium">
+            <Text size="xlarge" className="text-ui-fg-subtle">
+              {product.title}
+            </Text>
+
+            <div className="flex items-center gap-x-2">
+              {selectedPrice && <PreviewPrice price={selectedPrice} />}
+            </div>
           </div>
-        </div>
+        </LocalizedClientLink>
       </div>
-    </LocalizedClientLink>
+    </>
   )
 }

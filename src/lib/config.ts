@@ -1,4 +1,5 @@
 import Medusa from "@medusajs/js-sdk"
+import { instantMeiliSearch } from "@meilisearch/instant-meilisearch"
 
 // Defaults to standard port for Medusa server
 let MEDUSA_BACKEND_URL = "https://admin.tres.my"
@@ -13,3 +14,8 @@ export const sdk = new Medusa({
   debug: process.env.NODE_ENV === "development",
   publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
 })
+
+export const { searchClient } = instantMeiliSearch(
+  process.env.NEXT_PUBLIC_MEILISEARCH_HOST || "",
+  process.env.NEXT_PUBLIC_MEILISEARCH_API_KEY || ""
+)

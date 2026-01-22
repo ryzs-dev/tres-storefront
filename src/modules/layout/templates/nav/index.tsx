@@ -8,6 +8,7 @@ import SideMenu from "@modules/layout/components/side-menu"
 import { listCategories } from "@lib/data/categories"
 import { TresLogo } from "@modules/brand/logo"
 import { getCategoryHierarchy } from "@lib/util/category-hiearchy"
+import SearchModal from "@modules/search/components/modal"
 
 export default async function Nav() {
   const regions = await listRegions().then((regions: StoreRegion[]) => regions)
@@ -115,6 +116,8 @@ export default async function Nav() {
 
           {/* Right Side */}
           <div className="hidden small:flex items-center gap-x-6 flex-1 justify-end">
+            <SearchModal />
+
             <LocalizedClientLink
               href="/account"
               className="font-urw text-lg font-semibold hover:underline"

@@ -37,7 +37,7 @@ const CategoriesSelect = ({
   }, {})
 
   return (
-    <ul className="mt-3 space-y-3" data-testid="category-menu">
+    <ul className="mt-3 mb-3 space-y-3" data-testid="category-menu">
       {parents.map((parent) => {
         const isOpen = openParentId === parent.id
         const children = childrenMap[parent.id] || []
