@@ -6,7 +6,6 @@ import Refresh from "@modules/common/icons/refresh"
 
 import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
-import { Text } from "@medusajs/ui"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -47,44 +46,103 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
 }
 
 const ProductInfoTab = ({ product }: ProductTabsProps) => {
+  // Check if description contains set formatting (e.g., *ProductName:* or Product Name:)
+  const isSet =
+    /\*?\s*✓?([^:*]+):\s*$/m.test(product.description || "") ||
+    /set/i.test(product.title || "")
+
+  const parseSetDescription = (description: string) => {
+    const products: { name: string; features: string[] }[] = []
+
+    // Split by lines
+    const lines = description
+      .split(/[\n*]/)
+      .map((line) => line.replace(/^[-✓\s]+/, "").trim())
+      .filter((line) => line.length > 0)
+
+    let currentProduct: { name: string; features: string[] } | null = null
+
+    lines.forEach((line) => {
+      // Check if this line is a product title (ends with :)
+      if (line.endsWith(":")) {
+        // Save previous product if exists
+        if (currentProduct) {
+          products.push(currentProduct)
+        }
+        // Start new product
+        currentProduct = {
+          name: line.replace(":", "").trim(),
+          features: [],
+        }
+      } else if (currentProduct && line.length > 0) {
+        // Add feature to current product
+        currentProduct.features.push(line)
+      }
+    })
+
+    // Don't forget the last product
+    if (currentProduct) {
+      products.push(currentProduct)
+    }
+
+    return products
+  }
+
+  const parseBulletPoints = (description: string) => {
+    // Handle various bullet formats: -, *, ✓, or newlines
+    return description
+      .split(/[\n*]/)
+      .map((point) => point.replace(/^[-✓\s]+/, "").trim())
+      .filter((point) => point.length > 0)
+  }
+
+  if (isSet) {
+    const setProducts = parseSetDescription(product.description ?? "")
+
+    return (
+      <div className="py-8 space-y-8">
+        <div className="space-y-6">
+          {setProducts.map((item, index) => (
+            <div key={index} className="space-y-3">
+              <h3 className="font-urw text-lg font-semibold text-tres-primary">
+                {item.name}
+              </h3>
+              <ul className="space-y-2">
+                {item.features.map((feature, featureIndex) => (
+                  <li
+                    key={featureIndex}
+                    className="flex items-start gap-3 text-sm text-ui-fg-subtle font-urw"
+                  >
+                    <span className="text-tres-primary mt-1 flex-shrink-0">
+                      ✓
+                    </span>
+                    <span className="leading-relaxed">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Individual product with bullet points
+  const bulletPoints = parseBulletPoints(product.description ?? "")
+
   return (
-    <div className="text-small-regular py-8">
-      {/* <div className="grid grid-cols-2 gap-x-8">
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Material</span>
-            <p>{product.material ? product.material : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Country of origin</span>
-            <p>{product.origin_country ? product.origin_country : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Type</span>
-            <p>{product.type ? product.type.value : "-"}</p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Weight</span>
-            <p>{product.weight ? `${product.weight} g` : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Dimensions</span>
-            <p>
-              {product.length && product.width && product.height
-                ? `${product.length}L x ${product.width}W x ${product.height}H`
-                : "-"}
-            </p>
-          </div>
-        </div>
-      </div> */}
-      <Text
-        className="text-sm font-urw font-medium text-ui-fg-subtle whitespace-pre-line text-justify"
-        data-testid="product-description"
-      >
-        {product.description}
-      </Text>
+    <div className="py-8">
+      <ul className="space-y-3">
+        {bulletPoints.map((point, index) => (
+          <li
+            key={index}
+            className="flex items-start gap-3 text-sm text-ui-fg-subtle font-urw"
+          >
+            <span className="text-tres-primary mt-1 flex-shrink-0">✓</span>
+            <span className="leading-relaxed">{point}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

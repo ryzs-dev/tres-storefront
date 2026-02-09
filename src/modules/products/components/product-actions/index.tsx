@@ -27,17 +27,6 @@ const optionsAsKeymap = (
   }, {})
 }
 
-// Custom event to communicate variant changes
-const dispatchVariantChange = (
-  variant: HttpTypes.StoreProductVariant | undefined
-) => {
-  console.log("📡 Dispatching variant-changed event:", variant?.sku)
-  const event = new CustomEvent("variant-changed", {
-    detail: variant,
-  })
-  window.dispatchEvent(event)
-}
-
 export default function ProductActions({
   product,
   disabled,
@@ -64,11 +53,6 @@ export default function ProductActions({
       return isEqual(variantOptions, options)
     })
   }, [product.variants, options])
-
-  // Dispatch variant change event whenever selectedVariant changes
-  useEffect(() => {
-    dispatchVariantChange(selectedVariant)
-  }, [selectedVariant])
 
   // update the options when a variant is selected
   const setOptionValue = (optionId: string, value: string) => {
