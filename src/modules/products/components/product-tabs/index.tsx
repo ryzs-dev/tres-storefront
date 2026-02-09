@@ -6,7 +6,6 @@ import Refresh from "@modules/common/icons/refresh"
 
 import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
-import ProductInfo from "@modules/products/templates/product-info"
 import { Text } from "@medusajs/ui"
 
 type ProductTabsProps = {
@@ -19,13 +18,13 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     //   label: "Product Information",
     //   component: <ProductInfoTab product={product} />,
     // },
-    // {
-    //   label: "Shipping & Returns",
-    //   component: <ShippingInfoTab />,
-    // },
     {
       label: "Description",
       component: <ProductInfoTab product={product} />,
+    },
+    {
+      label: "Sizing Guide",
+      component: <SizingGuideTab />,
     },
   ]
 
@@ -86,6 +85,47 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
       >
         {product.description}
       </Text>
+    </div>
+  )
+}
+
+const SizingGuideTab = () => {
+  // const fitTip = bundle.title === "Raven"
+
+  const sizingData = [
+    { size: "S", chest: "34 in", waist: "26 in", hips: "36 in" },
+    { size: "M", chest: "36 in", waist: "28 in", hips: "38 in" },
+    { size: "L", chest: "38 in", waist: "30 in", hips: "40 in" },
+    { size: "XL", chest: "40 in", waist: "32 in", hips: "42 in" },
+  ]
+
+  return (
+    <div className="py-8">
+      <div className="overflow-x-auto">
+        {/* {fitTip && (
+          <p className="pb-4"> Fit Tip: We recommend sizing up for leggings.</p>
+        )} */}
+        <table className="min-w-full text-left text-sm border border-gray-200">
+          <thead className="bg-gray-100 text-gray-700 font-medium">
+            <tr>
+              <th className="px-4 py-2 border">Size</th>
+              <th className="px-4 py-2 border">Chest</th>
+              <th className="px-4 py-2 border">Waist</th>
+              <th className="px-4 py-2 border">Hips</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-600">
+            {sizingData.map((row, index) => (
+              <tr key={index} className="even:bg-gray-50">
+                <td className="px-4 py-2 border">{row.size}</td>
+                <td className="px-4 py-2 border">{row.chest}</td>
+                <td className="px-4 py-2 border">{row.waist}</td>
+                <td className="px-4 py-2 border">{row.hips}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

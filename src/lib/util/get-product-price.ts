@@ -31,8 +31,8 @@ export const getPricesForVariant = (
 
     return {
       calculated_price_number: calculatedAmount,
-      calculated_price: `${currencyCode} ${calculatedAmount.toFixed(2)}`,
-      original_price: `${currencyCode} ${originalAmount.toFixed(2)}`,
+      calculated_price: calculatedAmount.toFixed(2),
+      original_price: originalAmount.toFixed(2),
       currency_code: currencyCode,
       price_type:
         variant.calculated_price.calculated_price?.price_list_type || "default",

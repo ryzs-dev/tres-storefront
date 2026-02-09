@@ -59,7 +59,7 @@ export default async function Nav() {
                 <div
                   className="
     hidden small:block
-    fixed left-0 w-full z-[-15] mt-10
+    fixed left-0 w-full z-[-15] pt-10
     bg-tres-secondary border-t border-ui-border-base
     opacity-0 invisible
     group-hover/dropdown:opacity-100 group-hover/dropdown:visible

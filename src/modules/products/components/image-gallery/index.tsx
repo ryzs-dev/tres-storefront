@@ -70,7 +70,7 @@ const ImageGallery = ({
         pagination={{ clickable: true }}
         navigation={false}
         modules={[Pagination, Navigation]}
-        className="w-full max-w-[420px] sm:max-w-[520px] lg:max-w-[700px] mx-auto"
+        className="w-full aspect-square max-w-[500px] mx-auto"
       >
         {displayImages.map((image, index) => (
           <SwiperSlide key={`${image.id}-${index}`}>

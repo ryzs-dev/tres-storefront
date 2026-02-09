@@ -28,7 +28,7 @@ const BundleInfo = ({ bundle }: BundleInfoProps) => {
       : []),
     {
       label: "Sizing Guide",
-      component: <SizingGuideTab bundle={bundle} />,
+      component: <SizingGuideTab />,
     },
   ]
 
@@ -177,8 +177,8 @@ const DescriptionTab = ({ bundle }: DescriptionTabProps) => {
   )
 }
 
-const SizingGuideTab = ({ bundle }: any) => {
-  const fitTip = bundle.title === "Raven"
+export const SizingGuideTab = () => {
+  // const fitTip = bundle.title === "Raven"
 
   const sizingData = [
     { size: "S", chest: "34 in", waist: "26 in", hips: "36 in" },
@@ -191,9 +191,9 @@ const SizingGuideTab = ({ bundle }: any) => {
     <div className="py-8">
       <h3 className="text-lg font-semibold mb-4">Sizing Guide</h3>
       <div className="overflow-x-auto">
-        {fitTip && (
+        {/* {fitTip && (
           <p className="pb-4"> Fit Tip: We recommend sizing up for leggings.</p>
-        )}
+        )} */}
         <table className="min-w-full text-left text-sm border border-gray-200">
           <thead className="bg-gray-100 text-gray-700 font-medium">
             <tr>

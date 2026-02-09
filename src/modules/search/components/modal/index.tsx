@@ -64,17 +64,28 @@ export default function SearchModal() {
 
 const Hit = ({ hit }: { hit: Hit }) => {
   return (
-    <div className="flex flex-row gap-x-2 mt-4 relative" key={hit.id}>
-      <Image src={hit.thumbnail} alt={hit.title} width={100} height={100} />
-      <div className="flex flex-col gap-y-1">
-        <h3>{hit.title}</h3>
-        <p className="text-sm text-gray-500">{hit.description}</p>
+    <Link
+      href={`/products/${hit.handle}`}
+      aria-label={`View product: ${hit.title}`}
+      className="flex items-center gap-3 py-2 rounded-md hover:bg-gray-50 transition"
+    >
+      {/* Square thumbnail */}
+      <div className="relative w-20 h-20 shrink-0 overflow-hidden rounded-md bg-gray-100">
+        <Image
+          src={hit.thumbnail}
+          alt={hit.title}
+          fill
+          className="object-cover"
+          sizes="80px"
+        />
       </div>
-      <Link
-        href={`/products/${hit.handle}`}
-        className="absolute right-0 top-0 w-full h-full"
-        aria-label={`View Product: ${hit.title}`}
-      />
-    </div>
+
+      {/* Text */}
+      <div className="flex flex-col gap-1 min-w-0">
+        <h3 className="text-sm font-medium leading-snug truncate">
+          {hit.title}
+        </h3>
+      </div>
+    </Link>
   )
 }

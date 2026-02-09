@@ -41,7 +41,7 @@ export default function ProductPrice({
           data-testid="product-price"
           data-value={selectedPrice.calculated_price_number}
         >
-          {selectedPrice.calculated_price}
+          RM {selectedPrice.calculated_price}
         </span>
       </span>
       {selectedPrice.price_type === "sale" && (

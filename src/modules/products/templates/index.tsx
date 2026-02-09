@@ -10,6 +10,7 @@ import { notFound } from "next/navigation"
 import ProductActionsWrapper from "./product-actions-wrapper"
 import { HttpTypes } from "@medusajs/types"
 import ProductGalleryWrapper from "../ProductGalleryWrapper"
+import ProductReviews from "../components/product-reviews"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -28,42 +29,46 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   return (
     <>
-      <div
-        className="content-container flex flex-col small:flex-row small:items-start py-6 relative"
-        data-testid="product-container"
-      >
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
-          <ProductInfo product={product} />
+      <div className="p-4 ">
+        <div
+          className="flex flex-col lg:flex-row gap-x-12 gap-y-8 py-6 w-full max-w-7xl mx-auto"
+          data-testid="product-container"
+        >
+          {/* Left: Product Images */}
+          <div className="w-full lg:w-1/2">
+            <ProductGalleryWrapper
+              images={product?.images || []}
+              product={product}
+            />
+          </div>
+
+          {/* Right: Info & Actions */}
+          <div className="w-full lg:w-1/2  flex flex-col gap-y-6 lg:sticky lg:top-24">
+            <ProductInfo product={product} />
+            <Suspense
+              fallback={
+                <ProductActions disabled product={product} region={region} />
+              }
+            >
+              <ProductActionsWrapper id={product.id} region={region} />
+            </Suspense>
+            <ProductOnboardingCta />
+          </div>
+        </div>
+        {/* Bottom: Description, Tabs */}
+        <div className="w-full mt-8 flex max-w-7xl mx-auto flex-col gap-y-6">
           <ProductTabs product={product} />
+          <ProductReviews productId={product.id} productTitle={product.title} />
         </div>
-        <div className="block w-full relative">
-          <ProductGalleryWrapper
-            images={product?.images || []}
-            product={product}
-          />
-        </div>
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">
-          <ProductOnboardingCta />
-          <Suspense
-            fallback={
-              <ProductActions
-                disabled={true}
-                product={product}
-                region={region}
-              />
-            }
-          >
-            <ProductActionsWrapper id={product.id} region={region} />
+        {/* Related Products */}
+        <div
+          className="content-container my-16 small:my-32"
+          data-testid="related-products-container"
+        >
+          <Suspense fallback={<SkeletonRelatedProducts />}>
+            <RelatedProducts product={product} countryCode={countryCode} />
           </Suspense>
-        </div>
-      </div>
-      <div
-        className="content-container my-16 small:my-32"
-        data-testid="related-products-container"
-      >
-        <Suspense fallback={<SkeletonRelatedProducts />}>
-          <RelatedProducts product={product} countryCode={countryCode} />
-        </Suspense>
+        </div>{" "}
       </div>
     </>
   )

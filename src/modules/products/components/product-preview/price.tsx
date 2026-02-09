@@ -13,7 +13,7 @@ export default async function PreviewPrice({ price }: { price: any }) {
           data-testid="original-price"
           size="base"
         >
-          {price.original_price}
+          RM {price.original_price}
         </Text>
       )}
       <Text
@@ -23,7 +23,7 @@ export default async function PreviewPrice({ price }: { price: any }) {
         data-testid="price"
         size="base"
       >
-        {price.calculated_price}
+        RM {price.calculated_price}
       </Text>
     </>
   )

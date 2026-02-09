@@ -55,6 +55,7 @@ export default function ProductPreview({
             variantId: variant.id,
           }))}
           defaultImage={product.thumbnail}
+          productHandle={product.handle}
         />
 
         {/* Best Seller Badge */}
@@ -64,7 +65,7 @@ export default function ProductPreview({
           </span>
         )}
 
-        {/* LINK only for navigation */}
+        {/* LINK only for title and price */}
         <LocalizedClientLink
           href={`/products/${product.handle}`}
           className="group"
