@@ -20,8 +20,9 @@ export const listCartShippingMethods = async (cartId: string) => {
         method: "GET",
         query: {
           cart_id: cartId,
+          // fixed: correct relation name, removed "*"
           fields:
-            "+service_zone.fulfllment_set.type,*service_zone.fulfillment_set.location.address",
+            "+service_zone.fulfillment_set.type,+service_zone.fulfillment_set.location.address",
         },
         headers,
         next,

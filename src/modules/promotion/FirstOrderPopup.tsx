@@ -28,9 +28,9 @@ const FirstOrderPopup = ({ customer }: Props) => {
           onClick={openPopup}
           className="
             fixed bottom-6 right-6 z-50
-            bg-[#99B2DD] text-white font-semibold
+            bg-tres-primary text-white font-semibold
             rounded-full shadow-lg px-4 py-2 
-            hover:bg-[#8AA5D3] transition
+            hover:bg-tres-secondary transition
           "
         >
           10% OFF
@@ -86,7 +86,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
               </div>
 
               {/* Content */}
-              <div className="bg-white w-full md:w-1/2 px-4 sm:px-10 lg:px-16 py-6 sm:py-16 flex flex-col justify-center relative text-center">
+              <div className="bg-tres-secondary w-full md:w-1/2 px-4 sm:px-10 lg:px-16 py-6 sm:py-16 flex flex-col justify-center relative text-center">
                 <div className="mb-4 sm:mb-8 flex justify-center">
                   <Image
                     src="/images/tres-logo-3.svg"
@@ -99,19 +99,19 @@ const FirstOrderPopup = ({ customer }: Props) => {
 
                 <div className="my-3 sm:my-4 space-y-2 sm:space-y-3">
                   <h2 className="font-urw text-lg sm:text-3xl font-bold text-gray-900 leading-tight">
-                    Welcome to <span className="text-[#99B2DD]">TRES</span>
+                    Welcome to <span className="text-tres-primary">TRES</span>
                   </h2>
 
                   <p className="text-sm sm:text-lg text-gray-600 leading-relaxed">
                     {customer ? (
                       <>
-                        Hi {customer.first_name || "there"}! Check your email for
-                        your exclusive <strong>10% discount code</strong>.
+                        Hi {customer.first_name || "there"}! Check your email
+                        for your exclusive <strong>10% discount code</strong>.
                       </>
                     ) : (
                       <>
-                        Sign up to get <strong>10% off</strong> your first purchase
-                        and exclusive <strong>TRES</strong> discounts.
+                        Sign up to get <strong>10% off</strong> your first
+                        purchase and exclusive <strong>TRES</strong> discounts.
                       </>
                     )}
                   </p>
@@ -126,7 +126,7 @@ const FirstOrderPopup = ({ customer }: Props) => {
                     onClick={closePopup}
                     href={customer ? "/bundles" : "/account"}
                   >
-                    <button className="w-full bg-[#99B2DD] text-white font-urw font-bold text-base sm:text-xl uppercase tracking-wide py-3 sm:py-4 px-6 sm:px-8 transition-all duration-300 hover:bg-[#8AA5D3] hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#99B2DD] focus:ring-offset-2">
+                    <button className="w-full bg-tres-primary text-tres-secondary font-urw font-bold text-base sm:text-xl uppercase tracking-wide py-3 sm:py-4 px-6 sm:px-8 transition-all duration-300 hover:bg-[#8AA5D3] hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#99B2DD] focus:ring-offset-2">
                       {customer ? "Continue Shopping" : "Join Us !"}
                     </button>
                   </Link>

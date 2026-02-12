@@ -37,7 +37,7 @@ export default async function Footer() {
           {/* Logo and Brand Section */}
           <div className="flex-shrink-0 lg:max-w-xs">
             <LocalizedClientLink href="/" className="inline-block">
-              <TresLogo width={85} height={85} color="#FFF" />
+              <TresLogo width={85} height={85} color="#F3E9C6" />
             </LocalizedClientLink>
             <p className="mt-4 text-sm leading-relaxed">
               Discover exclusive collections and premium categories at TRES.

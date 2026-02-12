@@ -35,8 +35,8 @@ module.exports = {
           90: "#111827",
         },
         tres: {
-          primary: "#99B2DD",
-          secondary: "#fff",
+          primary: "#C58700", //#99B2DD
+          secondary: "#F3E9C6", //#fff
           beige: "#99B2DD",
           green: "#354037",
         },

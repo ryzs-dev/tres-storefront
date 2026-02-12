@@ -57,7 +57,7 @@ export default function CollectionSlider({
       <div className="flex flex-row sm:items-center justify-between mb-4 sm:mb-6">
         <Heading
           level="h2"
-          className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-0"
+          className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-0 text-tres-primary"
         >
           {heading}
         </Heading>

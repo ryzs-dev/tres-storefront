@@ -3,7 +3,7 @@ import { listCollections } from "@lib/data/collections"
 import { getRegion } from "@lib/data/regions"
 import StrengthSection from "@modules/home/components/banner/StrengthSection"
 import FeaturedSection from "@modules/layout/components/featured-section/FeaturedSection"
-import { Text } from "@medusajs/ui"
+import { Heading, Text } from "@medusajs/ui"
 import Image from "next/image"
 import HeroSlider from "@modules/home/components/hero-slider"
 import CollectionSlider from "@modules/home/components/CollectionSlider"
@@ -115,7 +115,7 @@ export default async function Home(props: {
       {/* Hero Section 1 */}
       <div className="h-[50vh] lg:h-[100vh] pt-16 w-full border-b border-ui-border-base relative">
         <Image
-          src="https://storage.tres.my/Hero_Image/DSCF2829.jpg"
+          src="https://storage.tres.my/Hero_Image/hero.jpeg"
           fill
           priority
           style={{ objectPosition: "30% 30%" }}
@@ -124,20 +124,23 @@ export default async function Home(props: {
         />
 
         {/* Centered content */}
-        <div className="absolute inset-0 z-10 flex flex-col items-center lg:justify-center justify-end text-center px-6 mb-16 md:mb-0">
+        <div className="absolute inset-0 z-10 flex flex-col items-start lg:justify-center justify-end text-center px-6 mb-16 md:mb-0">
           <span className="flex flex-col sm:gap-2">
-            {/* <Heading
+            <Heading
               level="h1"
-              className="text-5xl sm:text-7xl leading-tight text-white font-urw font-normal m-0 p-0"
+              className="text-6xl sm:text-8xl leading-tight text-tres-primary font-urw
+            italic font-normal m-0 p-0 text-start"
             >
-              TRES
-            </Heading> */}
+              Move With <br />
+              Prosperity
+            </Heading>
             <Text
               family="sans"
               size="base"
-              className="font-urwCond text-lg md:text-3xl text-white"
+              className="font-urwCond text-xs md:text-xl text-tres-primary text-start"
             >
-              From Women For Women
+              In the year of the horse
+              <br /> embrace strength, motion and balance{" "}
             </Text>
             {/* <Text
               family="sans"
@@ -146,10 +149,10 @@ export default async function Home(props: {
             ></Text> */}
 
             {/* 👇 Shop All Button */}
-            <div className="mt-2 lg:mt-8">
+            <div className="mt-2 lg:mt-8 flex">
               <LocalizedClientLink
                 href="/store"
-                className="inline-block px-6 py-2 bg-tres-primary text-tres-secondary font-semibold  hover:bg-tres-secondary hover:text-tres-primary transition-colors"
+                className="justify-start inline-block text-center px-6 py-2 bg-tres-primary text-tres-secondary font-semibold  hover:bg-tres-secondary hover:text-tres-primary transition-colors"
               >
                 SHOP NOW{" "}
               </LocalizedClientLink>

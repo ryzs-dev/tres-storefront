@@ -16,11 +16,11 @@ const FeaturedSection = ({ items }: { items: FeaturedItem[] }) => {
     <section>
       <div className="text-center sm:py-0 lg:py-6 pb-4 sm:pb-2 lg:pb-8">
         <Heading>
-          <span className="text-2xl sm:text-3xl font-semibold">
+          <span className="text-2xl sm:text-3xl font-semibold text-tres-primary">
             Browse by Category
           </span>
         </Heading>
-        <p className="text-gray-600 mt-2 text-sm sm:text-base">
+        <p className="text-tres-primary mt-2 text-sm sm:text-base">
           Explore our full range of styles — from everyday tops to elegant
           dresses and matching sets.
         </p>

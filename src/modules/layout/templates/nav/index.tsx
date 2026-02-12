@@ -27,7 +27,7 @@ export default async function Nav() {
               href="/"
               className="font-urw text-xl uppercase flex items-center"
             >
-              <TresLogo height={75} width={75} color="#99b2dd" />
+              <TresLogo height={75} width={75} color="#C58700" />
             </LocalizedClientLink>
           </div>
 
