@@ -128,20 +128,20 @@ export default async function Home(props: {
           slides={[
             {
               imageUrl: "https://storage.tres.my/Hero_Image/hero.jpeg",
-              title: "Move With Prosperity",
+              title: "Move With\nProsperity",
               ctaText: "Shop Now",
               ctaLink: "/store",
               position: "bottom",
             },
             {
               imageUrl: "https://storage.tres.my/Hero_Image/hero.jpeg",
-              title: "Buy 3 for RM288",
+              title: "Buy 3\nfor RM288",
               subtitle: "14th Feb - 3rd March",
               position: "bottom",
             },
             {
               imageUrl: "https://storage.tres.my/Hero_Image/hero.jpeg",
-              title: "Mel Exclusive",
+              title: "Mel\nExclusive",
               subtitle: "30% Off",
               position: "bottom",
             },

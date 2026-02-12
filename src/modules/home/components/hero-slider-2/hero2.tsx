@@ -79,7 +79,7 @@ const Hero2 = ({
             {/* Title */}
             <Heading
               level="h1"
-              className={`text-6xl sm:text-8xl leading-tight font-urw italic font-normal m-0 p-0 text-start ${
+              className={`text-5xl md:text-8xl whitespace-pre-line leading-tight font-urw italic font-normal mt-10 p-0 text-start ${
                 textColor ?? "text-tres-primary"
               }`}
             >
