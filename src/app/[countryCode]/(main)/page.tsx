@@ -11,6 +11,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import { TresLogo } from "@modules/brand/logo"
 import { listCategories } from "@lib/data/categories"
 import { getCategoryHierarchy } from "@lib/util/category-hiearchy"
+import HeroSlider2 from "@modules/home/components/hero-slider-2"
 
 export const metadata: Metadata = {
   title: "TRES | Malaysia's Ladies Activewear",
@@ -113,18 +114,42 @@ export default async function Home(props: {
   return (
     <>
       {/* Hero Section 1 */}
-      <div className="h-[50vh] lg:h-[100vh] pt-16 w-full border-b border-ui-border-base relative">
-        <Image
+      <div className="h-[30vh] lg:h-[90vh] w-full border-b border-ui-border-base relative">
+        {/* <Image
           src="https://storage.tres.my/Hero_Image/hero.jpeg"
           fill
           priority
           style={{ objectPosition: "30% 30%" }}
           alt="Hero background"
           className="object-cover object-center"
+        /> */}
+
+        <HeroSlider2
+          slides={[
+            {
+              imageUrl: "https://storage.tres.my/Hero_Image/hero.jpeg",
+              title: "Move With Prosperity",
+              ctaText: "Shop Now",
+              ctaLink: "/store",
+              position: "bottom",
+            },
+            {
+              imageUrl: "https://storage.tres.my/Hero_Image/hero.jpeg",
+              title: "Buy 3 for RM288",
+              subtitle: "14th Feb - 3rd March",
+              position: "bottom",
+            },
+            {
+              imageUrl: "https://storage.tres.my/Hero_Image/hero.jpeg",
+              title: "Mel Exclusive",
+              subtitle: "30% Off",
+              position: "bottom",
+            },
+          ]}
         />
 
         {/* Centered content */}
-        <div className="absolute inset-0 z-10 flex flex-col items-start lg:justify-center justify-end text-center px-6 mb-16 md:mb-0">
+        {/* <div className="absolute inset-0 z-10 flex flex-col items-start lg:justify-center justify-end text-center px-6 mb-16 md:mb-0">
           <span className="flex flex-col sm:gap-2">
             <Heading
               level="h1"
@@ -142,13 +167,13 @@ export default async function Home(props: {
               In the year of the horse
               <br /> embrace strength, motion and balance{" "}
             </Text>
-            {/* <Text
+            <Text
               family="sans"
               size="small"
               className="text-white/80 mt-2 sm:mt-3"
-            ></Text> */}
+            ></Text>
 
-            {/* 👇 Shop All Button */}
+            👇 Shop All Button
             <div className="mt-2 lg:mt-8 flex">
               <LocalizedClientLink
                 href="/store"
@@ -158,7 +183,7 @@ export default async function Home(props: {
               </LocalizedClientLink>
             </div>
           </span>
-        </div>
+        </div> */}
       </div>
 
       {/* Featured Products Section */}
