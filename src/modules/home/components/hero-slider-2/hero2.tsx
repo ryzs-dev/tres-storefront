@@ -79,7 +79,7 @@ const Hero2 = ({
             {/* Title */}
             <Heading
               level="h1"
-              className={`text-5xl md:text-8xl whitespace-pre-line leading-tight font-urw italic font-normal mt-10 p-0 text-start ${
+              className={`text-2xl md:text-8xl whitespace-pre-line leading-tight font-urw italic font-normal mt-10 p-0 text-start ${
                 textColor ?? "text-tres-primary"
               }`}
             >
@@ -91,7 +91,7 @@ const Hero2 = ({
               <Text
                 family="sans"
                 size="base"
-                className={`font-urwCond text-xs md:text-xl text-start ${
+                className={`font-urwCond text-xs md:text-xl text-center whitespace-pre-line ${
                   textColor ?? "text-tres-primary"
                 }`}
               >

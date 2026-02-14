@@ -23,6 +23,8 @@ const BundleCard = ({ bundle }: BundleCardProps) => {
     "daz",
     "test no bundle",
   ]
+
+  const sales = ["hanna", "mel", "sunny", "piper", "luxy"]
   const isBestSeller = bestSellerTitles.some((title) =>
     bundle.title.toLowerCase().includes(title.toLowerCase())
   )
@@ -71,6 +73,20 @@ const BundleCard = ({ bundle }: BundleCardProps) => {
               }}
             >
               BEST SELLER
+            </div>
+          </div>
+        )}
+        {sales && (
+          <div className="absolute top-0 right-0 z-10 overflow-hidden w-24 h-24">
+            <div
+              className="absolute transform rotate-45 text-white text-center font-semibold text-xs py-2 shadow-lg bg-tres-primary"
+              style={{
+                width: "150px",
+                top: "20px",
+                right: "-37px",
+              }}
+            >
+              SALES
             </div>
           </div>
         )}

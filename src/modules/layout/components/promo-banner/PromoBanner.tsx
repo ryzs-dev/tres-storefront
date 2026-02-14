@@ -14,9 +14,7 @@ const PromoBanner = () => {
       modules={[Autoplay]}
       className="bg-tres-primary text-white text-center font-urw font-medium [&_.swiper-wrapper]:!py-2 [&_.swiper-wrapper]:!m-0"
     >
-      <SwiperSlide>
-        Sign Up Now & Get Extra 10% OFF Your First Order!
-      </SwiperSlide>
+      <SwiperSlide>30% discount off on selected premium items</SwiperSlide>
       <SwiperSlide>🚚 Free Shipping above RM180</SwiperSlide>
     </Swiper>
   )

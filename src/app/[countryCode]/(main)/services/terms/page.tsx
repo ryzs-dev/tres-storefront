@@ -313,6 +313,33 @@ const TresTerms = () => {
           </p>
         </div>
 
+        <div className="mb-16">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            14. Chinese New Year Promotion Terms & Conditions
+          </h2>
+
+          <ul className="list-disc pl-6 space-y-3 text-gray-700 leading-relaxed">
+            <li>Promotion valid for online purchases only.</li>
+            <li>
+              RM288 bundle applies to all products except SUNNY SET, HANNA SET,
+              PIPER SET, LUXY SET & MEL UNITARD.
+            </li>
+            <li>30% discount applies to selected premium items only.</li>
+            <li>
+              Offers cannot be combined with other promotions or discounts.
+            </li>
+            <li>No exchange or refund on discounted items.</li>
+            <li>
+              Tres Activewear reserves the right to substitute colors or sizes
+              subject to stock availability.
+            </li>
+            <li>
+              Tres Activewear reserves the right to amend or end the promotion
+              without prior notice.
+            </li>
+          </ul>
+        </div>
+
         {/* Contact Information */}
         <div className="mb-16">
           <h2 className="text-lg font-semibold text-gray-900 mb-6">

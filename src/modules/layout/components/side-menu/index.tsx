@@ -8,7 +8,7 @@ import {
 } from "@headlessui/react"
 import { ArrowRightMini, XMark } from "@medusajs/icons"
 import { Text, clx, useToggleState } from "@medusajs/ui"
-import { Fragment, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CountrySelect from "../country-select"
@@ -16,7 +16,6 @@ import { HttpTypes } from "@medusajs/types"
 import CategoriesSelect from "./CategoriesSelect"
 import { MenuIcon, ShoppingBag, User } from "lucide-react"
 import { retrieveCart } from "@lib/data/cart"
-import { open } from "fs"
 import SearchModal from "@modules/search/components/modal"
 
 const SideMenuItems = {
@@ -100,14 +99,14 @@ const SideMenu = ({
 
           {/* Cart Count Badge */}
           {!isLoadingCart && cartItemCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 pt-1 font-medium">
+            <span className="absolute -top-1 -right-1 bg-red-500 text-tres-primary text-xs rounded-full min-w-[16px] h-4 flex items-center justify-center px-1 pt-1 font-medium">
               {cartItemCount > 99 ? "99+" : cartItemCount}
             </span>
           )}
 
           {/* Loading indicator (optional) */}
           {isLoadingCart && (
-            <span className="absolute -top-1 -right-1 bg-gray-300 text-white text-xs rounded-full w-3 h-3 animate-pulse"></span>
+            <span className="absolute -top-1 -right-1 bg-gray-300 text-tres-primary text-xs rounded-full w-3 h-3 animate-pulse"></span>
           )}
         </LocalizedClientLink>
 
@@ -141,7 +140,7 @@ const SideMenu = ({
                 leaveFrom="opacity-100 translate-x-0"
                 leaveTo="opacity-0 translate-x-4"
               >
-                <PopoverPanel className="fixed top-0 right-0 z-30 w-[75vw] max-w-[480px] h-full bg-white shadow-lg border-l border-gray-200 text-ui-fg-base overflow-y-auto">
+                <PopoverPanel className="fixed top-0 right-0 z-30 w-[75vw] max-w-[480px] h-full bg-tres-secondary shadow-lg border-l border-gray-200 text-ui-fg-base overflow-y-auto">
                   <div className="flex flex-col justify-between h-full p-6">
                     {/* Top section: Close button + Nav list */}
                     <div>

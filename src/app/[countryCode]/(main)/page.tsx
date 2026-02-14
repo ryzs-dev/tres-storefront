@@ -135,14 +135,17 @@ export default async function Home(props: {
             },
             {
               imageUrl: "https://storage.tres.my/Hero_Image/hero.jpeg",
-              title: "Buy 3\nfor RM288",
-              subtitle: "14th Feb - 3rd March",
+              title: "Pick & Buy\n Any 3\nfor RM288",
+              subtitle:
+                "14th Feb - 3rd March\n (Excludes Mel Unitard\n & Set Items)",
               position: "bottom",
             },
             {
               imageUrl: "https://storage.tres.my/Hero_Image/hero.jpeg",
-              title: "Mel\nExclusive",
-              subtitle: "30% Off",
+              title: "CNY Exclusive ✨\nEnjoy 30% OFF",
+              subtitle: "Selected Styles\n14 Feb – 3 Mar\n(Limited time only)",
+              ctaText: "Shop Now",
+              ctaLink: "/store",
               position: "bottom",
             },
           ]}
