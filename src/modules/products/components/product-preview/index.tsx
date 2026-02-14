@@ -66,19 +66,10 @@ export default function ProductPreview({
             Best Seller
           </span>
         )}
-        {sales && (
-          <div className="absolute top-0 right-0 z-10 overflow-hidden w-24 h-24">
-            <div
-              className="absolute transform rotate-45 text-white text-center font-semibold text-xs py-2 shadow-lg bg-tres-primary"
-              style={{
-                width: "150px",
-                top: "20px",
-                right: "-37px",
-              }}
-            >
-              SALES
-            </div>
-          </div>
+        {isBestSeller && (
+          <span className="absolute top-0 left-0 bg-tres-primary text-white text-sm font-semibold px-2 py-0.5 z-10">
+            30% OFF
+          </span>
         )}
 
         {/* LINK only for title and price */}
