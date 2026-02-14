@@ -46,6 +46,10 @@ export default function ProductPreview({
     product.title.toLowerCase().includes(title.toLowerCase())
   )
 
+  const isSales = sales.some((title) =>
+    product.title.toLowerCase().includes(title.toLowerCase())
+  )
+
   return (
     <>
       <div data-testid="product-wrapper" className="relative">
@@ -66,7 +70,7 @@ export default function ProductPreview({
             Best Seller
           </span>
         )}
-        {isBestSeller && (
+        {isSales && (
           <span className="absolute top-0 left-0 bg-tres-primary text-white text-sm font-semibold px-2 py-0.5 z-10">
             30% OFF
           </span>
