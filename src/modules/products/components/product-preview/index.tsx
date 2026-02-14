@@ -65,14 +65,10 @@ export default function ProductPreview({
         />
 
         {/* Best Seller Badge */}
-        {isBestSeller && (
+        {/* Badge Logic */}
+        {(isSales || isBestSeller) && (
           <span className="absolute top-0 left-0 bg-tres-primary text-white text-sm font-semibold px-2 py-0.5 z-10">
-            Best Seller
-          </span>
-        )}
-        {isSales && (
-          <span className="absolute top-0 left-0 bg-tres-primary text-white text-sm font-semibold px-2 py-0.5 z-10">
-            30% OFF
+            {isSales ? "30% OFF" : "Best Seller"}
           </span>
         )}
 
